@@ -19,6 +19,7 @@ import {
   CalendarClock,
   CheckCircle2,
   ClipboardList,
+  Download,
   Lock,
   Camera,
   Heart,
