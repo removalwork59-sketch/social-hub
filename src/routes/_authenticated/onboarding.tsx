@@ -1,10 +1,46 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, CheckCircle2, PartyPopper, Sparkles } from "lucide-react";
+import { Camera, Check, CheckCircle2, Music2, PartyPopper, Phone, Play, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PLATFORMS, type Platform, useWorkspace } from "@/lib/workspace";
+import { type Platform, useWorkspace } from "@/lib/workspace";
+
+type OnbPlatform = { id: string; label: string; desc: string; db?: Platform };
+const ONB_PLATFORMS: OnbPlatform[] = [
+  { id: "facebook", label: "Facebook", desc: "Pages & Groups", db: "facebook" },
+  { id: "instagram", label: "Instagram", desc: "Posts, Reels & Stories", db: "instagram" },
+  { id: "linkedin", label: "LinkedIn", desc: "Company pages", db: "linkedin" },
+  { id: "twitter", label: "X (Twitter)", desc: "Tweets & threads", db: "twitter" },
+  { id: "youtube", label: "YouTube", desc: "Videos & Shorts" },
+  { id: "tiktok", label: "TikTok", desc: "Short videos" },
+  { id: "pinterest", label: "Pinterest", desc: "Pins & boards" },
+  { id: "threads", label: "Threads", desc: "Text posts" },
+  { id: "whatsapp", label: "WhatsApp Business", desc: "Messages & catalog" },
+  { id: "google_business", label: "Google Business", desc: "Reviews & posts", db: "google_business" },
+];
+
+// Brand colors are fixed by each platform, so they're inline rather than theme tokens.
+function PlatformIcon({ id }: { id: string }) {
+  const base = "grid h-12 w-12 place-items-center text-lg font-bold";
+  const w = { color: "#fff" };
+  switch (id) {
+    case "facebook": return <div className={`${base} rounded-full`} style={{ ...w, background: "#1877F2" }}>f</div>;
+    case "instagram": return <div className={`${base} rounded-xl`} style={{ ...w, background: "linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)" }}><Camera className="h-6 w-6" /></div>;
+    case "linkedin": return <div className={`${base} rounded-full text-base`} style={{ ...w, background: "#0A66C2" }}>in</div>;
+    case "twitter": return <div className={`${base} rounded-full border border-white/20`} style={{ ...w, background: "#000" }}>X</div>;
+    case "youtube": return <div className="grid h-10 w-14 place-items-center rounded-xl" style={{ ...w, background: "#FF0000" }}><Play className="h-5 w-5 fill-current" /></div>;
+    case "tiktok": return <div className={`${base} rounded-full border border-white/20`} style={{ ...w, background: "#000" }}><Music2 className="h-6 w-6" /></div>;
+    case "pinterest": return <div className={`${base} rounded-full`} style={{ ...w, background: "#E60023" }}>P</div>;
+    case "threads": return <div className={`${base} rounded-full border border-white/20`} style={{ ...w, background: "#000" }}>@</div>;
+    case "whatsapp": return <div className={`${base} rounded-full`} style={{ ...w, background: "#25D366" }}><Phone className="h-6 w-6" /></div>;
+    default: return (
+      <div className={`${base} rounded-full`} style={{ background: "#fff" }}>
+        <span style={{ background: "conic-gradient(#EA4335 0 25%,#FBBC05 0 50%,#34A853 0 75%,#4285F4 0)", WebkitBackgroundClip: "text", color: "transparent", fontSize: 26 }}>G</span>
+      </div>
+    );
+  }
+}
 import { btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -25,7 +61,7 @@ function Onboarding() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [connecting, setConnecting] = useState<Platform | null>(null);
+  const [connecting, setConnecting] = useState<string | null>(null);
   const [handle, setHandle] = useState("");
   const [plan, setPlan] = useState("free");
   const [about, setAbout] = useState("");
@@ -37,16 +73,25 @@ function Onboarding() {
     queryFn: async () => (await supabase.from("social_accounts").select("*").eq("workspace_id", current!.id)).data ?? [],
   });
 
-  async function connect() {
-    if (!current || !connecting || !handle.trim()) return;
-    const { error } = await supabase.from("social_accounts").insert({ workspace_id: current.id, platform: connecting, handle: handle.trim().replace(/^@/, ""), status: "test" });
-    if (error) {
-      toast.error(error.message);
-      return;
+  const [localDone, setLocalDone] = useState<string[]>([]);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const connectedCount = ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).length;
+
+  async function connectAny(p: OnbPlatform) {
+    if (!current || !handle.trim()) return;
+    if (p.db) {
+      const { error } = await supabase.from("social_accounts").insert({ workspace_id: current.id, platform: p.db, handle: handle.trim().replace(/^@/, ""), status: "test" });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      qc.invalidateQueries({ queryKey: ["accounts"] });
+    } else {
+      setLocalDone((x) => [...x, p.id]);
+      toast.info(`${p.label} is noted — full support is coming soon.`);
     }
     setConnecting(null);
     setHandle("");
-    qc.invalidateQueries({ queryKey: ["accounts"] });
   }
 
   async function finish(skipTraining = false) {
@@ -98,26 +143,48 @@ function Onboarding() {
               <h1 className="text-center text-3xl font-semibold">Connect your accounts</h1>
               <p className="mb-8 mt-2 text-center text-muted-foreground">No passwords needed. You can add more later.</p>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {PLATFORMS.map((p) => {
-                  const done = accounts.some((a) => a.platform === p.id);
+                {ONB_PLATFORMS.map((p) => {
+                  const done = p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id);
                   return (
-                    <div key={p.id} className={`${cardCls} flex flex-col items-center gap-3 py-8 text-center transition-all hover:-translate-y-0.5 ${done ? "border-primary/50" : ""}`}>
-                      <p className="text-lg font-semibold">{p.label}</p>
+                    <div key={p.id} className={`${cardCls} flex flex-col items-center gap-2 py-6 text-center transition-all duration-200 hover:-translate-y-1 hover:border-primary ${done ? "border-success/60 bg-success/5" : ""}`}>
+                      <PlatformIcon id={p.id} />
+                      <p className="mt-1 font-semibold">{p.label}</p>
+                      <p className="text-xs text-muted-foreground">{p.desc}</p>
                       {done ? (
-                        <span className="flex items-center gap-1 text-sm text-success"><Check className="h-4 w-4" /> Connected</span>
+                        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-semibold text-background"><Check className="h-3.5 w-3.5" /> Connected</span>
                       ) : connecting === p.id ? (
-                        <div className="flex w-full gap-2">
+                        <div className="mt-2 flex w-full gap-2">
                           <input autoFocus className={inputCls} placeholder="@handle" value={handle} onChange={(e) => setHandle(e.target.value)} />
-                          <button onClick={connect} className={btnPrimary}>Add</button>
+                          <button onClick={() => connectAny(p)} className={btnPrimary}>Add</button>
                         </div>
                       ) : (
-                        <button onClick={() => setConnecting(p.id)} className="rounded-xl border border-input px-5 py-2 text-sm font-medium hover:border-primary hover:bg-accent">Connect</button>
+                        <button onClick={() => setConnecting(p.id)} className="mt-2 rounded-xl border border-input px-5 py-2 text-sm font-medium transition-colors hover:border-primary hover:bg-accent">Connect</button>
                       )}
                     </div>
                   );
                 })}
+                <button onClick={() => setMoreOpen(true)} className="flex min-h-44 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-input text-muted-foreground transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:text-foreground">
+                  <Plus className="h-6 w-6" /> <span className="font-medium">Add More Platforms</span>
+                </button>
               </div>
-              <Nav onSkip={() => setStep(3)} onNext={() => setStep(3)} />
+              <div className="mt-10 flex items-center justify-between">
+                <button onClick={() => setStep(3)} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
+                <button disabled={connectedCount === 0} onClick={() => setStep(3)} className={`${btnPrimary} disabled:cursor-not-allowed disabled:opacity-40`}>Continue</button>
+              </div>
+              {moreOpen && (
+                <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 px-4 backdrop-blur-sm" onClick={() => setMoreOpen(false)}>
+                  <div className={`${cardCls} w-full max-w-sm animate-rise`} onClick={(e) => e.stopPropagation()}>
+                    <h2 className="text-lg font-semibold">More platforms</h2>
+                    <p className="mb-4 mt-1 text-sm text-muted-foreground">These are coming soon. Tap one to tell us you want it.</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {["Snapchat", "Reddit", "Telegram", "Tumblr", "Discord", "Medium"].map((n) => (
+                        <button key={n} onClick={() => { toast.success(`Thanks — we'll let you know when ${n} is ready`); }} className="rounded-xl border border-input py-2.5 text-sm hover:border-primary hover:bg-accent">{n}</button>
+                      ))}
+                    </div>
+                    <div className="mt-4 text-right"><button onClick={() => setMoreOpen(false)} className="text-sm text-muted-foreground hover:text-foreground">Close</button></div>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
