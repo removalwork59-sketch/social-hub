@@ -35,3 +35,5 @@
 - [x] AI trend summary + recommended actions for a date range (Reports)
 - [ ] Real social connections feeding Reports (LinkedIn + X first) — needs user to complete connection setup card
 - [x] Resend verification email from sign-in page
+- [x] AI sentiment + urgency + priority check on inbox messages
+- [x] Sign-in: clear next steps for missing account, unconfirmed email, wrong password
