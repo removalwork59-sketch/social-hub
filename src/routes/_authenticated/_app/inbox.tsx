@@ -32,6 +32,26 @@ function ago(iso: string) {
   return `${Math.round(m / 1440)}d`;
 }
 
+/** Row that archives when swiped left on touch screens. */
+function SwipeRow({ onArchive, children, className }: { onArchive: () => void; children: React.ReactNode; className: string }) {
+  const [dx, setDx] = useState(0);
+  const [start, setStart] = useState<number | null>(null);
+  return (
+    <li className="relative overflow-hidden rounded-xl">
+      <div className="absolute inset-0 flex items-center justify-end rounded-xl bg-destructive/80 pr-5 text-destructive-foreground"><Archive className="h-5 w-5" /></div>
+      <div
+        onTouchStart={(e) => setStart(e.touches[0]!.clientX)}
+        onTouchMove={(e) => start !== null && setDx(Math.min(0, e.touches[0]!.clientX - start))}
+        onTouchEnd={() => { if (dx < -110) onArchive(); setDx(0); setStart(null); }}
+        style={{ transform: `translateX(${dx}px)`, transition: start === null ? "transform .2s" : "none" }}
+        className={`relative bg-card ${className}`}
+      >
+        {children}
+      </div>
+    </li>
+  );
+}
+
 function InboxPage() {
   const { workspaces, role, userId, current } = useWorkspace();
   const isMember = role === "member";
@@ -125,6 +145,7 @@ function InboxPage() {
 
   return (
     <>
+      <p className="-mt-1 mb-3 text-xs text-muted-foreground sm:hidden">Tip: swipe a message left to archive it.</p>
       <PageHeader subtitle={isMember ? "Conversations assigned to you" : `Across ${workspaces.length} workspace${workspaces.length === 1 ? "" : "s"}`} title="Inbox" />
 
       <div className="mb-3 flex gap-1 overflow-x-auto">
@@ -178,7 +199,7 @@ function InboxPage() {
           ) : (
             <ul>
               {list.map((m) => (
-                <li key={m.id} className={`flex items-start gap-2 rounded-xl p-2 transition-colors ${active?.id === m.id ? "bg-accent" : "hover:bg-secondary/60"}`}>
+                <SwipeRow key={m.id} onArchive={() => patch([m.id], { archived: true }, "Archived")} className={`flex items-start gap-2 rounded-xl p-2 transition-colors ${active?.id === m.id ? "!bg-accent" : "hover:bg-secondary/60"}`}>
                   <input type="checkbox" aria-label="Select" className="mt-3 accent-[var(--primary)]" checked={checked.includes(m.id)} onChange={() => setChecked(checked.includes(m.id) ? checked.filter((x) => x !== m.id) : [...checked, m.id])} />
                   <button onClick={() => select(m.id)} className="flex min-w-0 flex-1 gap-3 p-1 text-left">
                     <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-semibold uppercase">{m.author.slice(0, 2)}</div>
@@ -192,7 +213,7 @@ function InboxPage() {
                       <p className="mt-0.5 text-[11px] text-muted-foreground">{platformLabel(m.platform)} · {kinds[m.kind]} · {wsName(m.workspace_id)}{personName(m.assigned_to) && <span className="text-accent-foreground"> · {personName(m.assigned_to)}</span>}</p>
                     </div>
                   </button>
-                </li>
+                </SwipeRow>
               ))}
             </ul>
           )}

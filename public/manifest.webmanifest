@@ -1,0 +1,9 @@
+{
+  "name": "SocialOS",
+  "short_name": "SocialOS",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f1518",
+  "theme_color": "#00B5AD",
+  "icons": [{ "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }]
+}

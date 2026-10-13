@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, ChevronLeft, ChevronRight, List, Plus, Rows3 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +43,9 @@ function Calendar() {
   const [creating, setCreating] = useState<string | null>(null);
   const [draft, setDraft] = useState({ content: "", platforms: [] as Platform[] });
   const [dragId, setDragId] = useState<string | null>(null);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 640px)").matches) setView("week");
+  }, []);
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts", current?.id],
@@ -243,8 +246,8 @@ function Calendar() {
             ))}
           </ul>
         ) : (
-          <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border border-border bg-border text-xs">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="bg-card p-2 text-center font-medium text-muted-foreground">{d}</div>)}
+          <div className={`grid gap-px overflow-hidden rounded-xl border border-border bg-border text-xs ${view === "week" ? "grid-cols-1 sm:grid-cols-7" : "grid-cols-7"}`}>
+            {view === "month" && ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="bg-card p-2 text-center font-medium text-muted-foreground">{d}</div>)}
             {cells.map((d) => {
               const items = byDay.get(dayKey(d)) ?? [];
               const dim = view === "month" && d.getMonth() !== anchor.getMonth();
@@ -254,8 +257,9 @@ function Calendar() {
                   onClick={() => openDay(d)}
                   onDragOver={(e) => !readOnly && e.preventDefault()}
                   onDrop={() => { if (dragId) moveTo(dragId, d); setDragId(null); }}
-                  className={`${view === "week" ? "min-h-72" : "min-h-24"} bg-card p-1.5 transition-colors ${readOnly ? "" : "cursor-pointer hover:bg-secondary/40"} ${dim ? "opacity-40" : ""}`}
+                  className={`${view === "week" ? "min-h-16 sm:min-h-72" : "min-h-16 sm:min-h-24"} bg-card p-1.5 transition-colors ${readOnly ? "" : "cursor-pointer hover:bg-secondary/40"} ${dim ? "opacity-40" : ""}`}
                 >
+                  {view === "week" && <span className="mr-2 text-muted-foreground">{d.toLocaleDateString(undefined, { weekday: "short" })}</span>}
                   <div className={`mb-1 inline-grid h-6 w-6 place-items-center rounded-full ${dayKey(d) === today ? "bg-primary text-primary-foreground" : ""}`}>{d.getDate()}</div>
                   <div className="space-y-1">{items.map((p) => <Chip key={p.id} p={p} />)}</div>
                 </div>

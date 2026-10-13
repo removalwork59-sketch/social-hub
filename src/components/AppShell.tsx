@@ -2,13 +2,20 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  BarChart3, Bell, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
+  BarChart3, Bell, UserCircle, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
   PenSquare, Plus, Radar, Search, Settings, Sparkles, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/lib/workspace";
 
+const mobileNav = [
+  { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/composer", label: "Composer", icon: PenSquare },
+  { to: "/scheduler", label: "Calendar", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/profile", label: "Profile", icon: UserCircle },
+] as const;
 const ownerNav = [
   { to: "/dashboard", label: "Home", icon: Home },
   { to: "/composer", label: "Composer", icon: PenSquare },
@@ -36,6 +43,8 @@ const freeNav = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/upgrade", label: "Upgrade", icon: Zap },
 ] as const;
+
+export { ownerNav, memberNav, freeNav };
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -173,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 flex justify-around border-t border-border bg-sidebar/95 py-2 backdrop-blur lg:hidden">
-        {nav.slice(0, 5).map((n) => (
+        {mobileNav.map((n) => (
           <Link
             key={n.to}
             to={n.to}
