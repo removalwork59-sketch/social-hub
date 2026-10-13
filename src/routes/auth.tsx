@@ -130,7 +130,10 @@ function AuthPage() {
                   <input className={inputCls} type="password" placeholder="Password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
                 )}
                 {mode === "in" && (
-                  <button type="button" onClick={() => setMode("forgot")} className="block text-xs text-muted-foreground hover:text-foreground">Forgot password?</button>
+                  <div className="flex justify-between text-xs">
+                    <button type="button" onClick={() => setMode("forgot")} className="text-muted-foreground hover:text-foreground">Forgot password?</button>
+                    <Link to="/verify" className="text-muted-foreground hover:text-foreground">Sign in with a code</Link>
+                  </div>
                 )}
                 <button disabled={busy} className={`${btnPrimary} w-full`}>
                   {mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}

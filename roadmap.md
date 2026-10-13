@@ -15,3 +15,4 @@
 - [ ] Onboarding flow (signup with workspace name, connect, plan, AI training, done)
 - [x] AI reply drafts in inbox (built)
 - [ ] Inbox assignment to teammates + responsible shown
+- [ ] Auth pages: confirm password on reset, 6-digit code (2FA) page

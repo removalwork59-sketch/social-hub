@@ -13,6 +13,7 @@ function Reset() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [pw, setPw] = useState("");
+  const [pw2, setPw2] = useState("");
 
   useEffect(() => {
     if (window.location.hash.includes("type=recovery")) setReady(true);
@@ -24,6 +25,10 @@ function Reset() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    if (pw !== pw2) {
+      toast.error("Passwords don't match");
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: pw });
     if (error) {
       toast.error(error.message);
@@ -39,6 +44,7 @@ function Reset() {
         <h1 className="text-lg font-semibold">Choose a new password</h1>
         {!ready && <p className="text-sm text-muted-foreground">Open this page from the link in your reset email.</p>}
         <input required minLength={6} type="password" className={inputCls} placeholder="New password" value={pw} onChange={(e) => setPw(e.target.value)} />
+        <input required minLength={6} type="password" className={inputCls} placeholder="Confirm new password" value={pw2} onChange={(e) => setPw2(e.target.value)} />
         <button disabled={!ready} className={`${btnPrimary} w-full`}>Update password</button>
       </form>
     </div>
