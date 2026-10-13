@@ -12,10 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
-import { Route as AuthenticatedSchedulerRouteImport } from './routes/_authenticated/scheduler'
+import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/_app/accounts'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
+import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
+import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/_app/scheduler'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,52 +31,55 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
-  id: '/inbox',
+const AuthenticatedAppAccountsRoute =
+  AuthenticatedAppAccountsRouteImport.update({
+    id: '/_app/accounts',
+    path: '/accounts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppDashboardRoute =
+  AuthenticatedAppDashboardRouteImport.update({
+    id: '/_app/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppInboxRoute = AuthenticatedAppInboxRouteImport.update({
+  id: '/_app/inbox',
   path: '/inbox',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSchedulerRoute = AuthenticatedSchedulerRouteImport.update({
-  id: '/scheduler',
-  path: '/scheduler',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedAppSchedulerRoute =
+  AuthenticatedAppSchedulerRouteImport.update({
+    id: '/_app/scheduler',
+    path: '/scheduler',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/accounts': typeof AuthenticatedAccountsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/inbox': typeof AuthenticatedInboxRoute
-  '/scheduler': typeof AuthenticatedSchedulerRoute
+  '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/inbox': typeof AuthenticatedAppInboxRoute
+  '/scheduler': typeof AuthenticatedAppSchedulerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/accounts': typeof AuthenticatedAccountsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/inbox': typeof AuthenticatedInboxRoute
-  '/scheduler': typeof AuthenticatedSchedulerRoute
+  '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/inbox': typeof AuthenticatedAppInboxRoute
+  '/scheduler': typeof AuthenticatedAppSchedulerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/inbox': typeof AuthenticatedInboxRoute
-  '/_authenticated/scheduler': typeof AuthenticatedSchedulerRoute
+  '/_authenticated/_app/accounts': typeof AuthenticatedAppAccountsRoute
+  '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
+  '/_authenticated/_app/scheduler': typeof AuthenticatedAppSchedulerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,10 +92,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/accounts'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/inbox'
-    | '/_authenticated/scheduler'
+    | '/_authenticated/_app/accounts'
+    | '/_authenticated/_app/dashboard'
+    | '/_authenticated/_app/inbox'
+    | '/_authenticated/_app/scheduler'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,49 +127,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/accounts': {
-      id: '/_authenticated/accounts'
+    '/_authenticated/_app/accounts': {
+      id: '/_authenticated/_app/accounts'
       path: '/accounts'
       fullPath: '/accounts'
-      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
+      preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
+    '/_authenticated/_app/dashboard': {
+      id: '/_authenticated/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/inbox': {
-      id: '/_authenticated/inbox'
+    '/_authenticated/_app/inbox': {
+      id: '/_authenticated/_app/inbox'
       path: '/inbox'
       fullPath: '/inbox'
-      preLoaderRoute: typeof AuthenticatedInboxRouteImport
+      preLoaderRoute: typeof AuthenticatedAppInboxRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/scheduler': {
-      id: '/_authenticated/scheduler'
+    '/_authenticated/_app/scheduler': {
+      id: '/_authenticated/_app/scheduler'
       path: '/scheduler'
       fullPath: '/scheduler'
-      preLoaderRoute: typeof AuthenticatedSchedulerRouteImport
+      preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
-  AuthenticatedSchedulerRoute: typeof AuthenticatedSchedulerRoute
+  AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
+  AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
+  AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
+  AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedInboxRoute: AuthenticatedInboxRoute,
-  AuthenticatedSchedulerRoute: AuthenticatedSchedulerRoute,
+  AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
+  AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
+  AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
+  AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
