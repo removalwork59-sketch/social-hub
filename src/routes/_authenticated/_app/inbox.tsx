@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { analyzeMessage, draftReply } from "@/lib/ai.functions";
+import { analyzeMessage, draftReply, triageMessage } from "@/lib/ai.functions";
 import { PLATFORMS, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
@@ -69,6 +69,18 @@ function InboxPage() {
       qc.invalidateQueries({ queryKey: ["inbox"] });
       toast(r.action === "allow" ? "Looks fine" : `Flagged — ${r.action === "hide" ? "hidden" : "removed"} from inbox`, { description: r.reason });
     } catch (e) { toast.error((e as Error).message); }
+  }
+  const triageFn = useServerFn(triageMessage);
+  const [triage, setTriage] = useState<{ id: string; sentiment: string; urgency: string; priority: string; reason: string; next_step: string } | null>(null);
+  const [triaging, setTriaging] = useState(false);
+  async function runTriage() {
+    if (!active) return;
+    setTriaging(true);
+    try {
+      const r = await triageFn({ data: { workspaceId: active.workspace_id, text: active.content, platform: active.platform, kind: active.kind } });
+      setTriage({ id: active.id, ...r });
+    } catch (e) { toast.error((e as Error).message); }
+    setTriaging(false);
   }
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("all");
   const [ws, setWs] = useState("all");
@@ -261,6 +273,28 @@ function InboxPage() {
                 <span className={`h-2 w-2 rounded-full ${dot[active.sentiment] ?? "bg-muted"}`} /> {active.sentiment}
                 {active.is_sample && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 normal-case">Sample message</span>}
               </p>
+
+              <div className="mt-4 rounded-xl border border-border bg-card p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI priority</p>
+                  <button onClick={runTriage} disabled={triaging} className="rounded-lg border border-input px-2.5 py-1 text-xs font-medium hover:border-primary disabled:opacity-50">
+                    {triaging ? "Checking…" : triage?.id === active.id ? "Check again" : "Check sentiment & urgency"}
+                  </button>
+                </div>
+                {triaging && triage?.id !== active.id ? <div className="skeleton mt-3 h-14" /> : triage?.id === active.id ? (
+                  <div className="mt-3 space-y-2 text-sm">
+                    <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                      <span className={`rounded-full px-2.5 py-1 ${triage.priority === "P1" ? "bg-destructive/15 text-destructive" : triage.priority === "P2" ? "bg-warning/15 text-warning" : "bg-secondary text-foreground"}`}>
+                        {triage.priority} · {{ P1: "reply within 1 hour", P2: "reply today", P3: "within 2 days", P4: "optional" }[triage.priority]}
+                      </span>
+                      <span className="rounded-full bg-secondary px-2.5 py-1 capitalize">Urgency: {triage.urgency}</span>
+                      <span className="flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 capitalize"><span className={`h-2 w-2 rounded-full ${dot[triage.sentiment] ?? "bg-muted"}`} />{triage.sentiment}</span>
+                    </div>
+                    <p className="text-muted-foreground">{triage.reason}</p>
+                    <p><span className="font-medium">Next step:</span> {triage.next_step}</p>
+                  </div>
+                ) : <p className="mt-2 text-xs text-muted-foreground">Let AI read this message and suggest how quickly your team should respond.</p>}
+              </div>
 
               {isFree ? (
                 <div className="mt-6 space-y-2">
