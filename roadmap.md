@@ -27,3 +27,4 @@
 - [ ] Step 6 white-label: custom domains
 - [ ] Backend request (Express/Redis codebase) — waiting on user: in-app Cloud backend vs separate downloadable Express project
 - [ ] Social integrations (per-client OAuth, publish, fetch, webhooks) — waiting on user setup choices
+- [ ] AI engine: sentiment, moderation, crisis check, hashtag suggester, best time, per-plan daily limits (Free 50/Pro 500/Business 5000)
