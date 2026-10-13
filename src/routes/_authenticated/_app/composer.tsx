@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Hash, ImagePlus, Lightbulb, Send, Smile, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { generatePost } from "@/lib/ai.functions";
+import { generatePost, suggestHashtags } from "@/lib/ai.functions";
 import { PLATFORMS, type Platform, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
