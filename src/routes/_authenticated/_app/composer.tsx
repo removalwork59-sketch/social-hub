@@ -32,6 +32,7 @@ function Composer() {
   const [idea, setIdea] = useState("");
   const [tone, setTone] = useState("Casual");
   const [tags, setTags] = useState<string[]>([]);
+  const hashtagFn = useServerFn(suggestHashtags);
   const [imageIdea, setImageIdea] = useState("");
   const [media, setMedia] = useState<string | null>(null);
   const [when, setWhen] = useState(() => toLocalInput(new Date(Date.now() + 3600_000)));
@@ -188,6 +189,20 @@ function Composer() {
             </div>
           )}
 
+          {text.trim().length > 10 && current && (
+            <button
+              onClick={async () => {
+                try {
+                  const r = await hashtagFn({ data: { workspaceId: current.id, text, platform: platforms[0] ?? "instagram" } });
+                  setTags(r.map((t) => t.tag));
+                  toast.success("10 hashtags suggested");
+                } catch (e) { toast.error((e as Error).message); }
+              }}
+              className="flex w-fit items-center gap-1.5 rounded-xl border border-input px-3 py-1.5 text-xs font-medium hover:border-primary"
+            >
+              <Hash className="h-3.5 w-3.5" /> Suggest hashtags
+            </button>
+          )}
           {tags.length > 0 && (
             <div>
               <p className="mb-2 flex items-center gap-1 text-sm text-muted-foreground"><Hash className="h-4 w-4" /> Suggested hashtags (click to remove)</p>

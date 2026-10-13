@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { draftReply } from "@/lib/ai.functions";
+import { analyzeMessage, draftReply } from "@/lib/ai.functions";
 import { PLATFORMS, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
@@ -59,6 +59,17 @@ function InboxPage() {
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
   const ai = useServerFn(draftReply);
+  const analyzeFn = useServerFn(analyzeMessage);
+  const [check, setCheck] = useState<{ id: string; sentiment: string; confidence: number; action: string; reason: string } | null>(null);
+  async function runCheck() {
+    if (!active) return;
+    try {
+      const r = await analyzeFn({ data: { workspaceId: active.workspace_id, text: active.content, messageId: active.id } });
+      setCheck({ id: active.id, ...r });
+      qc.invalidateQueries({ queryKey: ["inbox"] });
+      toast(r.action === "allow" ? "Looks fine" : `Flagged — ${r.action === "hide" ? "hidden" : "removed"} from inbox`, { description: r.reason });
+    } catch (e) { toast.error((e as Error).message); }
+  }
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("all");
   const [ws, setWs] = useState("all");
   const [platform, setPlatform] = useState("all");
@@ -263,6 +274,10 @@ function InboxPage() {
               <div className="mt-6 rounded-xl border border-primary/30 bg-accent/40 p-3">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI reply draft</p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <button onClick={runCheck} className="rounded-lg border border-input px-2.5 py-1 font-medium hover:border-primary">Check tone & spam</button>
+                    {check?.id === active.id && <span className="text-muted-foreground">{check.sentiment} ({Math.round(check.confidence * 100)}%) · {check.action} — {check.reason}</span>}
+                  </div>
                   <button onClick={genReply} disabled={drafting} className="flex items-center gap-1 text-xs font-semibold text-accent-foreground hover:underline disabled:opacity-50">
                     <RefreshCw className={`h-3 w-3 ${drafting ? "animate-spin" : ""}`} /> {reply ? "Regenerate" : "Draft with AI"}
                   </button>
