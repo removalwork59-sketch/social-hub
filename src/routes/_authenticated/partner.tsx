@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { ArrowLeft, CreditCard, Layers, LayoutDashboard, LifeBuoy, Palette, Settings, Users } from "lucide-react";
+import { CreditCard, Layers, LayoutDashboard, LifeBuoy, Palette, Settings, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalShell } from "@/components/PortalShell";
 
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/_authenticated/partner")({
         { to: "/partner/billing", label: "Billing & Payouts", icon: CreditCard },
         { to: "/partner/support", label: "Support", icon: LifeBuoy },
         { to: "/partner/settings", label: "Settings", icon: Settings },
-        { to: "/dashboard", label: "Back to Workspace", icon: ArrowLeft },
       ]}
     >
       <Outlet />

@@ -45,13 +45,13 @@
 - [x] Calendar: drag-and-drop rescheduling
 - [x] Inbox: bulk select + actions (mark read, archive, assign, delete)
 - [x] Analytics: best-time-to-post heatmap
-- [ ] Partner dashboard: compare brief with existing portal, fill gaps
+- [x] Partner dashboard: compare brief with existing portal, fill gaps
 - [x] Dashboard final: full sidebar on Free, 3 AI posts, notifications dropdown, 260px sidebar + active teal border
 - [x] Calendar: Oct demo posts, today circle, summary bar, day modal edit/delete/duplicate, Month/Week/Day
 - [x] Inbox brief: assign-to dropdown, export, sentiment chips, view profile/spam, use AI reply, attachments/internal note, pill tags, short times
 - [x] Super Admin overview: demo stats, MRR 6/12m chart, service status dots, activity, quick actions; check missing admin pages (feature flags, audit, security, payouts)
 - [x] Super Admin Partners: stats, search/filter, table with avatars/badges, detail drawer tabs, empty state, styled scrollbar
 
-- [ ] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
-- [ ] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
+- [x] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
+- [x] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
 - [ ] Inbox replies to real platform messages + Home activity (blocked: needs a real connected social account)
