@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { crisisCheck } from "@/lib/ai.functions";
+import { useWorkspace } from "@/lib/workspace";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, Plus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +20,18 @@ function Monitoring() {
   const [kw, setKw] = useState("");
   const [filter, setFilter] = useState("all");
   const [dismissed, setDismissed] = useState(false);
+  const { current } = useWorkspace();
+  const checkFn = useServerFn(crisisCheck);
+  const [live, setLive] = useState<{ total: number; negative: number; share: number; crisis: boolean } | null>(null);
+  async function runCheck() {
+    if (!current) return;
+    try {
+      const r = await checkFn({ data: { workspaceId: current.id } });
+      setLive(r);
+      if (r.crisis) toast.error(`Crisis alert: ${r.share}% negative in the last hour`);
+      else toast.success(r.total ? `All clear — ${r.share}% negative of ${r.total} in the last hour` : "No new inbox activity in the last hour");
+    } catch (e) { toast.error((e as Error).message); }
+  }
 
   const totals = mentionVolume.reduce((a, h) => ({ p: a.p + h.positive, n: a.n + h.neutral, x: a.x + h.negative }), { p: 0, n: 0, x: 0 });
   const total = totals.p + totals.n + totals.x;
@@ -42,7 +57,8 @@ function Monitoring() {
 
   return (
     <>
-      <PageHeader subtitle="Brand reputation" title="Monitoring" />
+      <PageHeader subtitle="Brand reputation" title="Monitoring" action={<button onClick={runCheck} className={btnPrimary}><AlertTriangle className="h-4 w-4" /> Run crisis check</button>} />
+      {live && <p className="mb-3 text-sm text-muted-foreground">Your inbox, last hour: {live.negative} of {live.total} negative ({live.share}%) — {live.crisis ? "above" : "below"} the 30% alert threshold.</p>}
       <SampleNote>Sample mentions — live tracking across web and social starts once accounts are properly connected.</SampleNote>
 
       {crisis && !dismissed && (
