@@ -55,7 +55,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
 
   const preview = useMemo(() => {
     const tone = p.tones[seed % Math.max(p.tones.length, 1)] ?? "Casual";
-    const openers = OPENERS[tone] ?? OPENERS.Casual!;
+    const openers = OPENERS[tone] ?? OPENERS["Casual"]!;
     const opener = openers[seed % openers.length];
     const pillar = p.pillars[seed % Math.max(p.pillars.length, 1)] ?? "Tips & tricks";
     const body = BODIES[pillar] ?? BODIES["Tips & tricks"];
