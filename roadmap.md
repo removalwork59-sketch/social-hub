@@ -41,13 +41,13 @@
 - [x] Dashboard: sidebar items (Monitoring/Analytics/Community/Team/Billing/Settings), top bar bell+avatar, activity feed, AI suggestions card, sentiment legend, CSV export
 - [x] Super Admin: create client account for manager (inbox + reports demo)
 - [x] Home: replace example stats/charts/activity/AI suggestions with saved workspace data
-- [ ] Composer: align with brief (per-platform previews, schedule/draft/post-now controls)
+- [x] Composer: align with brief (per-platform previews, schedule/draft/post-now controls)
 - [x] Calendar: drag-and-drop rescheduling
 - [x] Inbox: bulk select + actions (mark read, archive, assign, delete)
 - [x] Analytics: best-time-to-post heatmap
 - [ ] Partner dashboard: compare brief with existing portal, fill gaps
-- [ ] Dashboard final: full sidebar on Free, 3 AI posts, notifications dropdown, 260px sidebar + active teal border
-- [ ] Calendar: Oct demo posts, today circle, summary bar, day modal edit/delete/duplicate, Month/Week/Day
-- [ ] Inbox brief: assign-to dropdown, export, sentiment chips, view profile/spam, use AI reply, attachments/internal note, pill tags, short times
-- [ ] Super Admin overview: demo stats, MRR 6/12m chart, service status dots, activity, quick actions; check missing admin pages (feature flags, audit, security, payouts)
-- [ ] Super Admin Partners: stats, search/filter, table with avatars/badges, detail drawer tabs, empty state, styled scrollbar
+- [x] Dashboard final: full sidebar on Free, 3 AI posts, notifications dropdown, 260px sidebar + active teal border
+- [x] Calendar: Oct demo posts, today circle, summary bar, day modal edit/delete/duplicate, Month/Week/Day
+- [x] Inbox brief: assign-to dropdown, export, sentiment chips, view profile/spam, use AI reply, attachments/internal note, pill tags, short times
+- [x] Super Admin overview: demo stats, MRR 6/12m chart, service status dots, activity, quick actions; check missing admin pages (feature flags, audit, security, payouts)
+- [x] Super Admin Partners: stats, search/filter, table with avatars/badges, detail drawer tabs, empty state, styled scrollbar
