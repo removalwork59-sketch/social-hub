@@ -12,10 +12,42 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
-import { Route as AuthenticatedSchedulerRouteImport } from './routes/_authenticated/scheduler'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPartnerRouteImport } from './routes/_authenticated/partner'
+import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/_app/accounts'
+import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/_app/analytics'
+import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/_app/billing'
+import { Route as AuthenticatedAppCommunityRouteImport } from './routes/_authenticated/_app/community'
+import { Route as AuthenticatedAppComponentsRouteImport } from './routes/_authenticated/_app/components'
+import { Route as AuthenticatedAppComposerRouteImport } from './routes/_authenticated/_app/composer'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
+import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
+import { Route as AuthenticatedAppMonitoringRouteImport } from './routes/_authenticated/_app/monitoring'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/_app/profile'
+import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/_app/scheduler'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
+import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/_app/team'
+import { Route as AuthenticatedAppUpgradeRouteImport } from './routes/_authenticated/_app/upgrade'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAiUsageRouteImport } from './routes/_authenticated/admin.ai-usage'
+import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
+import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
+import { Route as AuthenticatedAdminPartnersRouteImport } from './routes/_authenticated/admin.partners'
+import { Route as AuthenticatedAdminRevenueRouteImport } from './routes/_authenticated/admin.revenue'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
+import { Route as AuthenticatedPartnerIndexRouteImport } from './routes/_authenticated/partner.index'
+import { Route as AuthenticatedPartnerBillingRouteImport } from './routes/_authenticated/partner.billing'
+import { Route as AuthenticatedPartnerBrandingRouteImport } from './routes/_authenticated/partner.branding'
+import { Route as AuthenticatedPartnerClientsRouteImport } from './routes/_authenticated/partner.clients'
+import { Route as AuthenticatedPartnerPlansRouteImport } from './routes/_authenticated/partner.plans'
+import { Route as AuthenticatedPartnerSettingsRouteImport } from './routes/_authenticated/partner.settings'
+import { Route as AuthenticatedPartnerSupportRouteImport } from './routes/_authenticated/partner.support'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,74 +63,453 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPartnerRoute = AuthenticatedPartnerRouteImport.update({
+  id: '/partner',
+  path: '/partner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppAccountsRoute =
+  AuthenticatedAppAccountsRouteImport.update({
+    id: '/accounts',
+    path: '/accounts',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAnalyticsRoute =
+  AuthenticatedAppAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCommunityRoute =
+  AuthenticatedAppCommunityRouteImport.update({
+    id: '/community',
+    path: '/community',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppComponentsRoute =
+  AuthenticatedAppComponentsRouteImport.update({
+    id: '/components',
+    path: '/components',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppComposerRoute =
+  AuthenticatedAppComposerRouteImport.update({
+    id: '/composer',
+    path: '/composer',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppDashboardRoute =
+  AuthenticatedAppDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppInboxRoute = AuthenticatedAppInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedSchedulerRoute = AuthenticatedSchedulerRouteImport.update({
-  id: '/scheduler',
-  path: '/scheduler',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedAppMonitoringRoute =
+  AuthenticatedAppMonitoringRouteImport.update({
+    id: '/monitoring',
+    path: '/monitoring',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSchedulerRoute =
+  AuthenticatedAppSchedulerRouteImport.update({
+    id: '/scheduler',
+    path: '/scheduler',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppUpgradeRoute = AuthenticatedAppUpgradeRouteImport.update({
+  id: '/upgrade',
+  path: '/upgrade',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminAiUsageRoute =
+  AuthenticatedAdminAiUsageRouteImport.update({
+    id: '/ai-usage',
+    path: '/ai-usage',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientsRoute =
+  AuthenticatedAdminClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHealthRoute =
+  AuthenticatedAdminHealthRouteImport.update({
+    id: '/health',
+    path: '/health',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPartnersRoute =
+  AuthenticatedAdminPartnersRouteImport.update({
+    id: '/partners',
+    path: '/partners',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminRevenueRoute =
+  AuthenticatedAdminRevenueRouteImport.update({
+    id: '/revenue',
+    path: '/revenue',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedPartnerIndexRoute =
+  AuthenticatedPartnerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerBillingRoute =
+  AuthenticatedPartnerBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerBrandingRoute =
+  AuthenticatedPartnerBrandingRouteImport.update({
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerClientsRoute =
+  AuthenticatedPartnerClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerPlansRoute =
+  AuthenticatedPartnerPlansRouteImport.update({
+    id: '/plans',
+    path: '/plans',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerSettingsRoute =
+  AuthenticatedPartnerSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerSupportRoute =
+  AuthenticatedPartnerSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/accounts': typeof AuthenticatedAccountsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/inbox': typeof AuthenticatedInboxRoute
-  '/scheduler': typeof AuthenticatedSchedulerRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/partner': typeof AuthenticatedPartnerRouteWithChildren
+  '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/billing': typeof AuthenticatedAppBillingRoute
+  '/community': typeof AuthenticatedAppCommunityRoute
+  '/components': typeof AuthenticatedAppComponentsRoute
+  '/composer': typeof AuthenticatedAppComposerRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/inbox': typeof AuthenticatedAppInboxRoute
+  '/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
+  '/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
+  '/upgrade': typeof AuthenticatedAppUpgradeRoute
+  '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/partners': typeof AuthenticatedAdminPartnersRoute
+  '/admin/revenue': typeof AuthenticatedAdminRevenueRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/partner/support': typeof AuthenticatedPartnerSupportRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/partner/': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/accounts': typeof AuthenticatedAccountsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/inbox': typeof AuthenticatedInboxRoute
-  '/scheduler': typeof AuthenticatedSchedulerRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/billing': typeof AuthenticatedAppBillingRoute
+  '/community': typeof AuthenticatedAppCommunityRoute
+  '/components': typeof AuthenticatedAppComponentsRoute
+  '/composer': typeof AuthenticatedAppComposerRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/inbox': typeof AuthenticatedAppInboxRoute
+  '/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
+  '/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
+  '/upgrade': typeof AuthenticatedAppUpgradeRoute
+  '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
+  '/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/admin/partners': typeof AuthenticatedAdminPartnersRoute
+  '/admin/revenue': typeof AuthenticatedAdminRevenueRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/partner/support': typeof AuthenticatedPartnerSupportRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/partner': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/inbox': typeof AuthenticatedInboxRoute
-  '/_authenticated/scheduler': typeof AuthenticatedSchedulerRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/partner': typeof AuthenticatedPartnerRouteWithChildren
+  '/_authenticated/_app/accounts': typeof AuthenticatedAppAccountsRoute
+  '/_authenticated/_app/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/_authenticated/_app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/_app/community': typeof AuthenticatedAppCommunityRoute
+  '/_authenticated/_app/components': typeof AuthenticatedAppComponentsRoute
+  '/_authenticated/_app/composer': typeof AuthenticatedAppComposerRoute
+  '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
+  '/_authenticated/_app/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/_authenticated/_app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/_app/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
+  '/_authenticated/_app/team': typeof AuthenticatedAppTeamRoute
+  '/_authenticated/_app/upgrade': typeof AuthenticatedAppUpgradeRoute
+  '/_authenticated/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
+  '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
+  '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
+  '/_authenticated/admin/partners': typeof AuthenticatedAdminPartnersRoute
+  '/_authenticated/admin/revenue': typeof AuthenticatedAdminRevenueRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/_authenticated/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/_authenticated/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/_authenticated/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/_authenticated/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/_authenticated/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/_authenticated/partner/support': typeof AuthenticatedPartnerSupportRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/partner/': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/accounts' | '/dashboard' | '/inbox' | '/scheduler'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/verify'
+    | '/admin'
+    | '/onboarding'
+    | '/partner'
+    | '/accounts'
+    | '/analytics'
+    | '/billing'
+    | '/community'
+    | '/components'
+    | '/composer'
+    | '/dashboard'
+    | '/inbox'
+    | '/monitoring'
+    | '/profile'
+    | '/scheduler'
+    | '/settings'
+    | '/tasks'
+    | '/team'
+    | '/upgrade'
+    | '/admin/ai-usage'
+    | '/admin/clients'
+    | '/admin/health'
+    | '/admin/partners'
+    | '/admin/revenue'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/partner/billing'
+    | '/partner/branding'
+    | '/partner/clients'
+    | '/partner/plans'
+    | '/partner/settings'
+    | '/partner/support'
+    | '/admin/'
+    | '/partner/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/accounts' | '/dashboard' | '/inbox' | '/scheduler'
+  to:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/verify'
+    | '/onboarding'
+    | '/accounts'
+    | '/analytics'
+    | '/billing'
+    | '/community'
+    | '/components'
+    | '/composer'
+    | '/dashboard'
+    | '/inbox'
+    | '/monitoring'
+    | '/profile'
+    | '/scheduler'
+    | '/settings'
+    | '/tasks'
+    | '/team'
+    | '/upgrade'
+    | '/admin/ai-usage'
+    | '/admin/clients'
+    | '/admin/health'
+    | '/admin/partners'
+    | '/admin/revenue'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/partner/billing'
+    | '/partner/branding'
+    | '/partner/clients'
+    | '/partner/plans'
+    | '/partner/settings'
+    | '/partner/support'
+    | '/admin'
+    | '/partner'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/accounts'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/inbox'
-    | '/_authenticated/scheduler'
+    | '/reset-password'
+    | '/verify'
+    | '/_authenticated/_app'
+    | '/_authenticated/admin'
+    | '/_authenticated/onboarding'
+    | '/_authenticated/partner'
+    | '/_authenticated/_app/accounts'
+    | '/_authenticated/_app/analytics'
+    | '/_authenticated/_app/billing'
+    | '/_authenticated/_app/community'
+    | '/_authenticated/_app/components'
+    | '/_authenticated/_app/composer'
+    | '/_authenticated/_app/dashboard'
+    | '/_authenticated/_app/inbox'
+    | '/_authenticated/_app/monitoring'
+    | '/_authenticated/_app/profile'
+    | '/_authenticated/_app/scheduler'
+    | '/_authenticated/_app/settings'
+    | '/_authenticated/_app/tasks'
+    | '/_authenticated/_app/team'
+    | '/_authenticated/_app/upgrade'
+    | '/_authenticated/admin/ai-usage'
+    | '/_authenticated/admin/clients'
+    | '/_authenticated/admin/health'
+    | '/_authenticated/admin/partners'
+    | '/_authenticated/admin/revenue'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/support'
+    | '/_authenticated/partner/billing'
+    | '/_authenticated/partner/branding'
+    | '/_authenticated/partner/clients'
+    | '/_authenticated/partner/plans'
+    | '/_authenticated/partner/settings'
+    | '/_authenticated/partner/support'
+    | '/_authenticated/admin/'
+    | '/_authenticated/partner/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  VerifyRoute: typeof VerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -124,49 +535,360 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/accounts': {
-      id: '/_authenticated/accounts'
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_app': {
+      id: '/_authenticated/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/partner': {
+      id: '/_authenticated/partner'
+      path: '/partner'
+      fullPath: '/partner'
+      preLoaderRoute: typeof AuthenticatedPartnerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_app/accounts': {
+      id: '/_authenticated/_app/accounts'
       path: '/accounts'
       fullPath: '/accounts'
-      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
+    '/_authenticated/_app/analytics': {
+      id: '/_authenticated/_app/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAppAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/billing': {
+      id: '/_authenticated/_app/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/community': {
+      id: '/_authenticated/_app/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof AuthenticatedAppCommunityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/components': {
+      id: '/_authenticated/_app/components'
+      path: '/components'
+      fullPath: '/components'
+      preLoaderRoute: typeof AuthenticatedAppComponentsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/composer': {
+      id: '/_authenticated/_app/composer'
+      path: '/composer'
+      fullPath: '/composer'
+      preLoaderRoute: typeof AuthenticatedAppComposerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/dashboard': {
+      id: '/_authenticated/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/inbox': {
-      id: '/_authenticated/inbox'
+    '/_authenticated/_app/inbox': {
+      id: '/_authenticated/_app/inbox'
       path: '/inbox'
       fullPath: '/inbox'
-      preLoaderRoute: typeof AuthenticatedInboxRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppInboxRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/scheduler': {
-      id: '/_authenticated/scheduler'
+    '/_authenticated/_app/monitoring': {
+      id: '/_authenticated/_app/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof AuthenticatedAppMonitoringRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/profile': {
+      id: '/_authenticated/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/scheduler': {
+      id: '/_authenticated/_app/scheduler'
       path: '/scheduler'
       fullPath: '/scheduler'
-      preLoaderRoute: typeof AuthenticatedSchedulerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/tasks': {
+      id: '/_authenticated/_app/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AuthenticatedAppTasksRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/team': {
+      id: '/_authenticated/_app/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/upgrade': {
+      id: '/_authenticated/_app/upgrade'
+      path: '/upgrade'
+      fullPath: '/upgrade'
+      preLoaderRoute: typeof AuthenticatedAppUpgradeRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ai-usage': {
+      id: '/_authenticated/admin/ai-usage'
+      path: '/ai-usage'
+      fullPath: '/admin/ai-usage'
+      preLoaderRoute: typeof AuthenticatedAdminAiUsageRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clients': {
+      id: '/_authenticated/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AuthenticatedAdminClientsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/health': {
+      id: '/_authenticated/admin/health'
+      path: '/health'
+      fullPath: '/admin/health'
+      preLoaderRoute: typeof AuthenticatedAdminHealthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/partners': {
+      id: '/_authenticated/admin/partners'
+      path: '/partners'
+      fullPath: '/admin/partners'
+      preLoaderRoute: typeof AuthenticatedAdminPartnersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/revenue': {
+      id: '/_authenticated/admin/revenue'
+      path: '/revenue'
+      fullPath: '/admin/revenue'
+      preLoaderRoute: typeof AuthenticatedAdminRevenueRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/partner/': {
+      id: '/_authenticated/partner/'
+      path: '/'
+      fullPath: '/partner/'
+      preLoaderRoute: typeof AuthenticatedPartnerIndexRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/billing': {
+      id: '/_authenticated/partner/billing'
+      path: '/billing'
+      fullPath: '/partner/billing'
+      preLoaderRoute: typeof AuthenticatedPartnerBillingRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/branding': {
+      id: '/_authenticated/partner/branding'
+      path: '/branding'
+      fullPath: '/partner/branding'
+      preLoaderRoute: typeof AuthenticatedPartnerBrandingRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/clients': {
+      id: '/_authenticated/partner/clients'
+      path: '/clients'
+      fullPath: '/partner/clients'
+      preLoaderRoute: typeof AuthenticatedPartnerClientsRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/plans': {
+      id: '/_authenticated/partner/plans'
+      path: '/plans'
+      fullPath: '/partner/plans'
+      preLoaderRoute: typeof AuthenticatedPartnerPlansRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/settings': {
+      id: '/_authenticated/partner/settings'
+      path: '/settings'
+      fullPath: '/partner/settings'
+      preLoaderRoute: typeof AuthenticatedPartnerSettingsRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/support': {
+      id: '/_authenticated/partner/support'
+      path: '/support'
+      fullPath: '/partner/support'
+      preLoaderRoute: typeof AuthenticatedPartnerSupportRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
     }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
+  AuthenticatedAppAnalyticsRoute: typeof AuthenticatedAppAnalyticsRoute
+  AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppCommunityRoute: typeof AuthenticatedAppCommunityRoute
+  AuthenticatedAppComponentsRoute: typeof AuthenticatedAppComponentsRoute
+  AuthenticatedAppComposerRoute: typeof AuthenticatedAppComposerRoute
+  AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
+  AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
+  AuthenticatedAppMonitoringRoute: typeof AuthenticatedAppMonitoringRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
+  AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
+  AuthenticatedAppUpgradeRoute: typeof AuthenticatedAppUpgradeRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
+  AuthenticatedAppAnalyticsRoute: AuthenticatedAppAnalyticsRoute,
+  AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppCommunityRoute: AuthenticatedAppCommunityRoute,
+  AuthenticatedAppComponentsRoute: AuthenticatedAppComponentsRoute,
+  AuthenticatedAppComposerRoute: AuthenticatedAppComposerRoute,
+  AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
+  AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
+  AuthenticatedAppMonitoringRoute: AuthenticatedAppMonitoringRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
+  AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
+  AuthenticatedAppUpgradeRoute: AuthenticatedAppUpgradeRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAiUsageRoute: typeof AuthenticatedAdminAiUsageRoute
+  AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
+  AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
+  AuthenticatedAdminPartnersRoute: typeof AuthenticatedAdminPartnersRoute
+  AuthenticatedAdminRevenueRoute: typeof AuthenticatedAdminRevenueRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAiUsageRoute: AuthenticatedAdminAiUsageRoute,
+  AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,
+  AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
+  AuthenticatedAdminPartnersRoute: AuthenticatedAdminPartnersRoute,
+  AuthenticatedAdminRevenueRoute: AuthenticatedAdminRevenueRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedPartnerRouteChildren {
+  AuthenticatedPartnerBillingRoute: typeof AuthenticatedPartnerBillingRoute
+  AuthenticatedPartnerBrandingRoute: typeof AuthenticatedPartnerBrandingRoute
+  AuthenticatedPartnerClientsRoute: typeof AuthenticatedPartnerClientsRoute
+  AuthenticatedPartnerPlansRoute: typeof AuthenticatedPartnerPlansRoute
+  AuthenticatedPartnerSettingsRoute: typeof AuthenticatedPartnerSettingsRoute
+  AuthenticatedPartnerSupportRoute: typeof AuthenticatedPartnerSupportRoute
+  AuthenticatedPartnerIndexRoute: typeof AuthenticatedPartnerIndexRoute
+}
+
+const AuthenticatedPartnerRouteChildren: AuthenticatedPartnerRouteChildren = {
+  AuthenticatedPartnerBillingRoute: AuthenticatedPartnerBillingRoute,
+  AuthenticatedPartnerBrandingRoute: AuthenticatedPartnerBrandingRoute,
+  AuthenticatedPartnerClientsRoute: AuthenticatedPartnerClientsRoute,
+  AuthenticatedPartnerPlansRoute: AuthenticatedPartnerPlansRoute,
+  AuthenticatedPartnerSettingsRoute: AuthenticatedPartnerSettingsRoute,
+  AuthenticatedPartnerSupportRoute: AuthenticatedPartnerSupportRoute,
+  AuthenticatedPartnerIndexRoute: AuthenticatedPartnerIndexRoute,
+}
+
+const AuthenticatedPartnerRouteWithChildren =
+  AuthenticatedPartnerRoute._addFileChildren(AuthenticatedPartnerRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
-  AuthenticatedSchedulerRoute: typeof AuthenticatedSchedulerRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPartnerRoute: typeof AuthenticatedPartnerRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedInboxRoute: AuthenticatedInboxRoute,
-  AuthenticatedSchedulerRoute: AuthenticatedSchedulerRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPartnerRoute: AuthenticatedPartnerRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -176,6 +898,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

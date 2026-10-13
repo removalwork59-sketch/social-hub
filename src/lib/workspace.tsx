@@ -21,6 +21,8 @@ type Ctx = {
   current: Workspace | null;
   setCurrentId: (id: string) => void;
   loading: boolean;
+  role: "owner" | "admin" | "member" | null;
+  userId: string | null;
   refresh: () => void;
 };
 
@@ -43,6 +45,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setId(localStorage.getItem(KEY));
   }, []);
 
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null,
+  });
+  const { data: memberships = [] } = useQuery({
+    queryKey: ["memberships", me],
+    enabled: !!me,
+    queryFn: async () => (await supabase.from("workspace_members").select("workspace_id, role").eq("user_id", me!)).data ?? [],
+  });
+
   const current = data.find((w) => w.id === currentId) ?? data[0] ?? null;
   const setCurrentId = (id: string) => {
     localStorage.setItem(KEY, id);
@@ -56,6 +68,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         current,
         setCurrentId,
         loading: isLoading,
+        role: memberships.find((m) => m.workspace_id === current?.id)?.role ?? null,
+        userId: me ?? null,
         refresh: () => qc.invalidateQueries({ queryKey: ["workspaces"] }),
       }}
     >

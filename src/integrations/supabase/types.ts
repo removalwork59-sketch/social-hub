@@ -14,11 +14,46 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          user_id?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_messages: {
         Row: {
+          archived: boolean
+          assigned_to: string | null
           author: string
           content: string
           id: string
+          is_read: boolean
           is_sample: boolean
           kind: Database["public"]["Enums"]["inbox_kind"]
           platform: Database["public"]["Enums"]["social_platform"]
@@ -29,9 +64,12 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          archived?: boolean
+          assigned_to?: string | null
           author: string
           content: string
           id?: string
+          is_read?: boolean
           is_sample?: boolean
           kind?: Database["public"]["Enums"]["inbox_kind"]
           platform: Database["public"]["Enums"]["social_platform"]
@@ -42,9 +80,12 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          archived?: boolean
+          assigned_to?: string | null
           author?: string
           content?: string
           id?: string
+          is_read?: boolean
           is_sample?: boolean
           kind?: Database["public"]["Enums"]["inbox_kind"]
           platform?: Database["public"]["Enums"]["social_platform"]
@@ -158,6 +199,62 @@ export type Database = {
           },
         ]
       }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          status: string
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          status?: string
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          status?: string
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -190,31 +287,40 @@ export type Database = {
       workspaces: {
         Row: {
           brand_color: string | null
+          brand_description: string | null
+          brand_tone: string | null
           created_at: string
           custom_domain: string | null
           id: string
           logo_url: string | null
           name: string
+          onboarded: boolean
           owner_id: string
           plan: string
         }
         Insert: {
           brand_color?: string | null
+          brand_description?: string | null
+          brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          onboarded?: boolean
           owner_id: string
           plan?: string
         }
         Update: {
           brand_color?: string | null
+          brand_description?: string | null
+          brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          onboarded?: boolean
           owner_id?: string
           plan?: string
         }
@@ -225,6 +331,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_workspace_member: {
+        Args: {
+          _email: string
+          _role: Database["public"]["Enums"]["workspace_role"]
+          _ws: string
+        }
+        Returns: string
+      }
+      admin_list_workspaces: {
+        Args: never
+        Returns: {
+          accounts: number
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          posts: number
+        }[]
+      }
+      admin_platform_stats: { Args: never; Returns: Json }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_workspace_admin: {
         Args: { _user: string; _ws: string }
         Returns: boolean
@@ -236,9 +369,15 @@ export type Database = {
       seed_sample_inbox: { Args: { _ws: string }; Returns: undefined }
     }
     Enums: {
+      app_role: "super_admin" | "partner" | "user"
       inbox_kind: "comment" | "dm" | "mention" | "review"
       inbox_status: "open" | "resolved"
-      post_status: "draft" | "scheduled" | "published" | "failed"
+      post_status:
+        | "draft"
+        | "scheduled"
+        | "published"
+        | "failed"
+        | "pending_approval"
       social_platform:
         | "facebook"
         | "instagram"
@@ -373,9 +512,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["super_admin", "partner", "user"],
       inbox_kind: ["comment", "dm", "mention", "review"],
       inbox_status: ["open", "resolved"],
-      post_status: ["draft", "scheduled", "published", "failed"],
+      post_status: [
+        "draft",
+        "scheduled",
+        "published",
+        "failed",
+        "pending_approval",
+      ],
       social_platform: [
         "facebook",
         "instagram",

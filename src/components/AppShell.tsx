@@ -1,34 +1,56 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  BarChart3, Bell, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
+  BarChart3, Bell, UserCircle, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
   PenSquare, Plus, Radar, Search, Settings, Sparkles, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/lib/workspace";
 
-const nav = [
+const mobileNav = [
   { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/composer", label: "Composer", icon: PenSquare },
   { to: "/scheduler", label: "Calendar", icon: CalendarDays },
   { to: "/inbox", label: "Inbox", icon: Inbox },
-  { to: "/accounts", label: "Social accounts", icon: Link2 },
+  { to: "/profile", label: "Profile", icon: UserCircle },
+] as const;
+const ownerNav = [
+  { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/composer", label: "Composer", icon: PenSquare },
+  { to: "/scheduler", label: "Calendar", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/monitoring", label: "Monitoring", icon: Radar },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/community", label: "Community", icon: UsersRound },
+  { to: "/team", label: "Team", icon: Users },
+  { to: "/accounts", label: "Accounts", icon: Link2 },
+  { to: "/billing", label: "Billing", icon: CreditCard },
+  { to: "/settings", label: "Settings", icon: Settings },
+] as const;
+const memberNav = [
+  { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/composer", label: "Composer", icon: PenSquare },
+  { to: "/scheduler", label: "Calendar", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/tasks", label: "Tasks", icon: ClipboardList },
+] as const;
+const freeNav = [
+  { to: "/dashboard", label: "Home", icon: Home },
+  { to: "/composer", label: "Composer", icon: PenSquare },
+  { to: "/scheduler", label: "Calendar", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/upgrade", label: "Upgrade", icon: Zap },
 ] as const;
 
-const soon = [
-  { label: "Composer", icon: PenSquare },
-  { label: "Monitoring", icon: Radar },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Clients", icon: Users },
-  { label: "Billing", icon: CreditCard },
-  { label: "Settings", icon: Settings },
-];
+export { ownerNav, memberNav, freeNav };
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { workspaces, current, setCurrentId, refresh } = useWorkspace();
+  const { workspaces, current, setCurrentId, refresh, role } = useWorkspace();
+  const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -53,6 +75,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-super-admin"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const { data } = await supabase.rpc("has_role", { _user_id: u.user!.id, _role: "super_admin" });
+      return !!data;
+    },
+  });
 
   const item = "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors";
 
@@ -90,19 +121,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               {!collapsed && n.label}
             </Link>
           ))}
-          {soon.map((n) => (
-            <div key={n.label} title={`${n.label} — coming soon`} className={`${item} cursor-default text-muted-foreground/50`}>
-              <n.icon className="h-4 w-4 shrink-0" />
-              {!collapsed && (
-                <>
-                  {n.label}
-                  <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 text-[10px]">Soon</span>
-                </>
-              )}
-            </div>
-          ))}
         </nav>
 
+        {isAdmin && (
+          <div className="mb-1 border-t border-sidebar-border pt-2">
+            <Link to="/admin" title="Super Admin" className={`${item} text-accent-foreground hover:bg-secondary`}>
+              <ShieldCheck className="h-4 w-4 shrink-0" /> {!collapsed && "Super Admin"}
+            </Link>
+            <Link to="/partner" title="Partner portal" className={`${item} text-accent-foreground hover:bg-secondary`}>
+              <Building2 className="h-4 w-4 shrink-0" /> {!collapsed && "Partner portal"}
+            </Link>
+          </div>
+        )}
         <button onClick={signOut} title="Sign out" className={`${item} text-muted-foreground hover:bg-secondary hover:text-foreground`}>
           <LogOut className="h-4 w-4 shrink-0" /> {!collapsed && "Sign out"}
         </button>
@@ -152,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 flex justify-around border-t border-border bg-sidebar/95 py-2 backdrop-blur lg:hidden">
-        {nav.map((n) => (
+        {mobileNav.map((n) => (
           <Link
             key={n.to}
             to={n.to}

@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PLATFORMS, type Platform, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
-export const Route = createFileRoute("/_authenticated/accounts")({
+export const Route = createFileRoute("/_authenticated/_app/accounts")({
   head: () => ({ meta: [{ title: "Social accounts — SocialOS" }, { name: "description", content: "Connect social accounts." }] }),
   component: Accounts,
 });

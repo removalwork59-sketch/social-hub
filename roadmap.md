@@ -6,3 +6,26 @@
 - [x] Inbox: across workspaces, filter platform/status, resolve
 - [x] Add "Clients" menu item (from dashboard brief)
 - [ ] Later: AI post generator, n8n auto-publish, monitoring, moderation, white-label, billing
+- [x] Super Admin area: Overview, Partners, Clients, Revenue, AI Usage, System Health, Support, Settings
+- [x] Partner area: Overview, My Clients, Branding, Plans, Billing, Support, Settings
+- [x] Client Owner pages: Composer, Calendar views, Inbox tabs/AI reply/bulk, Monitoring, Analytics, Community, Team, Billing, Settings
+- [x] Team Member view: Home, Composer (submit for approval), Calendar view-only, assigned Inbox, Tasks
+- [x] Free plan (end user) view: limits 5 posts/5 AI per month, 1 platform, AI reply locked, Upgrade page
+- [x] Inbox search (text, sender, workspace)
+- [x] Onboarding flow (signup with workspace name, connect, plan, AI training, done)
+- [x] AI reply drafts in inbox (built)
+- [x] Inbox assignment to teammates + responsible shown
+- [x] Auth pages: confirm password on reset, 6-digit code (2FA) page
+- [x] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
+- [x] Mobile: bottom nav Home/Composer/Calendar/Inbox/Profile, swipe-to-archive inbox, week view default on phone, profile with billing/logout, home-screen install
+## Phase 2 (backend + AI + integrations)
+- [x] Step 1 backend/db/auth/roles (Lovable Cloud)
+- [ ] Step 2 real social OAuth + publishing + webhooks — blocked: needs developer apps per platform (Meta, LinkedIn, X, Google)
+- [~] Step 3 AI: post generator + reply drafts done; sentiment, auto-moderation, crisis alerts pending
+- [ ] Step 4 automation (scheduled publish) — depends on Step 2
+- [ ] Step 5 payments — needs user's go-ahead on provider
+- [ ] Step 6 white-label: custom domains
+- [ ] Backend request (Express/Redis codebase) — waiting on user: in-app Cloud backend vs separate downloadable Express project
+- [ ] Social integrations (per-client OAuth, publish, fetch, webhooks) — waiting on user setup choices
+- [x] AI engine: sentiment, moderation, crisis check, hashtag suggester, best time, per-plan daily limits (Free 50/Pro 500/Business 5000)
+- [x] n8n workflow JSON files (7) as downloadable files
