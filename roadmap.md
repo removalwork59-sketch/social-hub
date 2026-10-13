@@ -54,3 +54,4 @@
 
 - [ ] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
 - [ ] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
+- [ ] Inbox replies to real platform messages + Home activity (blocked: needs a real connected social account)
