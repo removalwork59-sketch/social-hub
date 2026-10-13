@@ -307,3 +307,28 @@ export const summarizeTrends = createServerFn({ method: "POST" })
     );
     return parse<{ headline: string; changes: { title: string; detail: string; direction: "up" | "down" | "flat" }[]; actions: { action: string; why: string }[] }>(out);
   });
+
+/** Reads an incoming comment or message and recommends how urgently the team should handle it. */
+export const triageMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { workspaceId: string; text: string; platform?: string; kind?: string }) => ({
+    ...textInput(d),
+    platform: String(d.platform ?? "").slice(0, 30),
+    kind: String(d.kind ?? "").slice(0, 30),
+  }))
+  .handler(async ({ data, context }) => {
+    await meter(context, data.workspaceId, "sentiment");
+    const { data: ws } = await context.supabase.from("workspaces").select("name, brand_description").eq("id", data.workspaceId).maybeSingle();
+    const out = await chat(
+      "You triage incoming social media comments and messages for a brand's support team. Identify sentiment (positive, negative, neutral) and urgency (low, medium, high, critical). Critical = safety issues, legal threats, viral complaints, data/payment problems. High = an unhappy customer waiting for help or an order/service failure. Medium = questions needing an answer. Low = praise, casual remarks. Recommend a priority P1 (reply within 1 hour), P2 (same day), P3 (within 2 days) or P4 (optional). Give a one-sentence reason and a one-sentence suggested next step.",
+      `Brand: ${ws?.name ?? ""}${ws?.brand_description ? ` — ${ws.brand_description}` : ""}\nPlatform: ${data.platform || "unknown"}\nType: ${data.kind || "message"}\nMessage: ${data.text}`,
+      schema("triage", {
+        sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
+        urgency: { type: "string", enum: ["low", "medium", "high", "critical"] },
+        priority: { type: "string", enum: ["P1", "P2", "P3", "P4"] },
+        reason: { type: "string" },
+        next_step: { type: "string" },
+      }),
+    );
+    return parse<{ sentiment: string; urgency: "low" | "medium" | "high" | "critical"; priority: "P1" | "P2" | "P3" | "P4"; reason: string; next_step: string }>(out);
+  });

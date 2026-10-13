@@ -29,6 +29,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState<string | null>(null);
+  const [help, setHelp] = useState<null | "credentials" | "unconfirmed" | "exists">(null);
+  const go = (m: Mode) => { setHelp(null); setMode(m); };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -49,8 +51,10 @@ function AuthPage() {
         password,
         options: { emailRedirectTo: window.location.origin + "/dashboard", data: { full_name: name, workspace_name: workspace } },
       });
-      if (error) toast.error(error.message);
-      else setSent(`We sent a confirmation link to ${email}. Click it to finish creating your account.`);
+      if (error) {
+        if (/already registered|already exists/i.test(error.message)) setHelp("exists");
+        else toast.error(error.message);
+      } else setSent(`We sent a confirmation link to ${email}. Click it to finish creating your account.`);
     } else if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
       if (error) toast.error(error.message);
@@ -62,10 +66,10 @@ function AuthPage() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        if (/not confirmed/i.test(error.message)) {
-          toast.error("Please confirm your email first", { action: { label: "Resend link", onClick: () => setMode("resend") } });
-        } else toast.error(error.message);
-      }
+        if (/not confirmed/i.test(error.message)) setHelp("unconfirmed");
+        else if (/invalid login credentials/i.test(error.message)) setHelp("credentials");
+        else toast.error(error.message);
+      } else setHelp(null);
     }
     setBusy(false);
   }
@@ -109,7 +113,7 @@ function AuthPage() {
             <div className="text-center">
               <h1 className="text-xl font-semibold">Check your email</h1>
               <p className="mt-2 text-sm text-muted-foreground">{sent}</p>
-              <button onClick={() => { setSent(null); setMode("in"); }} className="mt-6 text-sm font-medium text-accent-foreground">Back to sign in</button>
+              <button onClick={() => { setSent(null); go("in"); }} className="mt-6 text-sm font-medium text-accent-foreground">Back to sign in</button>
             </div>
           ) : (
             <>
@@ -126,6 +130,37 @@ function AuthPage() {
                   <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" /></div>
                 </>
               )}
+              {help && (
+                <div role="alert" className="mb-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
+                  {help === "credentials" && (
+                    <>
+                      <p className="font-medium">We couldn't sign you in with that email and password.</p>
+                      <p className="mt-1 text-muted-foreground">Either there's no account for {email || "this email"} yet, or the password is wrong.</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button type="button" onClick={() => go("up")} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Create an account</button>
+                        <button type="button" onClick={() => go("forgot")} className="rounded-lg border border-input px-3 py-1.5 text-xs font-medium hover:bg-secondary">Reset password</button>
+                        <button type="button" onClick={() => go("resend")} className="rounded-lg border border-input px-3 py-1.5 text-xs font-medium hover:bg-secondary">Resend confirmation</button>
+                      </div>
+                    </>
+                  )}
+                  {help === "unconfirmed" && (
+                    <>
+                      <p className="font-medium">Your email isn't confirmed yet.</p>
+                      <p className="mt-1 text-muted-foreground">Open the link we emailed to {email}. Can't find it? Check spam, or get a new one.</p>
+                      <button type="button" onClick={() => go("resend")} className="mt-3 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Send a new confirmation link</button>
+                    </>
+                  )}
+                  {help === "exists" && (
+                    <>
+                      <p className="font-medium">An account with {email} already exists.</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button type="button" onClick={() => go("in")} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Sign in instead</button>
+                        <button type="button" onClick={() => go("forgot")} className="rounded-lg border border-input px-3 py-1.5 text-xs font-medium hover:bg-secondary">Reset password</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
               <form onSubmit={submit} className="space-y-3">
                 {mode === "up" && (
                   <>
@@ -139,12 +174,12 @@ function AuthPage() {
                 )}
                 {mode === "in" && (
                   <div className="flex justify-between text-xs">
-                    <button type="button" onClick={() => setMode("forgot")} className="text-muted-foreground hover:text-foreground">Forgot password?</button>
+                    <button type="button" onClick={() => go("forgot")} className="text-muted-foreground hover:text-foreground">Forgot password?</button>
                     <Link to="/verify" className="text-muted-foreground hover:text-foreground">Sign in with a code</Link>
                   </div>
                 )}
                 {mode === "in" && (
-                  <button type="button" onClick={() => setMode("resend")} className="block text-xs text-muted-foreground hover:text-foreground">Didn't get the confirmation email?</button>
+                  <button type="button" onClick={() => go("resend")} className="block text-xs text-muted-foreground hover:text-foreground">Didn't get the confirmation email?</button>
                 )}
                 <button disabled={busy} className={`${btnPrimary} w-full`}>
                   {mode === "in" ? "Sign in" : mode === "up" ? "Create account" : mode === "resend" ? "Resend confirmation" : "Send reset link"}
@@ -152,7 +187,7 @@ function AuthPage() {
               </form>
               <p className="mt-5 text-center text-sm text-muted-foreground">
                 {mode === "in" ? "New here?" : "Have an account?"}{" "}
-                <button className="font-medium text-accent-foreground" onClick={() => setMode(mode === "in" ? "up" : "in")}>
+                <button className="font-medium text-accent-foreground" onClick={() => go(mode === "in" ? "up" : "in")}>
                   {mode === "in" ? "Create an account" : "Sign in"}
                 </button>
               </p>
