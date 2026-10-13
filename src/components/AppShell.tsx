@@ -8,7 +8,7 @@ import { useWorkspace } from "@/lib/workspace";
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/scheduler", label: "Scheduler", icon: CalendarDays },
+  { to: "/scheduler", label: "Calendar", icon: CalendarDays },
   { to: "/accounts", label: "Social accounts", icon: Link2 },
 ] as const;
 

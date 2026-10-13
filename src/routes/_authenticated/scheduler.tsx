@@ -28,6 +28,15 @@ function Scheduler() {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [when, setWhen] = useState(() => toLocalInput(new Date(Date.now() + 3600_000)));
   const [busy, setBusy] = useState(false);
+  const [filter, setFilter] = useState<string>("all");
+  const [editing, setEditing] = useState<{ id: string; content: string; when: string } | null>(null);
+
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["accounts", current?.id],
+    enabled: !!current,
+    queryFn: async () => (await supabase.from("social_accounts").select("*").eq("workspace_id", current!.id)).data ?? [],
+  });
+  const filterPlatform = accounts.find((a) => a.id === filter)?.platform;
 
   const { data: posts = [] } = useQuery({
     queryKey: ["posts", current?.id],
@@ -40,11 +49,12 @@ function Scheduler() {
     const m = new Map<string, typeof posts>();
     posts.forEach((p) => {
       if (!p.scheduled_at) return;
+      if (filterPlatform && !p.platforms.includes(filterPlatform)) return;
       const k = dayKey(new Date(p.scheduled_at));
       m.set(k, [...(m.get(k) ?? []), p]);
     });
     return m;
-  }, [posts]);
+  }, [posts, filterPlatform]);
 
   const cells = useMemo(() => {
     const start = new Date(month);
@@ -77,11 +87,23 @@ function Scheduler() {
     qc.invalidateQueries({ queryKey: ["overview"] });
   }
 
+  async function saveEdit() {
+    if (!editing) return;
+    const at = new Date(editing.when);
+    if (isNaN(at.getTime())) return toast.error("Pick a valid time");
+    const { error } = await supabase.from("posts").update({ scheduled_at: at.toISOString(), content: editing.content }).eq("id", editing.id);
+    if (error) return toast.error(error.message);
+    toast.success("Publishing time updated");
+    setEditing(null);
+    qc.invalidateQueries({ queryKey: ["posts"] });
+    qc.invalidateQueries({ queryKey: ["overview"] });
+  }
+
   const today = dayKey(new Date());
 
   return (
     <>
-      <PageHeader subtitle={current?.name} title="Scheduler" />
+      <PageHeader subtitle={current?.name} title="Content calendar" />
       <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
         <form onSubmit={schedule} className={`${cardCls} h-fit space-y-4`}>
           <h2 className="font-semibold">New post</h2>
@@ -119,7 +141,20 @@ function Scheduler() {
         <div className={cardCls}>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold">{month.toLocaleString(undefined, { month: "long", year: "numeric" })}</h2>
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
+              <select
+                aria-label="Filter by social account"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="mr-2 rounded-xl border border-input bg-card px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">All accounts</option>
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {platformLabel(a.platform)} · @{a.handle}
+                  </option>
+                ))}
+              </select>
               <button aria-label="Previous month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="rounded-lg p-2 hover:bg-secondary">
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -147,13 +182,14 @@ function Scheduler() {
                       <div
                         key={p.id}
                         title={`${p.content}\n${p.platforms.map(platformLabel).join(", ")}`}
-                        className="group flex items-center gap-1 rounded-md bg-accent px-1.5 py-1 text-accent-foreground"
+                        onClick={() => setEditing({ id: p.id, content: p.content, when: toLocalInput(new Date(p.scheduled_at!)) })}
+                        className="group flex cursor-pointer items-center gap-1 rounded-md bg-accent px-1.5 py-1 text-accent-foreground transition-colors hover:bg-primary/25"
                       >
                         <span className="shrink-0 font-semibold">
                           {new Date(p.scheduled_at!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
                         <span className="truncate">{p.content}</span>
-                        <button onClick={() => remove(p.id)} aria-label="Delete post" className="ml-auto hidden shrink-0 group-hover:block">
+                        <button onClick={(e) => { e.stopPropagation(); remove(p.id); }} aria-label="Delete post" className="ml-auto hidden shrink-0 group-hover:block">
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
@@ -165,6 +201,22 @@ function Scheduler() {
           </div>
         </div>
       </div>
+      {editing && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 px-4 backdrop-blur-sm" onClick={() => setEditing(null)}>
+          <div className={`${cardCls} w-full max-w-md animate-rise space-y-4`} onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold">Edit post</h2>
+            <textarea className={`${inputCls} min-h-28`} value={editing.content} onChange={(e) => setEditing({ ...editing, content: e.target.value })} />
+            <label className="block text-sm text-muted-foreground">
+              Publishing time
+              <input type="datetime-local" className={`${inputCls} mt-1`} value={editing.when} onChange={(e) => setEditing({ ...editing, when: e.target.value })} />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setEditing(null)} className="rounded-xl px-4 py-2 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
+              <button onClick={saveEdit} className={btnPrimary}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
