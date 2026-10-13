@@ -4,20 +4,11 @@ import { BadgeIndianRupee, IndianRupee, Palette, Plus, Repeat, Users, Wallet } f
 import { PageHeader } from "@/components/AppShell";
 import { Panel, Pill, Stat, Table, axisTick, btnOutline, inr, tooltipStyle } from "@/components/portal-ui";
 import { PLAN_PRICE, usePartnerData } from "@/lib/partner";
+import { NotLinked } from "@/components/PartnerNotLinked";
 
 export const Route = createFileRoute("/_authenticated/partner/")({
   component: Overview,
 });
-
-export function NotLinked() {
-  return (
-    <Panel title="No partner account linked">
-      <p className="text-sm text-muted-foreground">
-        This login isn't linked to a partner yet. A Super Admin can create a partner login from Admin → Partners → Settings tab.
-      </p>
-    </Panel>
-  );
-}
 
 function Overview() {
   const { data, isLoading } = usePartnerData();

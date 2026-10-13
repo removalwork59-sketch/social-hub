@@ -8,7 +8,7 @@ import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell
 import { Panel, Pill, Stat, Table, inr, selectCls } from "@/components/portal-ui";
 import { PLAN_PRICE, usePartnerData } from "@/lib/partner";
 import { createPartnerClient } from "@/lib/partner.functions";
-import { NotLinked } from "./partner.index";
+import { NotLinked } from "@/components/PartnerNotLinked";
 
 export const Route = createFileRoute("/_authenticated/partner/clients")({
   component: MyClients,

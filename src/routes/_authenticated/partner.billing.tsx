@@ -3,7 +3,7 @@ import { Download, IndianRupee, Percent, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/AppShell";
 import { Panel, Pill, Stat, Table, btnOutline, inr } from "@/components/portal-ui";
 import { usePartnerData } from "@/lib/partner";
-import { NotLinked } from "./partner.index";
+import { NotLinked } from "@/components/PartnerNotLinked";
 
 export const Route = createFileRoute("/_authenticated/partner/billing")({
   component: Billing,
