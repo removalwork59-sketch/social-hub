@@ -87,6 +87,70 @@ function Clients() {
           />
         )}
       </Panel>
+
+      {addOpen && (
+        <AddClientModal
+          onClose={() => setAddOpen(false)}
+          onCreated={() => {
+            setAddOpen(false);
+            qc.invalidateQueries({ queryKey: ["admin-workspaces"] });
+          }}
+        />
+      )}
     </>
+  );
+}
+
+function AddClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [form, setForm] = useState({ name: "", email: "", password: "", workspace: "", plan: "free" as "free" | "pro" | "business" });
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await createClientAccount({ data: form });
+      toast.success(`Client account created for ${form.email}`);
+      onCreated();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not create client");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm({ ...form, [k]: e.target.value });
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-background/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-soft"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">New client account</h2>
+          <button type="button" onClick={onClose} aria-label="Close"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="space-y-3">
+          <input required placeholder="Owner name" className={inputCls} value={form.name} onChange={set("name")} />
+          <input required type="email" placeholder="Email" className={inputCls} value={form.email} onChange={set("email")} />
+          <input required type="text" minLength={6} placeholder="Temporary password (min 6 chars)" className={inputCls} value={form.password} onChange={set("password")} />
+          <input required placeholder="Workspace name" className={inputCls} value={form.workspace} onChange={set("workspace")} />
+          <select aria-label="Plan" className={inputCls} value={form.plan} onChange={set("plan")}>
+            <option value="free">Free</option>
+            <option value="pro">Pro — ₹499/mo</option>
+            <option value="business">Business — ₹1499/mo</option>
+          </select>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          The account is created already confirmed — share the email and password with the client so they can sign in right away.
+        </p>
+        <button disabled={busy} className={`${btnPrimary} mt-4 w-full`}>
+          {busy ? "Creating…" : "Create client"}
+        </button>
+      </form>
+    </div>
   );
 }
