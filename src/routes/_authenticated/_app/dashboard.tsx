@@ -50,37 +50,6 @@ const lines = [
 ] as const;
 const iconFor = (p: string) => lines.find((l) => l.key === p)?.icon ?? AtSign;
 
-const series = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date(Date.now() - (29 - i) * 864e5);
-  return {
-    day: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }),
-    facebook: Math.round(420 + i * 9 + Math.sin(i / 2) * 80),
-    instagram: Math.round(680 + i * 14 + Math.cos(i / 3) * 120),
-    linkedin: Math.round(210 + i * 5 + Math.sin(i / 4) * 40),
-    twitter: Math.round(300 + i * 6 + Math.cos(i / 2) * 70),
-  };
-});
-
-const sentiment = [
-  { name: "Positive", value: 812, color: "var(--success)" },
-  { name: "Neutral", value: 341, color: "var(--muted-foreground)" },
-  { name: "Negative", value: 97, color: "var(--destructive)" },
-];
-const totalMentions = sentiment.reduce((a, b) => a + b.value, 0);
-
-const activity = [
-  { p: "instagram", user: "john_doe", text: "commented on your post", ago: "2m", icon: MessageCircle },
-  { p: "facebook", user: "priya.s", text: "liked your Diwali offer", ago: "14m", icon: Heart },
-  { p: "linkedin", user: "arjun_m", text: "shared your hiring post", ago: "1h", icon: Send },
-  { p: "twitter", user: "techdaily", text: "mentioned your brand", ago: "3h", icon: AtSign },
-  { p: "instagram", user: "neha.k", text: "sent you a message", ago: "5h", icon: MessageCircle },
-];
-
-const aiPosts: { id: number; platform: Platform; caption: string; hue: string }[] = [
-  { id: 1, platform: "instagram", caption: "Festive season is here ✨ Grab 30% off everything this week only. #FestiveDeals", hue: "var(--chart-4)" },
-  { id: 2, platform: "linkedin", caption: "We grew 3× this year. Here are 5 lessons from building a remote-first team.", hue: "var(--chart-3)" },
-  { id: 3, platform: "facebook", caption: "Behind the scenes: how our team packs 500 orders a day 📦", hue: "var(--chart-2)" },
-];
 
 function Dashboard() {
   const { current, role } = useWorkspace();
@@ -98,7 +67,7 @@ function OwnerHome() {
   const qc = useQueryClient();
   const wsId = current?.id;
   const [shown, setShown] = useState<Record<string, boolean>>({ facebook: true, instagram: true, linkedin: true, twitter: true });
-  const [skipped, setSkipped] = useState<number[]>([]);
+  const [skipped, setSkipped] = useState<string[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: myName } = useQuery({
@@ -196,22 +165,6 @@ function OwnerHome() {
     if (error) return toast.error(error.message);
     toast.success("Scheduled for tomorrow, 6 PM");
     qc.invalidateQueries({ queryKey: ["home-live"] });
-    qc.invalidateQueries({ queryKey: ["overview"] });
-    qc.invalidateQueries({ queryKey: ["posts"] });
-  }
-  async function legacyApprove(p: { platform: Platform; caption: string; id: string }) {
-    if (!wsId) return;
-    const at = new Date(Date.now() + 864e5);
-    at.setHours(18, 0, 0, 0);
-    const { error } = await supabase
-      .from("posts")
-      .insert({ workspace_id: wsId, content: p.caption, platforms: [p.platform], scheduled_at: at.toISOString() });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Scheduled for tomorrow, 6 PM");
-    setSkipped((s) => [...s, p.id]);
     qc.invalidateQueries({ queryKey: ["overview"] });
     qc.invalidateQueries({ queryKey: ["posts"] });
   }
