@@ -28,7 +28,7 @@ function Accounts() {
     const { error } = await supabase
       .from("social_accounts")
       .insert({ workspace_id: current.id, platform: connecting, handle: handle.trim().replace(/^@/, ""), status: "test" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Account connected");
     setConnecting(null);
     setHandle("");
@@ -38,7 +38,7 @@ function Accounts() {
 
   async function remove(id: string) {
     const { error } = await supabase.from("social_accounts").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["accounts"] });
     qc.invalidateQueries({ queryKey: ["overview"] });
   }

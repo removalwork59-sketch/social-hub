@@ -65,15 +65,15 @@ function Scheduler() {
   async function schedule(e: React.FormEvent) {
     e.preventDefault();
     if (!current) return;
-    if (platforms.length === 0) return toast.error("Pick at least one platform");
+    if (platforms.length === 0) { toast.error("Pick at least one platform"); return; }
     const at = new Date(when);
-    if (at.getTime() < Date.now()) return toast.error("Pick a time in the future");
+    if (at.getTime() < Date.now()) { toast.error("Pick a time in the future"); return; }
     setBusy(true);
     const { error } = await supabase
       .from("posts")
       .insert({ workspace_id: current.id, content, platforms, scheduled_at: at.toISOString(), status: "scheduled" });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Post scheduled");
     setContent("");
     setPlatforms([]);
@@ -90,9 +90,9 @@ function Scheduler() {
   async function saveEdit() {
     if (!editing) return;
     const at = new Date(editing.when);
-    if (isNaN(at.getTime())) return toast.error("Pick a valid time");
+    if (isNaN(at.getTime())) { toast.error("Pick a valid time"); return; }
     const { error } = await supabase.from("posts").update({ scheduled_at: at.toISOString(), content: editing.content }).eq("id", editing.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Publishing time updated");
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["posts"] });

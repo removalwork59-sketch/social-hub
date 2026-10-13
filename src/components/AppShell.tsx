@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       .insert({ name: name.trim(), owner_id: u.user!.id })
       .select()
       .single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
     setCurrentId(data.id);
     toast.success(`Workspace "${data.name}" created`);
@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string | undefined; action?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
