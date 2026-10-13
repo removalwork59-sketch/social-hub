@@ -49,3 +49,4 @@
 - [ ] Dashboard final: full sidebar on Free, 3 AI posts, notifications dropdown, 260px sidebar + active teal border
 - [ ] Calendar: Oct demo posts, today circle, summary bar, day modal edit/delete/duplicate, Month/Week/Day
 - [ ] Inbox brief: assign-to dropdown, export, sentiment chips, view profile/spam, use AI reply, attachments/internal note, pill tags, short times
+- [ ] Super Admin overview: demo stats, MRR 6/12m chart, service status dots, activity, quick actions; check missing admin pages (feature flags, audit, security, payouts)
