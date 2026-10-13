@@ -190,7 +190,7 @@ function OwnerHome() {
 
       <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {stats.map((s, i) =>
-          isLoading || !wsId ? (
+          isLoading || liveLoading || !wsId ? (
             <div key={s.label} className="skeleton h-28" />
           ) : (
             <div
@@ -338,7 +338,7 @@ function OwnerHome() {
             <h2 className="font-semibold">AI ready to publish</h2>
           </div>
           {visibleAi.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">All caught up. Generate more ideas below.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">No drafts waiting. Write one in Composer and it shows up here for approval.</p>
           ) : (
             <ul className="space-y-3">
               {visibleAi.map((p) => {
