@@ -55,3 +55,4 @@
 - [x] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
 - [x] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
 - [ ] Inbox replies to real platform messages + Home activity (blocked: needs a real connected social account)
+- [ ] Onboarding Step 5: review on screen, wire quick-action cards to real pages, summary shows actual connected accounts + setup status
