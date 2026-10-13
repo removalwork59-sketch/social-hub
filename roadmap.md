@@ -37,3 +37,6 @@
 - [x] Resend verification email from sign-in page
 - [x] AI sentiment + urgency + priority check on inbox messages
 - [x] Sign-in: clear next steps for missing account, unconfirmed email, wrong password
+- [ ] Test Inbox AI sentiment/urgency/priority signed in as user
+- [ ] Dashboard: sidebar items (Monitoring/Analytics/Community/Team/Billing/Settings), top bar bell+avatar, activity feed, AI suggestions card, sentiment legend, CSV export
+- [ ] Super Admin: create client account for manager (inbox + reports demo)
