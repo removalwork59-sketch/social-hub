@@ -189,6 +189,21 @@ function OwnerHome() {
               <h2 className="font-semibold">Engagement</h2>
               <p className="text-xs text-muted-foreground">Last 30 days</p>
             </div>
+            <button
+              onClick={() => {
+                const rows = ["day,facebook,instagram,linkedin,x", ...series.map((r) => `${r.day},${r.facebook},${r.instagram},${r.linkedin},${r.twitter}`)];
+                const url = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "engagement-30d.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success("CSV downloaded");
+              }}
+              className="flex items-center gap-1.5 rounded-lg border border-input px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+            >
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </button>
             <div className="flex flex-wrap gap-1.5">
               {lines.map((l) => (
                 <button

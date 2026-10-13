@@ -51,7 +51,16 @@ export { ownerNav, memberNav, freeNav };
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { workspaces, current, setCurrentId, refresh, role } = useWorkspace();
+  const { data: userName } = useQuery({
+    queryKey: ["my-name"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const { data } = await supabase.from("profiles").select("name").eq("id", u.user!.id).single();
+      return (data as { name?: string } | null)?.name ?? u.user!.email ?? "Account";
+    },
+  });
   const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;
   const qc = useQueryClient();
   const navigate = useNavigate();
