@@ -50,7 +50,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   component: Onboarding,
 });
 
-const steps = ["Account", "Connect", "Plan", "AI training", "Done"];
+const steps = ["Welcome", "Connect", "Plan", "Train AI", "Done"];
 type PlanCard = { id: string; name: string; price: string; year?: string; yearMonthly?: string; popular?: boolean; sub: string; f: [string, boolean][] };
 const plans: PlanCard[] = [
   { id: "free", name: "Free", sub: "For getting started", price: "₹0", f: [["5 posts per month", true], ["1 social platform", true], ["Basic AI (50 calls/day)", true], ["Unified inbox", true], ["AI reply drafts", false], ["White-label", false], ["Priority support", false]] },
