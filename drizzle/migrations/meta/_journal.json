@@ -15,6 +15,13 @@
       "when": 1791908692606,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791908850274,
+      "tag": "0002_super_admin_roles",
+      "breakpoints": true
     }
   ]
 }

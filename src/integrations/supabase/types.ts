@@ -158,6 +158,24 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -225,6 +243,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_workspaces: {
+        Args: never
+        Returns: {
+          accounts: number
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          posts: number
+        }[]
+      }
+      admin_platform_stats: { Args: never; Returns: Json }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_workspace_admin: {
         Args: { _user: string; _ws: string }
         Returns: boolean
@@ -236,6 +273,7 @@ export type Database = {
       seed_sample_inbox: { Args: { _ws: string }; Returns: undefined }
     }
     Enums: {
+      app_role: "super_admin" | "partner" | "user"
       inbox_kind: "comment" | "dm" | "mention" | "review"
       inbox_status: "open" | "resolved"
       post_status: "draft" | "scheduled" | "published" | "failed"
@@ -373,6 +411,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["super_admin", "partner", "user"],
       inbox_kind: ["comment", "dm", "mention", "review"],
       inbox_status: ["open", "resolved"],
       post_status: ["draft", "scheduled", "published", "failed"],
