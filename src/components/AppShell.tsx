@@ -175,8 +175,31 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Bell className="h-5 w-5" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse rounded-full bg-destructive" />
             </button>
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-primary text-sm font-semibold text-primary-foreground">
-              {(current?.name ?? "S").slice(0, 1).toUpperCase()}
+            <div className="relative">
+              <button
+                onClick={() => setProfileOpen((v) => !v)}
+                aria-label="Profile menu"
+                className="grid h-9 w-9 place-items-center rounded-full bg-gradient-primary text-sm font-semibold text-primary-foreground transition-transform hover:scale-105"
+              >
+                {(current?.name ?? "S").slice(0, 1).toUpperCase()}
+              </button>
+              {profileOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setProfileOpen(false)} />
+                  <div className="absolute right-0 z-40 mt-2 w-52 rounded-xl border border-border bg-card p-1.5 shadow-soft">
+                    <div className="border-b border-border px-3 py-2">
+                      <p className="truncate text-sm font-semibold">{userName ?? "Account"}</p>
+                      <p className="truncate text-xs text-muted-foreground">{current?.name}</p>
+                    </div>
+                    <Link to="/settings" onClick={() => setProfileOpen(false)} className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
+                      <Settings className="h-4 w-4" /> Settings
+                    </Link>
+                    <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
+                      <LogOut className="h-4 w-4" /> Log out
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>

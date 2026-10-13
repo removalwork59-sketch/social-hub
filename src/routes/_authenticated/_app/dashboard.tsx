@@ -239,6 +239,7 @@ function OwnerHome() {
               <div>
                 <p className="text-2xl font-semibold">{totalMentions.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">mentions</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">Last 30 days</p>
               </div>
             </div>
           </div>
