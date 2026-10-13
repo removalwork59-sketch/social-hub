@@ -212,7 +212,7 @@ function OwnerHome() {
               </div>
               <p className="mt-2 text-2xl font-semibold tracking-tight">{s.value}</p>
               {s.trend && (
-                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-success">
+                <p className={`mt-1 flex items-center gap-1 text-xs font-medium ${s.trend.startsWith("-") ? "text-destructive" : "text-success"}`}>
                   <TrendingUp className="h-3 w-3" /> {s.trend} this month
                 </p>
               )}
