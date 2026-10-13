@@ -210,7 +210,7 @@ function InboxPage() {
             {!isMember && (
               <button
                 onClick={async () => {
-                  if (!confirm(`Delete ${checked.length} message(s)? This can't be undone.`)) return;
+                  if (!confirm(`Delete ${checked.length} message(s)? This cannot be undone.`)) { return; }
                   const { error } = await supabase.from("inbox_messages").delete().in("id", checked);
                   if (error) { toast.error(error.message); return; }
                   toast.success("Deleted");
