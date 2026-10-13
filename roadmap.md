@@ -25,7 +25,7 @@
 - [ ] Step 4 automation (scheduled publish) — depends on Step 2
 - [ ] Step 5 payments — needs user's go-ahead on provider
 - [ ] Step 6 white-label: custom domains
-- [ ] Backend request (Express/Redis codebase) — waiting on user: in-app Cloud backend vs separate downloadable Express project
-- [ ] Social integrations (per-client OAuth, publish, fetch, webhooks) — waiting on user setup choices
+- [ ] Backend extras (audit log, mentions, analytics, subscriptions tables) — confirm with user
+- [ ] Social integrations — LinkedIn + X chosen; connection setup skipped by user, waiting to retry
 - [x] AI engine: sentiment, moderation, crisis check, hashtag suggester, best time, per-plan daily limits (Free 50/Pro 500/Business 5000)
 - [x] n8n workflow JSON files (7) as downloadable files
