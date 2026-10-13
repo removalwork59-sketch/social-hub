@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedPartnerRouteImport } from './routes/_authenticated/partner'
 import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/_app/accounts'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
@@ -26,6 +27,13 @@ import { Route as AuthenticatedAdminPartnersRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminRevenueRouteImport } from './routes/_authenticated/admin.revenue'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
+import { Route as AuthenticatedPartnerIndexRouteImport } from './routes/_authenticated/partner.index'
+import { Route as AuthenticatedPartnerBillingRouteImport } from './routes/_authenticated/partner.billing'
+import { Route as AuthenticatedPartnerBrandingRouteImport } from './routes/_authenticated/partner.branding'
+import { Route as AuthenticatedPartnerClientsRouteImport } from './routes/_authenticated/partner.clients'
+import { Route as AuthenticatedPartnerPlansRouteImport } from './routes/_authenticated/partner.plans'
+import { Route as AuthenticatedPartnerSettingsRouteImport } from './routes/_authenticated/partner.settings'
+import { Route as AuthenticatedPartnerSupportRouteImport } from './routes/_authenticated/partner.support'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +56,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPartnerRoute = AuthenticatedPartnerRouteImport.update({
+  id: '/partner',
+  path: '/partner',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppAccountsRoute =
@@ -120,11 +133,54 @@ const AuthenticatedAdminSupportRoute =
     path: '/support',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedPartnerIndexRoute =
+  AuthenticatedPartnerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerBillingRoute =
+  AuthenticatedPartnerBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerBrandingRoute =
+  AuthenticatedPartnerBrandingRouteImport.update({
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerClientsRoute =
+  AuthenticatedPartnerClientsRouteImport.update({
+    id: '/clients',
+    path: '/clients',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerPlansRoute =
+  AuthenticatedPartnerPlansRouteImport.update({
+    id: '/plans',
+    path: '/plans',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerSettingsRoute =
+  AuthenticatedPartnerSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
+const AuthenticatedPartnerSupportRoute =
+  AuthenticatedPartnerSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedPartnerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/accounts': typeof AuthenticatedAppAccountsRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
@@ -136,7 +192,14 @@ export interface FileRoutesByFullPath {
   '/admin/revenue': typeof AuthenticatedAdminRevenueRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/partner/support': typeof AuthenticatedPartnerSupportRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/partner/': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -152,7 +215,14 @@ export interface FileRoutesByTo {
   '/admin/revenue': typeof AuthenticatedAdminRevenueRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/partner/support': typeof AuthenticatedPartnerSupportRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/partner': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +231,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/_authenticated/_app/accounts': typeof AuthenticatedAppAccountsRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
@@ -172,7 +243,14 @@ export interface FileRoutesById {
   '/_authenticated/admin/revenue': typeof AuthenticatedAdminRevenueRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
+  '/_authenticated/partner/billing': typeof AuthenticatedPartnerBillingRoute
+  '/_authenticated/partner/branding': typeof AuthenticatedPartnerBrandingRoute
+  '/_authenticated/partner/clients': typeof AuthenticatedPartnerClientsRoute
+  '/_authenticated/partner/plans': typeof AuthenticatedPartnerPlansRoute
+  '/_authenticated/partner/settings': typeof AuthenticatedPartnerSettingsRoute
+  '/_authenticated/partner/support': typeof AuthenticatedPartnerSupportRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/partner/': typeof AuthenticatedPartnerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,6 +258,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/partner'
     | '/accounts'
     | '/dashboard'
     | '/inbox'
@@ -191,7 +270,14 @@ export interface FileRouteTypes {
     | '/admin/revenue'
     | '/admin/settings'
     | '/admin/support'
+    | '/partner/billing'
+    | '/partner/branding'
+    | '/partner/clients'
+    | '/partner/plans'
+    | '/partner/settings'
+    | '/partner/support'
     | '/admin/'
+    | '/partner/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -207,7 +293,14 @@ export interface FileRouteTypes {
     | '/admin/revenue'
     | '/admin/settings'
     | '/admin/support'
+    | '/partner/billing'
+    | '/partner/branding'
+    | '/partner/clients'
+    | '/partner/plans'
+    | '/partner/settings'
+    | '/partner/support'
     | '/admin'
+    | '/partner'
   id:
     | '__root__'
     | '/'
@@ -215,6 +308,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/_app'
     | '/_authenticated/admin'
+    | '/_authenticated/partner'
     | '/_authenticated/_app/accounts'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/inbox'
@@ -226,7 +320,14 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/revenue'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/support'
+    | '/_authenticated/partner/billing'
+    | '/_authenticated/partner/branding'
+    | '/_authenticated/partner/clients'
+    | '/_authenticated/partner/plans'
+    | '/_authenticated/partner/settings'
+    | '/_authenticated/partner/support'
     | '/_authenticated/admin/'
+    | '/_authenticated/partner/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/partner': {
+      id: '/_authenticated/partner'
+      path: '/partner'
+      fullPath: '/partner'
+      preLoaderRoute: typeof AuthenticatedPartnerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_app/accounts': {
@@ -356,6 +464,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/partner/': {
+      id: '/_authenticated/partner/'
+      path: '/'
+      fullPath: '/partner/'
+      preLoaderRoute: typeof AuthenticatedPartnerIndexRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/billing': {
+      id: '/_authenticated/partner/billing'
+      path: '/billing'
+      fullPath: '/partner/billing'
+      preLoaderRoute: typeof AuthenticatedPartnerBillingRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/branding': {
+      id: '/_authenticated/partner/branding'
+      path: '/branding'
+      fullPath: '/partner/branding'
+      preLoaderRoute: typeof AuthenticatedPartnerBrandingRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/clients': {
+      id: '/_authenticated/partner/clients'
+      path: '/clients'
+      fullPath: '/partner/clients'
+      preLoaderRoute: typeof AuthenticatedPartnerClientsRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/plans': {
+      id: '/_authenticated/partner/plans'
+      path: '/plans'
+      fullPath: '/partner/plans'
+      preLoaderRoute: typeof AuthenticatedPartnerPlansRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/settings': {
+      id: '/_authenticated/partner/settings'
+      path: '/settings'
+      fullPath: '/partner/settings'
+      preLoaderRoute: typeof AuthenticatedPartnerSettingsRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
+    '/_authenticated/partner/support': {
+      id: '/_authenticated/partner/support'
+      path: '/support'
+      fullPath: '/partner/support'
+      preLoaderRoute: typeof AuthenticatedPartnerSupportRouteImport
+      parentRoute: typeof AuthenticatedPartnerRoute
+    }
   }
 }
 
@@ -401,14 +558,39 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedPartnerRouteChildren {
+  AuthenticatedPartnerBillingRoute: typeof AuthenticatedPartnerBillingRoute
+  AuthenticatedPartnerBrandingRoute: typeof AuthenticatedPartnerBrandingRoute
+  AuthenticatedPartnerClientsRoute: typeof AuthenticatedPartnerClientsRoute
+  AuthenticatedPartnerPlansRoute: typeof AuthenticatedPartnerPlansRoute
+  AuthenticatedPartnerSettingsRoute: typeof AuthenticatedPartnerSettingsRoute
+  AuthenticatedPartnerSupportRoute: typeof AuthenticatedPartnerSupportRoute
+  AuthenticatedPartnerIndexRoute: typeof AuthenticatedPartnerIndexRoute
+}
+
+const AuthenticatedPartnerRouteChildren: AuthenticatedPartnerRouteChildren = {
+  AuthenticatedPartnerBillingRoute: AuthenticatedPartnerBillingRoute,
+  AuthenticatedPartnerBrandingRoute: AuthenticatedPartnerBrandingRoute,
+  AuthenticatedPartnerClientsRoute: AuthenticatedPartnerClientsRoute,
+  AuthenticatedPartnerPlansRoute: AuthenticatedPartnerPlansRoute,
+  AuthenticatedPartnerSettingsRoute: AuthenticatedPartnerSettingsRoute,
+  AuthenticatedPartnerSupportRoute: AuthenticatedPartnerSupportRoute,
+  AuthenticatedPartnerIndexRoute: AuthenticatedPartnerIndexRoute,
+}
+
+const AuthenticatedPartnerRouteWithChildren =
+  AuthenticatedPartnerRoute._addFileChildren(AuthenticatedPartnerRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedPartnerRoute: typeof AuthenticatedPartnerRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedPartnerRoute: AuthenticatedPartnerRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
