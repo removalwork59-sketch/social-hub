@@ -50,10 +50,11 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 
 const steps = ["Account", "Connect", "Plan", "AI training", "Done"];
 const tones = ["Professional", "Casual", "Funny", "Bold"];
-const plans = [
-  { id: "free", name: "Free", price: "₹0", f: ["1 platform", "5 posts / month", "Basic AI"] },
-  { id: "pro", name: "Pro", price: "₹499", f: ["5 platforms", "Unlimited posts", "Full AI"] },
-  { id: "business", name: "Business", price: "₹1499", f: ["All platforms", "White-label", "Team approvals"] },
+type PlanCard = { id: string; name: string; price: string; year?: string; yearMonthly?: string; popular?: boolean; f: [string, boolean][] };
+const plans: PlanCard[] = [
+  { id: "free", name: "Free", price: "₹0", f: [["5 posts per month", true], ["1 social platform", true], ["Basic AI (50 calls/day)", true], ["Unified inbox", true], ["AI reply drafts", false], ["White-label", false], ["Priority support", false]] },
+  { id: "pro", name: "Pro", price: "₹499", year: "₹4,790", yearMonthly: "₹399", popular: true, f: [["Unlimited posts", true], ["5 social platforms", true], ["Full AI (500 calls/day)", true], ["AI reply drafts", true], ["Advanced analytics", true], ["Auto-moderation", true], ["Email support", true], ["White-label", false]] },
+  { id: "business", name: "Business", price: "₹1,499", year: "₹14,390", yearMonthly: "₹1,199", f: [["Everything in Pro", true], ["Unlimited platforms", true], ["Unlimited AI (5000 calls/day)", true], ["White-label", true], ["Custom domain", true], ["Team members (10)", true], ["Priority support", true], ["Dedicated manager", true]] },
 ];
 
 function Onboarding() {
@@ -191,17 +192,50 @@ function Onboarding() {
           {step === 3 && (
             <>
               <h1 className="text-center text-3xl font-semibold">Choose your plan</h1>
-              <p className="mb-8 mt-2 text-center text-muted-foreground">Start free, upgrade any time.</p>
-              <div className="grid gap-4 md:grid-cols-3">
-                {plans.map((p) => (
-                  <button key={p.id} onClick={() => setPlan(p.id)} className={`${cardCls} text-left transition-all hover:-translate-y-0.5 ${plan === p.id ? "border-primary shadow-glow" : ""}`}>
-                    <p className="font-semibold">{p.name}</p>
-                    <p className="mt-2 text-3xl font-semibold">{p.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-                    <ul className="mt-4 space-y-1.5 text-sm">{p.f.map((x) => <li key={x} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" />{x}</li>)}</ul>
+              <p className="mt-2 text-center text-muted-foreground">Start free. Upgrade anytime. No credit card required.</p>
+              <div className="mx-auto my-8 flex w-fit rounded-xl border border-border bg-card p-1 text-sm">
+                {(["monthly", "yearly"] as const).map((b) => (
+                  <button key={b} onClick={() => setBilling(b)} className={`rounded-lg px-4 py-1.5 font-medium transition-colors ${billing === b ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                    {b === "monthly" ? "Monthly" : <>Yearly <span className={billing === b ? "" : "text-primary"}>(Save 20%)</span></>}
                   </button>
                 ))}
               </div>
-              <Nav onSkip={() => setStep(4)} onNext={choosePlan} />
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {plans.map((p) => {
+                  const yearly = billing === "yearly" && p.year;
+                  const selected = plan === p.id;
+                  return (
+                    <div key={p.id} onClick={() => setPlan(p.id)} className={`${cardCls} relative flex cursor-pointer flex-col transition-all duration-200 hover:-translate-y-1 ${p.popular ? "border-primary shadow-glow" : ""} ${selected ? "ring-2 ring-primary" : ""}`}>
+                      {p.popular && <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">Most Popular</span>}
+                      {p.id === "free" && <span className="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{current?.plan === "free" ? "Current" : "Start Free"}</span>}
+                      <p className="font-semibold">{p.name}</p>
+                      <p className="mt-2 text-3xl font-semibold">
+                        {yearly ? p.year : p.price}
+                        <span className="text-sm font-normal text-muted-foreground">{yearly ? "/year" : "/month"}</span>
+                      </p>
+                      <p className="h-5 text-xs text-muted-foreground">{yearly ? `${p.yearMonthly}/month billed yearly` : ""}</p>
+                      <ul className="mt-4 flex-1 space-y-2 text-sm">
+                        {p.f.map(([x, ok]) => (
+                          <li key={x} className={`flex items-center gap-2 ${ok ? "" : "text-muted-foreground"}`}>
+                            {ok ? <Check className="h-4 w-4 shrink-0 text-primary" /> : <XIcon className="h-4 w-4 shrink-0 text-muted-foreground" />}{x}
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        disabled={p.id === "free" && current?.plan === "free" && selected}
+                        onClick={(e) => { e.stopPropagation(); setPlan(p.id); }}
+                        className={`mt-6 rounded-xl py-2.5 text-sm font-semibold transition-all disabled:cursor-default disabled:opacity-50 ${p.id === "pro" ? btnPrimary : p.id === "business" ? "border border-primary text-primary hover:bg-accent" : "border border-input hover:bg-accent"}`}
+                      >
+                        {p.id === "free" ? (selected ? "Selected" : "Start Free") : selected ? "Selected ✓" : `Choose ${p.name}`}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-10 flex items-center justify-between">
+                <button onClick={() => { setPlan("free"); setStep(4); }} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
+                <button onClick={choosePlan} className={btnPrimary}>Continue</button>
+              </div>
             </>
           )}
 
