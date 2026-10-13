@@ -21,7 +21,7 @@ const FREQ = ["1 post/day", "3 posts/week", "5 posts/week", "Custom"];
 const PLATS = ["Facebook", "Instagram", "LinkedIn", "X", "YouTube", "TikTok", "Pinterest"];
 
 const chip = (on: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-200 ${on ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-primary/50"}`;
+  `rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-200 ${on ? "scale-105 border-primary bg-primary text-primary-foreground" : "border-input hover:border-primary/50"}`;
 
 function toggle(list: string[], v: string, max = 99) {
   return list.includes(v) ? list.filter((x) => x !== v) : list.length >= max ? list : [...list, v];
@@ -130,7 +130,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
           </div>
         </div>
 
-        <aside className={`${cardCls} hidden h-fit lg:sticky lg:top-6 lg:block`}>
+        <aside className={`${cardCls} h-fit lg:sticky lg:top-6`}>
           <div className="mb-3 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI Preview</span>
             <button onClick={() => setSeed((s) => s + 1)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"><RefreshCw className="h-3.5 w-3.5" /> Regenerate</button>
@@ -138,18 +138,19 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
           <div className="rounded-xl border border-border bg-background p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-primary text-xs font-semibold text-primary-foreground">{(p.name || "Y")[0]}</div>
-              <span className="text-sm font-semibold">{p.name || "Your brand"}</span>
+              <span className="text-sm font-semibold">@{(p.name || "yourbrand").toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
             </div>
-            <p className="whitespace-pre-wrap text-sm">{preview}</p>
+            <p key={preview} className="animate-rise whitespace-pre-wrap text-sm">{preview}</p>
+            <div className="mt-3 grid aspect-video place-items-center rounded-lg bg-muted text-xs text-muted-foreground">Image preview</div>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">A sample built from your choices. Real AI posts in the Composer use these settings too.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Fill in brand name, description, a tone and a platform to continue. A sample built from your choices. Real AI posts in the Composer use these settings too.</p>
         </aside>
       </div>
 
       <div className="mt-10 flex items-center justify-between">
         <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground">← Back</button>
         <button onClick={onSkip} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
-        <button disabled={!p.name.trim()} onClick={() => onSave(p)} className={`${btnPrimary} disabled:opacity-40`}>Continue</button>
+        <button disabled={!p.name.trim() || !p.description.trim() || !p.tones.length || !p.platforms.length} onClick={() => onSave(p)} className={`${btnPrimary} disabled:opacity-40`}>Continue →</button>
       </div>
     </>
   );
