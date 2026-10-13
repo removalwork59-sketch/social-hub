@@ -225,6 +225,83 @@ export type Database = {
           },
         ]
       }
+      partner_payouts: {
+        Row: {
+          amount: number
+          commission_pct: number
+          created_at: string
+          id: string
+          paid_at: string | null
+          partner_id: string
+          period: string
+          revenue: number
+          status: string
+        }
+        Insert: {
+          amount?: number
+          commission_pct: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id: string
+          period: string
+          revenue?: number
+          status?: string
+        }
+        Update: {
+          amount?: number
+          commission_pct?: number
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id?: string
+          period?: string
+          revenue?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_payouts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          color: string
+          commission_pct: number
+          created_at: string
+          email: string
+          id: string
+          name: string
+          permissions: Json
+          status: string
+        }
+        Insert: {
+          color?: string
+          commission_pct?: number
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          permissions?: Json
+          status?: string
+        }
+        Update: {
+          color?: string
+          commission_pct?: number
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          permissions?: Json
+          status?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string
@@ -416,6 +493,7 @@ export type Database = {
           name: string
           onboarded: boolean
           owner_id: string
+          partner_id: string | null
           plan: string
         }
         Insert: {
@@ -429,6 +507,7 @@ export type Database = {
           name: string
           onboarded?: boolean
           owner_id: string
+          partner_id?: string | null
           plan?: string
         }
         Update: {
@@ -442,9 +521,18 @@ export type Database = {
           name?: string
           onboarded?: boolean
           owner_id?: string
+          partner_id?: string | null
           plan?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -470,7 +558,20 @@ export type Database = {
           posts: number
         }[]
       }
+      admin_partner_clients: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+          partner_id: string
+          plan: string
+        }[]
+      }
       admin_platform_stats: { Args: never; Returns: Json }
+      admin_set_workspace_partner: {
+        Args: { _partner: string; _ws: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
