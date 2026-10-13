@@ -37,7 +37,10 @@ function Partners() {
   ];
 
   function add() {
-    if (!form.name.trim() || !form.email.includes("@")) return toast.error("Enter a name and valid email");
+    if (!form.name.trim() || !form.email.includes("@")) {
+      toast.error("Enter a name and valid email");
+      return;
+    }
     setRows([...rows, { id: crypto.randomUUID(), name: form.name, email: form.email, clients: 0, share: form.share, revenue: 0, status: "pending", color: "var(--chart-5)" }]);
     setAdding(false);
     setForm({ name: "", email: "", share: 20 });
