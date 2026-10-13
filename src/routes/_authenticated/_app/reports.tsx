@@ -3,11 +3,11 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Clock, Download, Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, CheckCircle2, Clock, Download, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/lib/workspace";
-import { recommendTimes } from "@/lib/ai.functions";
+import { recommendTimes, summarizeTrends } from "@/lib/ai.functions";
 import { PageHeader, btnPrimary, inputCls } from "@/components/AppShell";
 import { Panel, SampleNote, axisTick, tooltipStyle } from "@/components/portal-ui";
 
@@ -52,6 +52,16 @@ function Reports() {
   const recommend = useServerFn(recommendTimes);
   const [advice, setAdvice] = useState<{ slots: { day: string; time: string; why: string }[]; explanation: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const trendsFn = useServerFn(summarizeTrends);
+  const [report, setReport] = useState<Awaited<ReturnType<typeof summarizeTrends>> | null>(null);
+  const [trendBusy, setTrendBusy] = useState(false);
+  async function getReport() {
+    if (!current) return;
+    setTrendBusy(true);
+    try { setReport(await trendsFn({ data: { workspaceId: current.id, a, b } })); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setTrendBusy(false); }
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ["history", current?.id],
@@ -138,6 +148,35 @@ function Reports() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </Panel>
+
+      <Panel title="AI trend summary" subtitle="Period A compared with Period B" className="mb-4" action={<button onClick={getReport} disabled={trendBusy || !days.length} className={btnPrimary}><Sparkles className="h-4 w-4" />{trendBusy ? "Analyzing…" : report ? "Refresh" : "Summarize & recommend"}</button>}>
+        {trendBusy ? <div className="space-y-2"><div className="skeleton h-6 w-2/3" /><div className="skeleton h-16" /><div className="skeleton h-16" /></div> : !report ? (
+          <p className="text-sm text-muted-foreground">Pick your two periods above, then let AI explain what changed and what to do next.</p>
+        ) : (
+          <div className="space-y-4 text-sm">
+            <p className="text-base font-semibold">{report.headline}</p>
+            <div className="grid gap-2 md:grid-cols-2">
+              {report.changes.map((c) => {
+                const Icon = c.direction === "up" ? ArrowUpRight : c.direction === "down" ? ArrowDownRight : ArrowRight;
+                return (
+                  <div key={c.title} className="flex gap-2 rounded-xl bg-secondary/40 p-3">
+                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div className="min-w-0"><p className="font-medium">{c.title}</p><p className="text-muted-foreground">{c.detail}</p></div>
+                  </div>
+                );
+              })}
+            </div>
+            <div>
+              <p className="mb-2 font-medium">Recommended actions</p>
+              <ol className="space-y-2">
+                {report.actions.map((x) => (
+                  <li key={x.action} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" /><span><span className="font-medium">{x.action}</span> <span className="text-muted-foreground">— {x.why}</span></span></li>
+                ))}
+              </ol>
+            </div>
           </div>
         )}
       </Panel>
