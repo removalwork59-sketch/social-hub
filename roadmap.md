@@ -34,3 +34,4 @@
 - [x] Activity logs for workspace/account changes, searchable for admins
 - [x] AI trend summary + recommended actions for a date range (Reports)
 - [ ] Real social connections feeding Reports (LinkedIn + X first) — needs user to complete connection setup card
+- [x] Resend verification email from sign-in page

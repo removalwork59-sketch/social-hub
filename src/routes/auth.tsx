@@ -18,7 +18,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Mode = "in" | "up" | "forgot";
+type Mode = "in" | "up" | "forgot" | "resend";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -55,9 +55,17 @@ function AuthPage() {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
       if (error) toast.error(error.message);
       else setSent(`If an account exists for ${email}, a reset link is on its way.`);
+    } else if (mode === "resend") {
+      const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin + "/dashboard" } });
+      if (error) toast.error(error.message);
+      else setSent(`If ${email} is waiting for confirmation, a new link is on its way. Check spam too.`);
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) toast.error(error.message);
+      if (error) {
+        if (/not confirmed/i.test(error.message)) {
+          toast.error("Please confirm your email first", { action: { label: "Resend link", onClick: () => setMode("resend") } });
+        } else toast.error(error.message);
+      }
     }
     setBusy(false);
   }
@@ -67,7 +75,7 @@ function AuthPage() {
     if (r.error) toast.error(r.error.message ?? "Sign-in failed");
   }
 
-  const title = mode === "in" ? "Welcome back" : mode === "up" ? "Create your account" : "Reset your password";
+  const title = mode === "in" ? "Welcome back" : mode === "up" ? "Create your account" : mode === "resend" ? "Resend confirmation email" : "Reset your password";
 
   return (
     <div className="grid min-h-screen bg-background font-sans text-foreground lg:grid-cols-2">
@@ -126,7 +134,7 @@ function AuthPage() {
                   </>
                 )}
                 <input className={inputCls} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                {mode !== "forgot" && (
+                {(mode === "in" || mode === "up") && (
                   <input className={inputCls} type="password" placeholder="Password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
                 )}
                 {mode === "in" && (
@@ -135,8 +143,11 @@ function AuthPage() {
                     <Link to="/verify" className="text-muted-foreground hover:text-foreground">Sign in with a code</Link>
                   </div>
                 )}
+                {mode === "in" && (
+                  <button type="button" onClick={() => setMode("resend")} className="block text-xs text-muted-foreground hover:text-foreground">Didn't get the confirmation email?</button>
+                )}
                 <button disabled={busy} className={`${btnPrimary} w-full`}>
-                  {mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Send reset link"}
+                  {mode === "in" ? "Sign in" : mode === "up" ? "Create account" : mode === "resend" ? "Resend confirmation" : "Send reset link"}
                 </button>
               </form>
               <p className="mt-5 text-center text-sm text-muted-foreground">
