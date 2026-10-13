@@ -74,7 +74,7 @@ const postFormat: JsonFormat = {
 type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>; userId: string };
 
 const DAILY_LIMIT: Record<string, number> = { free: 50, pro: 500, business: 5000 };
-type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags";
+type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags" | "best_time";
 
 /**
  * Enforces plan limits and records usage.
@@ -229,4 +229,35 @@ export const bestTimes = createServerFn({ method: "POST" })
       return { day: names[day]!, hourUtc: hour, interactions: n };
     });
     return { slots: ranked, basedOn: rows?.length ?? 0 };
+  });
+
+/** AI recommendation of best posting times from the account's analytics history + inbox activity, with an explanation. */
+export const recommendTimes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { workspaceId: string; platform: string }) => ({ workspaceId: String(d.workspaceId), platform: String(d.platform).slice(0, 30) }))
+  .handler(async ({ data, context }) => {
+    await meter(context, data.workspaceId, "best_time");
+    const since = new Date(Date.now() - 90 * 86400_000).toISOString().slice(0, 10);
+    const [{ data: days }, { data: msgs }] = await Promise.all([
+      context.supabase.from("analytics_daily").select("day, engagement, reach").eq("workspace_id", data.workspaceId).eq("platform", data.platform as never).gte("day", since),
+      context.supabase.from("inbox_messages").select("received_at").eq("workspace_id", data.workspaceId).eq("platform", data.platform as never).limit(1000),
+    ]);
+    if (!days?.length) throw new Error("No analytics history for this account yet");
+    const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const byDay = names.map((n, i) => {
+      const rows = days.filter((d) => new Date(d.day + "T00:00:00Z").getUTCDay() === i);
+      return { day: n, avgEngagement: Math.round(rows.reduce((a, r) => a + r.engagement, 0) / Math.max(rows.length, 1)) };
+    });
+    const hours = Array.from({ length: 24 }, () => 0);
+    (msgs ?? []).forEach((m) => { const h = (new Date(m.received_at).getUTCHours() + 5) % 24; hours[h]! += 1; });
+    const out = await chat(
+      "You are a social media strategist. From the data, recommend the 3 best posting slots (weekday + local time, IST) for this platform and explain why in plain language for a business owner (2-4 sentences). Base it only on the data given; if data is thin, say so.",
+      `Platform: ${data.platform}\nAverage daily engagement by weekday (last 90 days): ${JSON.stringify(byDay)}\nAudience interactions by hour (IST, approximate): ${JSON.stringify(hours)}`,
+      schema("best_times", {
+        slots: { type: "array", items: { type: "object", additionalProperties: false, required: ["day", "time", "why"], properties: { day: { type: "string" }, time: { type: "string" }, why: { type: "string" } } } },
+        explanation: { type: "string" },
+      }),
+    );
+    const r = parse<{ slots: { day: string; time: string; why: string }[]; explanation: string }>(out);
+    return { ...r, slots: r.slots.slice(0, 3), byDay };
   });

@@ -16,3 +16,4 @@
 - Plan limits (free posts/AI) are enforced server-side (DB trigger + `meter()` in `src/lib/ai.functions.ts`); UI counters are informational only.
 - AI calls go through server functions in `src/lib/ai.functions.ts` using the Lovable AI Gateway Responses API — keeps the key server-side.
 - Portal pages without live data use `src/lib/sample-data.ts` / `src/lib/client-sample.ts` and must show `SampleNote` so sample figures are never mistaken for real ones.
+- Workspace/account/team changes are recorded by DB triggers (`log_activity`) into `activity_logs`, readable only by workspace admins and super admins — the audit trail can't be skipped by app code.

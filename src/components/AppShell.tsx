@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  BarChart3, Bell, UserCircle, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
+  BarChart3, Bell, UserCircle, FileBarChart, History, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
   PenSquare, Plus, Radar, Search, Settings, Sparkles, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,10 +23,12 @@ const ownerNav = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/monitoring", label: "Monitoring", icon: Radar },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/reports", label: "Reports", icon: FileBarChart },
   { to: "/community", label: "Community", icon: UsersRound },
   { to: "/team", label: "Team", icon: Users },
   { to: "/accounts", label: "Accounts", icon: Link2 },
   { to: "/billing", label: "Billing", icon: CreditCard },
+  { to: "/activity", label: "Activity log", icon: History },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 const memberNav = [

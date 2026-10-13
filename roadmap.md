@@ -29,3 +29,6 @@
 - [ ] Social integrations — LinkedIn + X chosen; connection setup skipped by user, waiting to retry
 - [x] AI engine: sentiment, moderation, crisis check, hashtag suggester, best time, per-plan daily limits (Free 50/Pro 500/Business 5000)
 - [x] n8n workflow JSON files (7) as downloadable files
+- [x] Persistent mention + analytics history, date-range compare, CSV export (Reports page)
+- [x] AI best posting times with explanation (from account analytics)
+- [x] Activity logs for workspace/account changes, searchable for admins
