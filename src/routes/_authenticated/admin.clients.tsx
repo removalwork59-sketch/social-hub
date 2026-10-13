@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserPlus, X } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/AppShell";
+import { PageHeader, btnPrimary, inputCls } from "@/components/AppShell";
 import { Panel, Pill, Table, inr, selectCls } from "@/components/portal-ui";
 import { partners, sampleClients } from "@/lib/sample-data";
+import { createClientAccount } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/clients")({
   component: Clients,
@@ -14,6 +17,8 @@ function Clients() {
   const [partner, setPartner] = useState("all");
   const [plan, setPlan] = useState("all");
   const [status, setStatus] = useState("all");
+  const [addOpen, setAddOpen] = useState(false);
+  const qc = useQueryClient();
   const { data: live = [], isLoading } = useQuery({
     queryKey: ["admin-workspaces"],
     queryFn: async () => {
