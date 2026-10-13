@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string
+          id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity: string
+          id?: string
+          workspace_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string
+          id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_usage: {
         Row: {
           created_at: string
@@ -39,6 +77,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ai_usage_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_daily: {
+        Row: {
+          day: string
+          engagement: number
+          followers: number
+          id: string
+          is_sample: boolean
+          platform: Database["public"]["Enums"]["social_platform"]
+          reach: number
+          workspace_id: string
+        }
+        Insert: {
+          day: string
+          engagement?: number
+          followers?: number
+          id?: string
+          is_sample?: boolean
+          platform: Database["public"]["Enums"]["social_platform"]
+          reach?: number
+          workspace_id: string
+        }
+        Update: {
+          day?: string
+          engagement?: number
+          followers?: number
+          id?: string
+          is_sample?: boolean
+          platform?: Database["public"]["Enums"]["social_platform"]
+          reach?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_daily_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -98,6 +177,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "inbox_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentions: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_sample: boolean
+          reach: number
+          sentiment: string
+          source: string
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_sample?: boolean
+          reach?: number
+          sentiment?: string
+          source: string
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_sample?: boolean
+          reach?: number
+          sentiment?: string
+          source?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -366,6 +486,7 @@ export type Database = {
         Args: { _user: string; _ws: string }
         Returns: boolean
       }
+      seed_sample_history: { Args: { _ws: string }; Returns: undefined }
       seed_sample_inbox: { Args: { _ws: string }; Returns: undefined }
     }
     Enums: {

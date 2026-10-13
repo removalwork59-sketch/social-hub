@@ -36,6 +36,13 @@
       "when": 1791909584003,
       "tag": "0004_onboarding_limits_ai_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791910404208,
+      "tag": "0005_history_and_activity_logs",
+      "breakpoints": true
     }
   ]
 }
