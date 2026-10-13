@@ -151,7 +151,7 @@ function Onboarding() {
                       <p className="mt-1 font-semibold">{p.label}</p>
                       <p className="text-xs text-muted-foreground">{p.desc}</p>
                       {done ? (
-                        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground"><Check className="h-3.5 w-3.5" /> Connected</span>
+                        <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-semibold text-background"><Check className="h-3.5 w-3.5" /> Connected</span>
                       ) : connecting === p.id ? (
                         <div className="mt-2 flex w-full gap-2">
                           <input autoFocus className={inputCls} placeholder="@handle" value={handle} onChange={(e) => setHandle(e.target.value)} />
