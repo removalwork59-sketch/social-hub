@@ -27,6 +27,7 @@ import { Route as AuthenticatedAppComposerRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
 import { Route as AuthenticatedAppMonitoringRouteImport } from './routes/_authenticated/_app/monitoring'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/_app/profile'
 import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/_app/scheduler'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
@@ -143,6 +144,11 @@ const AuthenticatedAppMonitoringRoute =
     path: '/monitoring',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSchedulerRoute =
   AuthenticatedAppSchedulerRouteImport.update({
     id: '/scheduler',
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
   '/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
@@ -313,6 +320,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
   '/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
   '/_authenticated/_app/monitoring': typeof AuthenticatedAppMonitoringRoute
+  '/_authenticated/_app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/_app/scheduler': typeof AuthenticatedAppSchedulerRoute
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
@@ -394,6 +403,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/monitoring'
+    | '/profile'
     | '/scheduler'
     | '/settings'
     | '/tasks'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/monitoring'
+    | '/profile'
     | '/scheduler'
     | '/settings'
     | '/tasks'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/inbox'
     | '/_authenticated/_app/monitoring'
+    | '/_authenticated/_app/profile'
     | '/_authenticated/_app/scheduler'
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/tasks'
@@ -628,6 +640,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppMonitoringRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/profile': {
+      id: '/_authenticated/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/scheduler': {
       id: '/_authenticated/_app/scheduler'
       path: '/scheduler'
@@ -781,6 +800,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
   AuthenticatedAppMonitoringRoute: typeof AuthenticatedAppMonitoringRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
@@ -798,6 +818,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
   AuthenticatedAppMonitoringRoute: AuthenticatedAppMonitoringRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,

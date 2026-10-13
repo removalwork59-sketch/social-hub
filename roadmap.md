@@ -18,3 +18,10 @@
 - [x] Auth pages: confirm password on reset, 6-digit code (2FA) page
 - [x] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
 - [ ] Mobile: bottom nav Home/Composer/Calendar/Inbox/Profile, swipe-to-archive inbox, week view default on phone, profile with billing/logout, home-screen install
+## Phase 2 (backend + AI + integrations)
+- [x] Step 1 backend/db/auth/roles (Lovable Cloud)
+- [ ] Step 2 real social OAuth + publishing + webhooks — blocked: needs developer apps per platform (Meta, LinkedIn, X, Google)
+- [~] Step 3 AI: post generator + reply drafts done; sentiment, auto-moderation, crisis alerts pending
+- [ ] Step 4 automation (scheduled publish) — depends on Step 2
+- [ ] Step 5 payments — needs user's go-ahead on provider
+- [ ] Step 6 white-label: custom domains
