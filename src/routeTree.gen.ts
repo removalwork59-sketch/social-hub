@@ -27,6 +27,7 @@ import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/_app/team'
+import { Route as AuthenticatedAppUpgradeRouteImport } from './routes/_authenticated/_app/upgrade'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAiUsageRouteImport } from './routes/_authenticated/admin.ai-usage'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
@@ -139,6 +140,11 @@ const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppUpgradeRoute = AuthenticatedAppUpgradeRouteImport.update({
+  id: '/upgrade',
+  path: '/upgrade',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -246,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
   '/team': typeof AuthenticatedAppTeamRoute
+  '/upgrade': typeof AuthenticatedAppUpgradeRoute
   '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedAppSettingsRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
   '/team': typeof AuthenticatedAppTeamRoute
+  '/upgrade': typeof AuthenticatedAppUpgradeRoute
   '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/_app/team': typeof AuthenticatedAppTeamRoute
+  '/_authenticated/_app/upgrade': typeof AuthenticatedAppUpgradeRoute
   '/_authenticated/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/team'
+    | '/upgrade'
     | '/admin/ai-usage'
     | '/admin/clients'
     | '/admin/health'
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/team'
+    | '/upgrade'
     | '/admin/ai-usage'
     | '/admin/clients'
     | '/admin/health'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/settings'
     | '/_authenticated/_app/tasks'
     | '/_authenticated/_app/team'
+    | '/_authenticated/_app/upgrade'
     | '/_authenticated/admin/ai-usage'
     | '/_authenticated/admin/clients'
     | '/_authenticated/admin/health'
@@ -565,6 +577,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/upgrade': {
+      id: '/_authenticated/_app/upgrade'
+      path: '/upgrade'
+      fullPath: '/upgrade'
+      preLoaderRoute: typeof AuthenticatedAppUpgradeRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -686,6 +705,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
+  AuthenticatedAppUpgradeRoute: typeof AuthenticatedAppUpgradeRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -701,6 +721,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
+  AuthenticatedAppUpgradeRoute: AuthenticatedAppUpgradeRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =

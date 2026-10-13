@@ -34,7 +34,13 @@ export function BillingView({ upsell = false }: { upsell?: boolean }) {
 
   return (
     <>
-      <PageHeader subtitle={current?.name} title="Billing" />
+      <PageHeader subtitle={current?.name} title={upsell ? "Upgrade your plan" : "Billing"} />
+      {upsell && (
+        <div className="mb-4 overflow-hidden rounded-xl bg-gradient-primary p-6 text-primary-foreground shadow-glow">
+          <p className="text-xl font-semibold">Grow faster with Pro</p>
+          <p className="mt-1 text-sm opacity-90">Unlimited posts, 5 platforms, AI replies and 500 AI calls a day — for ₹499/month.</p>
+        </div>
+      )}
       <SampleNote>Online payments (UPI AutoPay, card, PayPal) aren't switched on yet — plan changes will work once payments are connected.</SampleNote>
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel title="Current plan">
