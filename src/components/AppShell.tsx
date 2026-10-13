@@ -52,6 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [allRead, setAllRead] = useState(false);
   const { workspaces, current, setCurrentId, refresh, role } = useWorkspace();
   const { data: userName } = useQuery({
     queryKey: ["my-name"],
