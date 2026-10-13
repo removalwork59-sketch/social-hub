@@ -279,6 +279,7 @@ export type Database = {
           name: string
           permissions: Json
           status: string
+          user_id: string | null
         }
         Insert: {
           color?: string
@@ -289,6 +290,7 @@ export type Database = {
           name: string
           permissions?: Json
           status?: string
+          user_id?: string | null
         }
         Update: {
           color?: string
@@ -299,6 +301,7 @@ export type Database = {
           name?: string
           permissions?: Json
           status?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -547,6 +550,10 @@ export type Database = {
         }
         Returns: string
       }
+      admin_link_partner_user: {
+        Args: { _partner: string; _user: string }
+        Returns: undefined
+      }
       admin_list_workspaces: {
         Args: never
         Returns: {
@@ -586,6 +593,18 @@ export type Database = {
       is_workspace_member: {
         Args: { _user: string; _ws: string }
         Returns: boolean
+      }
+      my_partner_id: { Args: never; Returns: string }
+      partner_my_clients: {
+        Args: never
+        Returns: {
+          accounts: number
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          posts: number
+        }[]
       }
       seed_sample_history: { Args: { _ws: string }; Returns: undefined }
       seed_sample_inbox: { Args: { _ws: string }; Returns: undefined }
