@@ -58,6 +58,7 @@ const tones: Record<string, string> = {
   trial: "bg-warning/15 text-warning",
   high: "bg-destructive/15 text-destructive",
   suspended: "bg-destructive/15 text-destructive",
+  inactive: "bg-destructive/15 text-destructive",
   down: "bg-destructive/15 text-destructive",
   failed: "bg-destructive/15 text-destructive",
 };
