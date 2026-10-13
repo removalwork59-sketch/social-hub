@@ -266,7 +266,7 @@ function Onboarding() {
             <DoneStep
               name={(firstName || current?.name || "there").split(" ")[0]!}
               summary={[
-                connectedCount ? `Connected ${connectedCount} social account${connectedCount > 1 ? "s" : ""}` : "Social accounts — connect any time",
+                connectedCount ? `Connected ${connectedCount} social account${connectedCount > 1 ? "s" : ""} (${ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).map((p) => p.label).join(", ")})` : "Social accounts — connect any time",
                 trained ? "AI trained on your brand voice" : "AI ready (add brand details in Settings)",
                 `${plan === "business" ? "Business" : plan === "pro" ? "Pro" : "Free"} plan selected${plan !== "free" ? " — you're on Free until payment is set up" : ""}`,
                 "Composer ready for your first AI post",
