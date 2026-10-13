@@ -57,8 +57,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     queryKey: ["my-name"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.from("profiles").select("name").eq("id", u.user!.id).single();
-      return (data as { name?: string } | null)?.name ?? u.user!.email ?? "Account";
+      const { data } = await supabase.from("profiles").select("full_name").eq("id", u.user!.id).single();
+      return data?.full_name ?? u.user!.email ?? "Account";
     },
   });
   const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;

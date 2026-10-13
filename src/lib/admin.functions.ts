@@ -28,7 +28,7 @@ export const createClientAccount = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const userId = created.user.id;
 
-    const { error: pErr } = await supabaseAdmin.from("profiles").upsert({ id: userId, name });
+    const { error: pErr } = await supabaseAdmin.from("profiles").upsert({ id: userId, full_name: name });
     if (pErr) throw new Error(pErr.message);
 
     const { data: ws, error: wErr } = await supabaseAdmin
