@@ -102,7 +102,8 @@ function Clients() {
 }
 
 function AddClientModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [form, setForm] = useState({ name: "", email: "", password: "", workspace: "", plan: "free" as "free" | "pro" | "business" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", workspace: "", plan: "free" as "free" | "pro" | "business", partnerId: "" });
+  const { data: partners = [] } = useQuery({ queryKey: ["admin-partners-min"], queryFn: async () => (await supabase.from("partners").select("id, name").order("name")).data ?? [] });
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
@@ -142,6 +143,10 @@ function AddClientModal({ onClose, onCreated }: { onClose: () => void; onCreated
             <option value="free">Free</option>
             <option value="pro">Pro — ₹499/mo</option>
             <option value="business">Business — ₹1499/mo</option>
+          </select>
+          <select aria-label="Partner" className={inputCls} value={form.partnerId} onChange={set("partnerId")}>
+            <option value="">No partner (direct client)</option>
+            {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
