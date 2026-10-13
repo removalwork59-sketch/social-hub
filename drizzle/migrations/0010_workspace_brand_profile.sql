@@ -1,0 +1,1 @@
+ALTER TABLE public.workspaces ADD COLUMN brand_profile jsonb NOT NULL DEFAULT '{}'::jsonb;

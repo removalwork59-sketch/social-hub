@@ -488,6 +488,7 @@ export type Database = {
         Row: {
           brand_color: string | null
           brand_description: string | null
+          brand_profile: Json
           brand_tone: string | null
           created_at: string
           custom_domain: string | null
@@ -502,6 +503,7 @@ export type Database = {
         Insert: {
           brand_color?: string | null
           brand_description?: string | null
+          brand_profile?: Json
           brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
@@ -516,6 +518,7 @@ export type Database = {
         Update: {
           brand_color?: string | null
           brand_description?: string | null
+          brand_profile?: Json
           brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
