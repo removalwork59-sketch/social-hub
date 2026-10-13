@@ -17,3 +17,4 @@
 - [ ] Inbox assignment to teammates + responsible shown
 - [ ] Auth pages: confirm password on reset, 6-digit code (2FA) page
 - [ ] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
+- [ ] Mobile: bottom nav Home/Composer/Calendar/Inbox/Profile, swipe-to-archive inbox, week view default on phone, profile with billing/logout, home-screen install
