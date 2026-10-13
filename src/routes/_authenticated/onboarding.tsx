@@ -266,10 +266,14 @@ function Onboarding() {
             <DoneStep
               name={(firstName || current?.name || "there").split(" ")[0]!}
               summary={[
-                connectedCount ? `Connected ${connectedCount} social account${connectedCount > 1 ? "s" : ""} (${ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).map((p) => p.label).join(", ")})` : "Social accounts — connect any time",
-                trained ? "AI trained on your brand voice" : "AI ready (add brand details in Settings)",
-                `${plan === "business" ? "Business" : plan === "pro" ? "Pro" : "Free"} plan selected${plan !== "free" ? " — you're on Free until payment is set up" : ""}`,
-                "Composer ready for your first AI post",
+                connectedCount
+                  ? { done: true, text: `Connected ${connectedCount} social account${connectedCount > 1 ? "s" : ""} (${ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).map((p) => p.label).join(", ")})` }
+                  : { done: false, text: "No social accounts connected yet — add them from Connect More Accounts" },
+                trained
+                  ? { done: true, text: "AI trained on your brand voice" }
+                  : { done: false, text: "Brand voice not set up — add it in Settings" },
+                { done: true, text: `${plan === "business" ? "Business" : plan === "pro" ? "Pro" : "Free"} plan selected${plan !== "free" ? " — you're on Free until payment is set up" : ""}` },
+                { done: true, text: "Composer ready for your first AI post" },
               ]}
             />
           )}
