@@ -83,6 +83,7 @@ function InboxPage() {
     } catch (e) { toast.error((e as Error).message); }
     setTriaging(false);
   }
+  const navigate = useNavigate();
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("all");
   const [ws, setWs] = useState("all");
   const [platform, setPlatform] = useState("all");
