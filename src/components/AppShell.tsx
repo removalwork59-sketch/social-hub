@@ -61,6 +61,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       return data?.full_name ?? u.user!.email ?? "Account";
     },
   });
+  const { data: unread } = useQuery({
+    queryKey: ["inbox-unread", current?.id],
+    enabled: !!current?.id,
+    queryFn: async () => {
+      const { count } = await supabase.from("inbox_messages").select("id", { count: "exact", head: true }).eq("workspace_id", current!.id).eq("status", "open");
+      return count ?? 0;
+    },
+  });
   const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -130,6 +138,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <n.icon className="h-4 w-4 shrink-0" />
               {!collapsed && n.label}
+              {n.to === "/inbox" && !!unread && (
+                <span className={`rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground ${collapsed ? "absolute ml-3 -mt-4" : "ml-auto"}`}>{unread > 99 ? "99+" : unread}</span>
+              )}
             </Link>
           ))}
         </nav>
