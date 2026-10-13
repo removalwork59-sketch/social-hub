@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronLeft, ChevronRight, List, Plus, Rows3 } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Copy, List, Pencil, Plus, Rows3, Square, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -35,7 +35,7 @@ function Calendar() {
   const { current, role } = useWorkspace();
   const readOnly = role === "member";
   const qc = useQueryClient();
-  const [view, setView] = useState<"month" | "week" | "list">("month");
+  const [view, setView] = useState<"month" | "week" | "day" | "list">("month");
   const [anchor, setAnchor] = useState(() => new Date());
   const [platform, setPlatform] = useState<"all" | Platform>("all");
   const [status, setStatus] = useState<"all" | Status>("all");
@@ -43,6 +43,7 @@ function Calendar() {
   const [creating, setCreating] = useState<string | null>(null);
   const [draft, setDraft] = useState({ content: "", platforms: [] as Platform[] });
   const [dragId, setDragId] = useState<string | null>(null);
+  const [dayOpen, setDayOpen] = useState<Date | null>(null);
   useEffect(() => {
     if (window.matchMedia("(max-width: 640px)").matches) setView("week");
   }, []);
@@ -67,6 +68,7 @@ function Calendar() {
   }, [filtered]);
 
   const cells = useMemo(() => {
+    if (view === "day") return [new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate())];
     if (view === "week") {
       const s = startOfWeek(anchor);
       return Array.from({ length: 7 }, (_, i) => new Date(s.getFullYear(), s.getMonth(), s.getDate() + i));
@@ -82,7 +84,7 @@ function Calendar() {
   };
 
   function shift(dir: number) {
-    setAnchor(view === "week" ? new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + dir * 7) : new Date(anchor.getFullYear(), anchor.getMonth() + dir, 1));
+    setAnchor(view === "day" ? new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + dir) : view === "week" ? new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + dir * 7) : new Date(anchor.getFullYear(), anchor.getMonth() + dir, 1));
   }
 
   async function moveTo(postId: string, day: Date) {
@@ -120,6 +122,19 @@ function Calendar() {
     refresh();
   }
 
+  async function duplicate(p: Post) {
+    if (!current) return;
+    const base = p.scheduled_at ? new Date(p.scheduled_at) : new Date();
+    const at = new Date(Math.max(base.getTime() + 864e5, Date.now() + 3600_000));
+    const { error } = await supabase.from("posts").insert({ workspace_id: current.id, content: p.content, platforms: p.platforms, scheduled_at: at.toISOString(), status: "draft" });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Duplicated as a draft on ${at.toLocaleDateString()}`);
+    refresh();
+  }
+
   async function remove(id: string) {
     await supabase.from("posts").delete().eq("id", id);
     setEditing(null);
@@ -149,6 +164,10 @@ function Calendar() {
   }
 
   function openDay(d: Date) {
+    if ((byDay.get(dayKey(d)) ?? []).length) {
+      setDayOpen(d);
+      return;
+    }
     if (readOnly) return;
     const at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0);
     if (at.getTime() < Date.now()) at.setTime(Date.now() + 3600_000);
@@ -157,7 +176,9 @@ function Calendar() {
 
   const today = dayKey(new Date());
   const title =
-    view === "week"
+    view === "day"
+      ? anchor.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
+      : view === "week"
       ? `Week of ${startOfWeek(anchor).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`
       : anchor.toLocaleString(undefined, { month: "long", year: "numeric" });
 
@@ -173,7 +194,7 @@ function Calendar() {
       className="flex cursor-pointer items-center gap-1 rounded-md border-l-2 bg-secondary px-1.5 py-1 text-[11px] transition-colors hover:bg-muted"
       style={{ borderColor: platformColor[p.platforms[0] ?? "twitter"] }}
     >
-      <span className="shrink-0 font-semibold">{new Date(p.scheduled_at!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+      <span className="shrink-0 font-semibold">{new Date(p.scheduled_at!).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
       <span className="truncate">{p.content}</span>
       {p.status === "pending_approval" && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-warning" />}
     </div>
@@ -197,6 +218,16 @@ function Calendar() {
           </div>
         );
       })()}
+      <div className="mb-4 flex flex-wrap gap-2 text-sm">
+        {([
+          ["Total", posts.length],
+          ["Scheduled", posts.filter((p) => p.status === "scheduled").length],
+          ["Drafts", posts.filter((p) => p.status === "draft").length],
+          ["Published", posts.filter((p) => p.status === "published").length],
+        ] as const).map(([l, n]) => (
+          <div key={l} className="rounded-xl border border-border bg-card px-4 py-2"><span className="text-muted-foreground">{l}:</span> <b>{n}</b></div>
+        ))}
+      </div>
       <div className={cardCls}>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {view !== "list" && (
@@ -217,8 +248,8 @@ function Calendar() {
               {(Object.keys(statusLabel) as Status[]).map((s) => <option key={s} value={s}>{statusLabel[s]}</option>)}
             </select>
             <div className="flex rounded-xl border border-input p-0.5">
-              {([["month", CalendarDays], ["week", Rows3], ["list", List]] as const).map(([v, I]) => (
-                <button key={v} aria-label={`${v} view`} onClick={() => setView(v)} className={`rounded-lg p-1.5 ${view === v ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}><I className="h-4 w-4" /></button>
+              {([["month", CalendarDays, "Month"], ["week", Rows3, "Week"], ["day", Square, "Day"], ["list", List, "List"]] as const).map(([v, I, l]) => (
+                <button key={v} aria-label={`${l} view`} onClick={() => setView(v)} className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs ${view === v ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}><I className="h-3.5 w-3.5" />{l}</button>
               ))}
             </div>
           </div>
@@ -246,7 +277,7 @@ function Calendar() {
             ))}
           </ul>
         ) : (
-          <div className={`grid gap-px overflow-hidden rounded-xl border border-border bg-border text-xs ${view === "week" ? "grid-cols-1 sm:grid-cols-7" : "grid-cols-7"}`}>
+          <div className={`grid gap-px overflow-hidden rounded-xl border border-border bg-border text-xs ${view === "day" ? "grid-cols-1" : view === "week" ? "grid-cols-1 sm:grid-cols-7" : "grid-cols-7"}`}>
             {view === "month" && ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="bg-card p-2 text-center font-medium text-muted-foreground">{d}</div>)}
             {cells.map((d) => {
               const items = byDay.get(dayKey(d)) ?? [];
@@ -257,7 +288,7 @@ function Calendar() {
                   onClick={() => openDay(d)}
                   onDragOver={(e) => !readOnly && e.preventDefault()}
                   onDrop={() => { if (dragId) moveTo(dragId, d); setDragId(null); }}
-                  className={`${view === "week" ? "min-h-16 sm:min-h-72" : "min-h-16 sm:min-h-24"} bg-card p-1.5 transition-colors ${readOnly ? "" : "cursor-pointer hover:bg-secondary/40"} ${dim ? "opacity-40" : ""}`}
+                  className={`${view === "day" ? "min-h-72" : view === "week" ? "min-h-16 sm:min-h-72" : "min-h-16 sm:min-h-24"} bg-card p-1.5 transition-colors ${readOnly ? "" : "cursor-pointer hover:bg-secondary/40"} ${dim ? "opacity-40" : ""}`}
                 >
                   {view === "week" && <span className="mr-2 text-muted-foreground">{d.toLocaleDateString(undefined, { weekday: "short" })}</span>}
                   <div className={`mb-1 inline-grid h-6 w-6 place-items-center rounded-full ${dayKey(d) === today ? "bg-primary text-primary-foreground" : ""}`}>{d.getDate()}</div>
@@ -268,6 +299,31 @@ function Calendar() {
           </div>
         )}
       </div>
+
+      {dayOpen && (
+        <Modal onClose={() => setDayOpen(null)}>
+          <h2 className="text-lg font-semibold">{dayOpen.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}</h2>
+          <ul className="space-y-2">
+            {(byDay.get(dayKey(dayOpen)) ?? []).map((p) => (
+              <li key={p.id} className="rounded-xl border border-border bg-secondary/40 p-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {p.platforms.map((x) => <span key={x} className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: platformColor[x] }} />{platformLabel(x)}</span>)}
+                  <span className="ml-auto">{new Date(p.scheduled_at!).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} · {statusLabel[p.status]}</span>
+                </div>
+                <p className="mt-1.5 text-sm">{p.content}</p>
+                {!readOnly && (
+                  <div className="mt-2 flex gap-1.5">
+                    <button onClick={() => { setDayOpen(null); setEditing({ post: p, content: p.content, when: toLocalInput(new Date(p.scheduled_at!)) }); }} className="flex items-center gap-1 rounded-lg border border-input px-2.5 py-1 text-xs hover:bg-secondary"><Pencil className="h-3 w-3" /> Edit</button>
+                    <button onClick={() => duplicate(p)} className="flex items-center gap-1 rounded-lg border border-input px-2.5 py-1 text-xs hover:bg-secondary"><Copy className="h-3 w-3" /> Duplicate</button>
+                    <button onClick={() => { if (confirm("Delete this post?")) remove(p.id); }} className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10"><Trash2 className="h-3 w-3" /> Delete</button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+          {!readOnly && <button onClick={() => { const d = dayOpen; setDayOpen(null); const at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0); if (at.getTime() < Date.now()) at.setTime(Date.now() + 3600_000); setCreating(toLocalInput(at)); }} className={`${btnPrimary} w-full`}><Plus className="h-4 w-4" /> Add post this day</button>}
+        </Modal>
+      )}
 
       {editing && (
         <Modal onClose={() => setEditing(null)}>
