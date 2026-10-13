@@ -46,7 +46,15 @@ function Clients() {
 
   return (
     <>
-      <PageHeader subtitle="Across all partners" title="Clients" />
+      <PageHeader
+        subtitle="Across all partners"
+        title="Clients"
+        action={
+          <button onClick={() => setAddOpen(true)} className={btnPrimary}>
+            <UserPlus className="h-4 w-4" /> Add client
+          </button>
+        }
+      />
       <div className="mb-4 flex flex-wrap gap-2">
         <select aria-label="Partner" className={selectCls} value={partner} onChange={(e) => setPartner(e.target.value)}>
           <option value="all">All partners</option>
