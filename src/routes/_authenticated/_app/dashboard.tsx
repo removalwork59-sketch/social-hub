@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { type Platform, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls } from "@/components/AppShell";
+import { SampleNote } from "@/components/portal-ui";
 
 export const Route = createFileRoute("/_authenticated/_app/dashboard")({
   head: () => ({ meta: [{ title: "Home — SocialOS" }, { name: "description", content: "Workspace overview." }] }),
@@ -187,6 +188,7 @@ function OwnerHome() {
           <Link to="/upgrade" className="rounded-xl bg-background px-4 py-2 text-center text-sm font-semibold text-foreground transition-transform hover:-translate-y-0.5">Upgrade now</Link>
         </div>
       )}
+      {hasSample && <div className="mb-4"><SampleNote>Some figures are sample history. They switch to live numbers as your connected accounts sync.</SampleNote></div>}
 
       <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {stats.map((s, i) =>
@@ -308,6 +310,7 @@ function OwnerHome() {
       <section className="mt-4 grid gap-4 lg:grid-cols-5">
         <div className={`${cardCls} lg:col-span-3`}>
           <h2 className="mb-3 font-semibold">Recent activity</h2>
+          {activity.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No comments or messages yet.</p>}
           <ul className="divide-y divide-border">
             {activity.map((a, i) => {
               const P = iconFor(a.p);
@@ -373,9 +376,9 @@ function OwnerHome() {
           {isFree ? (
             <Link to="/upgrade" className={`${btnPrimary} mt-4 w-full`}><Lock className="h-4 w-4" /> More AI ideas with Pro</Link>
           ) : (
-            <button onClick={() => setSkipped([])} className={`${btnPrimary} mt-4 w-full`}>
+            <Link to="/composer" className={`${btnPrimary} mt-4 w-full`}>
               <Sparkles className="h-4 w-4" /> Generate more
-            </button>
+            </Link>
           )}
         </div>
       </section>
