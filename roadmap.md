@@ -44,3 +44,4 @@
 - [ ] Composer: align with brief (per-platform previews, schedule/draft/post-now controls)
 - [ ] Calendar: drag-and-drop rescheduling
 - [ ] Inbox: bulk select + actions (mark read, archive, assign, delete)
+- [ ] Analytics: best-time-to-post heatmap

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus } from "lucide-react";
+import { Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeMessage, draftReply, triageMessage } from "@/lib/ai.functions";
