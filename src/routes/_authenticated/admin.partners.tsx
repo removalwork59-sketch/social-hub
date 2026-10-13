@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { createPartnerLogin } from "@/lib/partner.functions";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, IndianRupee, Plus, Search, Users, X } from "lucide-react";
 import { PageHeader, btnPrimary, inputCls } from "@/components/AppShell";
@@ -9,7 +11,7 @@ import { Panel, Pill, Stat, inr } from "@/components/portal-ui";
 
 const PRICE: Record<string, number> = { free: 0, pro: 499, business: 1499 };
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
-type P = { id: string; name: string; email: string; clients: number; share: number; revenue: number; status: "active" | "pending" | "inactive"; color: string; clientList: { name: string; plan: string }[] };
+type P = { id: string; name: string; email: string; clients: number; share: number; revenue: number; status: "active" | "pending" | "inactive"; color: string; hasLogin: boolean; clientList: { name: string; plan: string }[] };
 
 export const Route = createFileRoute("/_authenticated/admin/partners")({
   head: () => ({ meta: [{ title: "Partners — SocialOS Admin" }, { name: "description", content: "Manage white-label partners." }] }),
@@ -35,7 +37,7 @@ function Partners() {
       if (error) throw error;
       return (ps ?? []).map((p) => {
         const mine = (cs ?? []).filter((c) => c.partner_id === p.id);
-        return { id: p.id, name: p.name, email: p.email, share: Number(p.commission_pct), status: p.status as P["status"], color: p.color, clients: mine.length, revenue: mine.reduce((a, c) => a + (PRICE[c.plan] ?? 0), 0), clientList: mine.map((c) => ({ name: c.name, plan: c.plan })) };
+        return { id: p.id, name: p.name, email: p.email, share: Number(p.commission_pct), status: p.status as P["status"], color: p.color, hasLogin: !!p.user_id, clients: mine.length, revenue: mine.reduce((a, c) => a + (PRICE[c.plan] ?? 0), 0), clientList: mine.map((c) => ({ name: c.name, plan: c.plan })) };
       });
     },
   });
@@ -161,6 +163,7 @@ function Partners() {
               ))}
               {tab === "Settings" && (
                 <div className="space-y-3">
+                  <PartnerLogin partner={open} onDone={refresh} />
                   <label className="block">Commission %<input type="number" className={`${inputCls} mt-1`} defaultValue={open.share} onBlur={(e) => { const v = Number(e.target.value); if (v !== open.share) { update(open.id, { commission_pct: v }); setOpen({ ...open, share: v }); } }} /></label>
                   <div className="flex gap-2">
                     {(["active", "pending", "inactive"] as const).map((s) => (
@@ -186,5 +189,35 @@ function Partners() {
         </div>
       )}
     </>
+  );
+}
+
+function PartnerLogin({ partner, onDone }: { partner: P; onDone: () => void }) {
+  const create = useServerFn(createPartnerLogin);
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (partner.hasLogin) return <p className="rounded-xl bg-success/10 px-3 py-2 text-success">Partner login active — {partner.email} can sign in to the Partner portal.</p>;
+  async function go() {
+    setBusy(true);
+    try {
+      await create({ data: { partnerId: partner.id, email: partner.email, name: partner.name, password: pw } });
+      toast.success(`Login created — ${partner.email} can now sign in`);
+      setPw("");
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not create login");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className="mb-2 font-medium">Partner portal login</p>
+      <p className="mb-2 text-xs text-muted-foreground">Creates a sign-in for {partner.email} with access to their own Partner portal.</p>
+      <div className="flex gap-2">
+        <input className={inputCls} placeholder="Temporary password (min 6)" value={pw} onChange={(e) => setPw(e.target.value)} />
+        <button disabled={busy || pw.length < 6} onClick={go} className={`${btnPrimary} disabled:opacity-40`}>{busy ? "…" : "Create"}</button>
+      </div>
+    </div>
   );
 }
