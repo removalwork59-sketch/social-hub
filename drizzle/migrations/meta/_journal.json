@@ -50,6 +50,13 @@
       "when": 1791910964667,
       "tag": "0006_fix_log_activity_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791914831377,
+      "tag": "0007_inbox_admin_delete",
+      "breakpoints": true
     }
   ]
 }

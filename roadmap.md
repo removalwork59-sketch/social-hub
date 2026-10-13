@@ -45,3 +45,4 @@
 - [ ] Calendar: drag-and-drop rescheduling
 - [ ] Inbox: bulk select + actions (mark read, archive, assign, delete)
 - [ ] Analytics: best-time-to-post heatmap
+- [ ] Partner dashboard: compare brief with existing portal, fill gaps
