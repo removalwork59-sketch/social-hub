@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Check, CheckCircle2, Music2, PartyPopper, Phone, Play, Plus, Sparkles } from "lucide-react";
+import { BarChart3, Camera, Check, Inbox, Music2, Phone, Play, Plus, Sparkles, Wand2, X as XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { type Platform, useWorkspace } from "@/lib/workspace";
@@ -42,6 +42,8 @@ function PlatformIcon({ id }: { id: string }) {
   }
 }
 import { btnPrimary, cardCls, inputCls } from "@/components/AppShell";
+import { TrainStep, type BrandProfile } from "@/components/onboarding/TrainStep";
+import { DoneStep } from "@/components/onboarding/DoneStep";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Get started — SocialOS" }, { name: "robots", content: "noindex" }] }),
@@ -50,11 +52,11 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 
 const steps = ["Account", "Connect", "Plan", "AI training", "Done"];
 const tones = ["Professional", "Casual", "Funny", "Bold"];
-type PlanCard = { id: string; name: string; price: string; year?: string; yearMonthly?: string; popular?: boolean; f: [string, boolean][] };
+type PlanCard = { id: string; name: string; price: string; year?: string; yearMonthly?: string; popular?: boolean; sub: string; f: [string, boolean][] };
 const plans: PlanCard[] = [
-  { id: "free", name: "Free", price: "₹0", f: [["5 posts per month", true], ["1 social platform", true], ["Basic AI (50 calls/day)", true], ["Unified inbox", true], ["AI reply drafts", false], ["White-label", false], ["Priority support", false]] },
-  { id: "pro", name: "Pro", price: "₹499", year: "₹4,790", yearMonthly: "₹399", popular: true, f: [["Unlimited posts", true], ["5 social platforms", true], ["Full AI (500 calls/day)", true], ["AI reply drafts", true], ["Advanced analytics", true], ["Auto-moderation", true], ["Email support", true], ["White-label", false]] },
-  { id: "business", name: "Business", price: "₹1,499", year: "₹14,390", yearMonthly: "₹1,199", f: [["Everything in Pro", true], ["Unlimited platforms", true], ["Unlimited AI (5000 calls/day)", true], ["White-label", true], ["Custom domain", true], ["Team members (10)", true], ["Priority support", true], ["Dedicated manager", true]] },
+  { id: "free", name: "Free", sub: "For getting started", price: "₹0", f: [["5 posts per month", true], ["1 social platform", true], ["Basic AI (50 calls/day)", true], ["Unified inbox", true], ["AI reply drafts", false], ["White-label", false], ["Priority support", false]] },
+  { id: "pro", name: "Pro", sub: "For growing businesses", price: "₹499", year: "₹4,790", yearMonthly: "₹399", popular: true, f: [["Unlimited posts", true], ["5 social platforms", true], ["Full AI (500 calls/day)", true], ["AI reply drafts", true], ["Advanced analytics", true], ["Auto-moderation", true], ["Email support", true], ["White-label", false]] },
+  { id: "business", name: "Business", sub: "For agencies & teams", price: "₹1,499", year: "₹14,390", yearMonthly: "₹1,199", f: [["Everything in Pro", true], ["Unlimited platforms", true], ["Unlimited AI (5000 calls/day)", true], ["White-label", true], ["Custom domain", true], ["Team members (10)", true], ["Priority support", true], ["Dedicated manager", true]] },
 ];
 
 function Onboarding() {
@@ -64,9 +66,9 @@ function Onboarding() {
   const [step, setStep] = useState(1);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [handle, setHandle] = useState("");
-  const [plan, setPlan] = useState("free");
-  const [about, setAbout] = useState("");
-  const [tone, setTone] = useState("Casual");
+  const [plan, setPlan] = useState("");
+  const [trained, setTrained] = useState(false);
+  const { data: firstName } = useQuery({ queryKey: ["my-name"], queryFn: async () => { const { data: u } = await supabase.auth.getUser(); return (await supabase.from("profiles").select("full_name").eq("id", u.user?.id ?? "").maybeSingle()).data?.full_name ?? ""; } });
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["accounts", current?.id],
@@ -95,16 +97,20 @@ function Onboarding() {
     setHandle("");
   }
 
-  async function finish(skipTraining = false) {
+  async function finish(bp: BrandProfile | null) {
     if (!current) return;
     const { error } = await supabase
       .from("workspaces")
-      .update({ onboarded: true, ...(skipTraining ? {} : { brand_description: about || null, brand_tone: tone }) })
+      .update({
+        onboarded: true,
+        ...(bp ? { name: bp.name.trim() || current.name, brand_description: bp.description || null, brand_tone: bp.tones.join(", ") || null, brand_profile: bp } : {}),
+      })
       .eq("id", current.id);
     if (error) {
       toast.error(error.message);
       return;
     }
+    setTrained(!!bp);
     refresh();
     setStep(5);
   }
@@ -132,10 +138,15 @@ function Onboarding() {
         <div key={step} className="animate-rise">
           {step === 1 && (
             <div className="text-center">
-              <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
-              <h1 className="mt-4 text-3xl font-semibold">Your account is ready</h1>
-              <p className="mt-2 text-muted-foreground">Workspace <b className="text-foreground">{current?.name}</b> was created. Let's set it up in under a minute.</p>
-              <button onClick={() => setStep(2)} className={`${btnPrimary} mt-8`}>Continue</button>
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-primary shadow-glow"><Sparkles className="h-8 w-8 text-primary-foreground" /></div>
+              <h1 className="mt-6 text-4xl font-semibold">Welcome to SocialOS</h1>
+              <p className="mt-2 text-muted-foreground">Manage all your social media with AI</p>
+              <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-3">
+                {[{ i: Wand2, t: "AI posts", s: "Captions, hashtags and images in your voice" }, { i: Inbox, t: "Unified inbox", s: "Every comment and DM in one place" }, { i: BarChart3, t: "Analytics", s: "See what works and when to post" }].map((f) => (
+                  <div key={f.t} className={`${cardCls} text-left`}><f.i className="h-6 w-6 text-primary" /><p className="mt-3 font-semibold">{f.t}</p><p className="mt-1 text-sm text-muted-foreground">{f.s}</p></div>
+                ))}
+              </div>
+              <button onClick={() => setStep(2)} className={`${btnPrimary} mt-10 px-8 py-3 text-base`}>Get Started</button>
             </div>
           )}
 
@@ -169,6 +180,7 @@ function Onboarding() {
                 </button>
               </div>
               <div className="mt-10 flex items-center justify-between">
+                <button onClick={() => setStep(1)} className="text-sm text-muted-foreground hover:text-foreground">← Back</button>
                 <button onClick={() => setStep(3)} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
                 <button disabled={connectedCount === 0} onClick={() => setStep(3)} className={`${btnPrimary} disabled:cursor-not-allowed disabled:opacity-40`}>Continue</button>
               </div>
@@ -205,10 +217,12 @@ function Onboarding() {
                   const yearly = billing === "yearly" && p.year;
                   const selected = plan === p.id;
                   return (
-                    <div key={p.id} onClick={() => setPlan(p.id)} className={`${cardCls} relative flex cursor-pointer flex-col transition-all duration-200 hover:-translate-y-1 ${p.popular ? "border-primary shadow-glow" : ""} ${selected ? "ring-2 ring-primary" : ""}`}>
+                    <div key={p.id} onClick={() => setPlan(p.id)} className={`${cardCls} relative flex cursor-pointer flex-col transition-all duration-200 hover:-translate-y-1 ${p.popular ? "border-2 border-primary shadow-glow" : ""} ${selected ? "ring-2 ring-primary" : ""}`}>
                       {p.popular && <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">Most Popular</span>}
                       {p.id === "free" && <span className="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{current?.plan === "free" ? "Current" : "Start Free"}</span>}
-                      <p className="font-semibold">{p.name}</p>
+                      <p className={`font-semibold ${selected ? "pl-7" : ""}`}>{p.name}</p>
+                      <p className="text-xs text-muted-foreground">{p.sub}</p>
+                      {selected && <span className="absolute left-4 top-4 grid h-5 w-5 place-items-center rounded-full bg-primary"><Check className="h-3 w-3 text-primary-foreground" /></span>}
                       <p className="mt-2 text-3xl font-semibold">
                         {yearly ? p.year : p.price}
                         <span className="text-sm font-normal text-muted-foreground">{yearly ? "/year" : "/month"}</span>
@@ -233,32 +247,32 @@ function Onboarding() {
                 })}
               </div>
               <div className="mt-10 flex items-center justify-between">
+                <button onClick={() => setStep(2)} className="text-sm text-muted-foreground hover:text-foreground">← Back</button>
                 <button onClick={() => { setPlan("free"); setStep(4); }} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
-                <button onClick={choosePlan} className={btnPrimary}>Continue</button>
+                <button disabled={!plan} onClick={choosePlan} className={`${btnPrimary} disabled:opacity-40`}>Continue</button>
               </div>
             </>
           )}
 
           {step === 4 && (
-            <div className="mx-auto max-w-xl">
-              <h1 className="text-center text-3xl font-semibold">Tell us about your brand</h1>
-              <p className="mb-8 mt-2 text-center text-muted-foreground">AI uses this to write posts and replies in your voice.</p>
-              <textarea className={`${inputCls} min-h-36`} maxLength={1000} placeholder="e.g. Brewly is a specialty coffee chain in Bengaluru for young professionals. We're warm, playful and love puns." value={about} onChange={(e) => setAbout(e.target.value)} />
-              <p className="mb-2 mt-5 text-sm text-muted-foreground">Tone of voice</p>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {tones.map((t) => <button key={t} onClick={() => setTone(t)} className={`rounded-xl border py-3 text-sm font-medium transition-colors ${tone === t ? "border-primary bg-accent text-accent-foreground" : "border-input hover:border-primary/50"}`}>{t}</button>)}
-              </div>
-              <Nav onSkip={() => finish(true)} onNext={() => finish(false)} nextLabel="Finish" />
-            </div>
+            <TrainStep
+              initial={{ name: current?.name ?? "", description: current?.brand_description ?? "", tones: current?.brand_tone ? current.brand_tone.split(", ") : [], audiences: [], pillars: [], frequency: "3 posts/week", platforms: ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).map((p) => (p.id === "twitter" ? "X" : p.label)), hashtags: [] }}
+              onBack={() => setStep(3)}
+              onSkip={() => finish(null)}
+              onSave={(bp) => finish(bp)}
+            />
           )}
 
           {step === 5 && (
-            <div className="py-10 text-center">
-              <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gradient-primary shadow-glow"><PartyPopper className="h-9 w-9 text-primary-foreground" /></div>
-              <h1 className="mt-6 text-4xl font-semibold">Welcome to SocialOS 🎉</h1>
-              <p className="mt-2 text-muted-foreground">You're all set. Let's create your first post.</p>
-              <button onClick={() => navigate({ to: "/dashboard" })} className={`${btnPrimary} mt-8`}>Go to Dashboard</button>
-            </div>
+            <DoneStep
+              name={(firstName || current?.name || "there").split(" ")[0]!}
+              summary={[
+                connectedCount ? `Connected ${connectedCount} social account${connectedCount > 1 ? "s" : ""}` : "Social accounts — connect any time",
+                trained ? "AI trained on your brand voice" : "AI ready (add brand details in Settings)",
+                `${plan === "business" ? "Business" : plan === "pro" ? "Pro" : "Free"} plan selected${plan !== "free" ? " — you're on Free until payment is set up" : ""}`,
+                "Composer ready for your first AI post",
+              ]}
+            />
           )}
         </div>
       </div>
