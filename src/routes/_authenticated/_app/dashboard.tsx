@@ -124,14 +124,82 @@ function OwnerHome() {
   }).length;
   const scheduled = (data ?? []).filter((p) => p.scheduled_at && new Date(p.scheduled_at) > now).length;
 
+  const { data: live, isLoading: liveLoading } = useQuery({
+    queryKey: ["home-live", wsId],
+    enabled: !!wsId,
+    queryFn: async () => {
+      const since = new Date(Date.now() - 59 * 864e5).toISOString().slice(0, 10);
+      const since30 = new Date(Date.now() - 30 * 864e5).toISOString();
+      const [a, m, inbox, drafts] = await Promise.all([
+        supabase.from("analytics_daily").select("day, platform, followers, engagement, reach, is_sample").eq("workspace_id", wsId!).gte("day", since).order("day"),
+        supabase.from("mentions").select("sentiment, is_sample").eq("workspace_id", wsId!).gte("created_at", since30),
+        supabase.from("inbox_messages").select("id, platform, author, kind, received_at, is_sample").eq("workspace_id", wsId!).eq("archived", false).order("received_at", { ascending: false }).limit(5),
+        supabase.from("posts").select("id, content, platforms, status").eq("workspace_id", wsId!).in("status", ["draft", "pending_approval"]).order("created_at", { ascending: false }).limit(3),
+      ]);
+      return { analytics: a.data ?? [], mentions: m.data ?? [], inbox: inbox.data ?? [], drafts: drafts.data ?? [] };
+    },
+  });
+  const cutoff = new Date(Date.now() - 29 * 864e5).toISOString().slice(0, 10);
+  const prevCut = new Date(Date.now() - 59 * 864e5).toISOString().slice(0, 10);
+  const recent = (live?.analytics ?? []).filter((r) => r.day >= cutoff);
+  const prior = (live?.analytics ?? []).filter((r) => r.day < cutoff && r.day >= prevCut);
+  const byDay = new Map<string, Record<string, number | string>>();
+  for (const r of recent) {
+    const row = byDay.get(r.day) ?? { day: new Date(r.day).toLocaleDateString(undefined, { day: "numeric", month: "short" }), facebook: 0, instagram: 0, linkedin: 0, twitter: 0 };
+    row[r.platform] = ((row[r.platform] as number) ?? 0) + r.engagement;
+    byDay.set(r.day, row);
+  }
+  const series = [...byDay.values()];
+  const latestFollowers = (rows: typeof recent) => {
+    const last = new Map<string, number>();
+    for (const r of rows) last.set(r.platform, r.followers);
+    return [...last.values()].reduce((x, y) => x + y, 0);
+  };
+  const sum = (rows: typeof recent, k: "engagement" | "reach") => rows.reduce((x, r) => x + r[k], 0);
+  const followers = latestFollowers(recent);
+  const prevFollowers = latestFollowers(prior);
+  const rate = sum(recent, "reach") ? (sum(recent, "engagement") / sum(recent, "reach")) * 100 : 0;
+  const prevRate = sum(prior, "reach") ? (sum(prior, "engagement") / sum(prior, "reach")) * 100 : 0;
+  const pct = (a: number, b: number) => (b ? `${a >= b ? "+" : ""}${Math.round(((a - b) / b) * 100)}%` : undefined);
+  const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n));
+  const count = (s: string) => (live?.mentions ?? []).filter((m) => m.sentiment === s).length;
+  const sentiment = [
+    { name: "Positive", value: count("positive"), color: "var(--success)" },
+    { name: "Neutral", value: count("neutral"), color: "var(--muted-foreground)" },
+    { name: "Negative", value: count("negative"), color: "var(--destructive)" },
+  ];
+  const totalMentions = sentiment.reduce((a, b) => a + b.value, 0) || 0;
+  const ago = (iso: string) => {
+    const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    return m < 60 ? `${m}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d`;
+  };
+  const verb = { comment: "commented on your post", dm: "sent you a message", mention: "mentioned your brand", review: "left a review" } as const;
+  const activity = (live?.inbox ?? []).map((i) => ({ p: i.platform as string, user: i.author.replace(/^@/, ""), text: verb[i.kind], ago: ago(i.received_at) }));
+  const aiPosts = (live?.drafts ?? []).map((d) => {
+    const platform = (d.platforms[0] ?? "instagram") as Platform;
+    return { id: d.id, platform, caption: d.content, hue: lines.find((l) => l.key === platform)?.color ?? "var(--chart-1)" };
+  });
+  const hasSample = [...(live?.analytics ?? []), ...(live?.mentions ?? []), ...(live?.inbox ?? [])].some((r) => r.is_sample);
+
   const stats = [
-    { label: "Total followers", value: "48.2K", trend: "+12%", icon: Users },
-    { label: "Engagement rate", value: "5.8%", trend: "+5%", icon: TrendingUp },
+    { label: "Total followers", value: fmt(followers), trend: pct(followers, prevFollowers), icon: Users },
+    { label: "Engagement rate", value: `${rate.toFixed(1)}%`, trend: pct(rate, prevRate), icon: TrendingUp },
     { label: "Posts this month", value: thisMonth, icon: PenSquare },
     { label: "Scheduled posts", value: scheduled, icon: CalendarClock },
   ];
 
   async function approve(p: (typeof aiPosts)[number]) {
+    if (!wsId) return;
+    const at = new Date(Date.now() + 864e5);
+    at.setHours(18, 0, 0, 0);
+    const { error } = await supabase.from("posts").update({ status: "scheduled", scheduled_at: at.toISOString() }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Scheduled for tomorrow, 6 PM");
+    qc.invalidateQueries({ queryKey: ["home-live"] });
+    qc.invalidateQueries({ queryKey: ["overview"] });
+    qc.invalidateQueries({ queryKey: ["posts"] });
+  }
+  async function legacyApprove(p: { platform: Platform; caption: string; id: string }) {
     if (!wsId) return;
     const at = new Date(Date.now() + 864e5);
     at.setHours(18, 0, 0, 0);
