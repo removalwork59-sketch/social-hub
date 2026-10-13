@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart3, Camera, Check, Inbox, Music2, Phone, Play, Plus, Sparkles, Wand2, X as XIcon } from "lucide-react";
@@ -51,7 +51,6 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 const steps = ["Account", "Connect", "Plan", "AI training", "Done"];
-const tones = ["Professional", "Casual", "Funny", "Bold"];
 type PlanCard = { id: string; name: string; price: string; year?: string; yearMonthly?: string; popular?: boolean; sub: string; f: [string, boolean][] };
 const plans: PlanCard[] = [
   { id: "free", name: "Free", sub: "For getting started", price: "₹0", f: [["5 posts per month", true], ["1 social platform", true], ["Basic AI (50 calls/day)", true], ["Unified inbox", true], ["AI reply drafts", false], ["White-label", false], ["Priority support", false]] },
@@ -62,11 +61,11 @@ const plans: PlanCard[] = [
 function Onboarding() {
   const { current, refresh } = useWorkspace();
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [handle, setHandle] = useState("");
   const [plan, setPlan] = useState("");
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [trained, setTrained] = useState(false);
   const { data: firstName } = useQuery({ queryKey: ["my-name"], queryFn: async () => { const { data: u } = await supabase.auth.getUser(); return (await supabase.from("profiles").select("full_name").eq("id", u.user?.id ?? "").maybeSingle()).data?.full_name ?? ""; } });
 
@@ -276,15 +275,6 @@ function Onboarding() {
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function Nav({ onSkip, onNext, nextLabel = "Continue" }: { onSkip: () => void; onNext: () => void; nextLabel?: string }) {
-  return (
-    <div className="mt-10 flex items-center justify-between">
-      <button onClick={onSkip} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
-      <button onClick={onNext} className={btnPrimary}>{nextLabel}</button>
     </div>
   );
 }

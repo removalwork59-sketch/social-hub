@@ -11,16 +11,17 @@ export type BrandProfile = {
   frequency: string;
   platforms: string[];
   hashtags: string[];
+  customPerWeek?: number | undefined;
 };
 
 const TONES = ["Professional", "Casual", "Funny", "Bold", "Inspirational", "Friendly", "Authoritative", "Witty"];
-const AUDIENCES = ["Small business owners", "Creators", "Agencies", "Enterprise", "Students", "Other"];
+const AUDIENCES = ["Small business owners", "Creators & influencers", "Agencies", "Enterprise", "Students", "Other"];
 const PILLARS = ["Product updates", "Tips & tricks", "Behind the scenes", "Customer stories", "Industry news", "Motivation", "Fun content"];
 const FREQ = ["1 post/day", "3 posts/week", "5 posts/week", "Custom"];
 const PLATS = ["Facebook", "Instagram", "LinkedIn", "X", "YouTube", "TikTok", "Pinterest"];
 
 const chip = (on: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-200 ${on ? "border-primary bg-accent text-accent-foreground" : "border-input hover:border-primary/50"}`;
+  `rounded-full border px-3.5 py-1.5 text-sm transition-colors duration-200 ${on ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-primary/50"}`;
 
 function toggle(list: string[], v: string, max = 99) {
   return list.includes(v) ? list.filter((x) => x !== v) : list.length >= max ? list : [...list, v];
@@ -74,17 +75,17 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
     <>
       <h1 className="text-center text-3xl font-semibold">Train your AI assistant</h1>
       <p className="mb-8 mt-2 text-center text-muted-foreground">Tell us about your brand so AI can create posts in your voice.</p>
-      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <div>
-          <label className="mb-2 block text-sm font-medium">Brand name</label>
-          <input className={inputCls} placeholder="Enter your brand name" value={p.name} onChange={(e) => set("name", e.target.value)} />
+          <label className="mb-2 block text-sm font-medium">Brand Name <span className="text-destructive">*</span></label>
+          <input className={inputCls} placeholder="e.g., SocialOS" value={p.name} onChange={(e) => set("name", e.target.value)} />
 
-          <label className={label}>Brand description</label>
+          <label className={label}>Describe your brand</label>
           <textarea className={`${inputCls} min-h-24`} maxLength={500} placeholder="We help small businesses automate their social media..." value={p.description} onChange={(e) => set("description", e.target.value)} />
           <p className="mt-1 text-right text-xs text-muted-foreground">{p.description.length}/500</p>
 
           <label className={label}>Tone of voice <span className="font-normal text-muted-foreground">(up to 3)</span></label>
-          <div className="flex flex-wrap gap-2">{TONES.map((t) => <button key={t} onClick={() => set("tones", toggle(p.tones, t, 3))} className={chip(p.tones.includes(t))}>{t}</button>)}</div>
+          <div className="flex flex-wrap gap-2">{TONES.map((t) => <button key={t} onClick={() => set("tones", toggle(p.tones, t, 3))} className={chip(p.tones.includes(t))}>{p.tones.includes(t) ? "✓ " : ""}{t}</button>)}</div>
 
           <label className={label}>Target audience</label>
           <div className="flex flex-wrap gap-2">{AUDIENCES.map((t) => <button key={t} onClick={() => set("audiences", toggle(p.audiences, t))} className={chip(p.audiences.includes(t))}>{t}</button>)}</div>
@@ -100,6 +101,9 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
               </label>
             ))}
           </div>
+          {p.frequency === "Custom" && (
+            <input type="number" min={1} max={50} className={`${inputCls} mt-2 max-w-48`} placeholder="Posts per week" value={p.customPerWeek ?? ""} onChange={(e) => set("customPerWeek", Number(e.target.value) || undefined)} />
+          )}
 
           <label className={label}>Preferred platforms</label>
           <div className="flex flex-wrap gap-3">
@@ -117,7 +121,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
             ))}
             <input
               className="min-w-40 flex-1 bg-transparent py-1 text-sm outline-none"
-              placeholder={p.hashtags.length < 10 ? "Add 5-10 hashtags you use often" : "Max 10 hashtags"}
+              placeholder={p.hashtags.length < 10 ? "#socialmedia, #AI, #marketing" : "Max 10 hashtags"}
               value={tag}
               onChange={(e) => setTag(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === "," || e.key === " ") { e.preventDefault(); addTag(); } }}
@@ -128,7 +132,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
 
         <aside className={`${cardCls} hidden h-fit lg:sticky lg:top-6 lg:block`}>
           <div className="mb-3 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> Preview</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI Preview</span>
             <button onClick={() => setSeed((s) => s + 1)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"><RefreshCw className="h-3.5 w-3.5" /> Regenerate</button>
           </div>
           <div className="rounded-xl border border-border bg-background p-4">
@@ -145,7 +149,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
       <div className="mt-10 flex items-center justify-between">
         <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground">← Back</button>
         <button onClick={onSkip} className="text-sm text-muted-foreground hover:text-foreground">Skip for now</button>
-        <button onClick={() => onSave(p)} className={btnPrimary}>Continue</button>
+        <button disabled={!p.name.trim()} onClick={() => onSave(p)} className={`${btnPrimary} disabled:opacity-40`}>Continue</button>
       </div>
     </>
   );
