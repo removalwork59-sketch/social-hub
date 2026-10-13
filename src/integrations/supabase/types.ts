@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      inbox_messages: {
+        Row: {
+          author: string
+          content: string
+          id: string
+          is_sample: boolean
+          kind: Database["public"]["Enums"]["inbox_kind"]
+          platform: Database["public"]["Enums"]["social_platform"]
+          received_at: string
+          resolved_at: string | null
+          sentiment: string
+          status: Database["public"]["Enums"]["inbox_status"]
+          workspace_id: string
+        }
+        Insert: {
+          author: string
+          content: string
+          id?: string
+          is_sample?: boolean
+          kind?: Database["public"]["Enums"]["inbox_kind"]
+          platform: Database["public"]["Enums"]["social_platform"]
+          received_at?: string
+          resolved_at?: string | null
+          sentiment?: string
+          status?: Database["public"]["Enums"]["inbox_status"]
+          workspace_id: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          id?: string
+          is_sample?: boolean
+          kind?: Database["public"]["Enums"]["inbox_kind"]
+          platform?: Database["public"]["Enums"]["social_platform"]
+          received_at?: string
+          resolved_at?: string | null
+          sentiment?: string
+          status?: Database["public"]["Enums"]["inbox_status"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string
@@ -183,8 +233,11 @@ export type Database = {
         Args: { _user: string; _ws: string }
         Returns: boolean
       }
+      seed_sample_inbox: { Args: { _ws: string }; Returns: undefined }
     }
     Enums: {
+      inbox_kind: "comment" | "dm" | "mention" | "review"
+      inbox_status: "open" | "resolved"
       post_status: "draft" | "scheduled" | "published" | "failed"
       social_platform:
         | "facebook"
@@ -320,6 +373,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      inbox_kind: ["comment", "dm", "mention", "review"],
+      inbox_status: ["open", "resolved"],
       post_status: ["draft", "scheduled", "published", "failed"],
       social_platform: [
         "facebook",
