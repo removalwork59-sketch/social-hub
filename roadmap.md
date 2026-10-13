@@ -16,3 +16,4 @@
 - [x] AI reply drafts in inbox (built)
 - [ ] Inbox assignment to teammates + responsible shown
 - [ ] Auth pages: confirm password on reset, 6-digit code (2FA) page
+- [ ] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
