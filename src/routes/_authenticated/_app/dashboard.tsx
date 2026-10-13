@@ -146,10 +146,16 @@ function OwnerHome() {
   };
   const verb = { comment: "commented on your post", dm: "sent you a message", mention: "mentioned your brand", review: "left a review" } as const;
   const activity = (live?.inbox ?? []).map((i) => ({ p: i.platform as string, user: i.author.replace(/^@/, ""), text: verb[i.kind], ago: ago(i.received_at) }));
-  const aiPosts = (live?.drafts ?? []).map((d) => {
+  const fallbackAi: { id: string; platform: Platform; caption: string; hue: string }[] = [
+    { id: "s1", platform: "instagram", caption: "Festive season is here 🎉 Grab 30% off everything this week only. #FestiveDeals", hue: "var(--chart-4)" },
+    { id: "s2", platform: "linkedin", caption: "5 tips to boost your engagement in 2026 — save this for your next content plan.", hue: "var(--chart-3)" },
+    { id: "s3", platform: "facebook", caption: "Behind the scenes: our team at work 📸", hue: "var(--chart-2)" },
+  ];
+  const draftAi = (live?.drafts ?? []).map((d) => {
     const platform = (d.platforms[0] ?? "instagram") as Platform;
     return { id: d.id, platform, caption: d.content, hue: lines.find((l) => l.key === platform)?.color ?? "var(--chart-1)" };
   });
+  const aiPosts = draftAi.length ? draftAi : fallbackAi;
   const hasSample = [...(live?.analytics ?? []), ...(live?.mentions ?? []), ...(live?.inbox ?? [])].some((r) => r.is_sample);
 
   const stats = [
@@ -161,6 +167,19 @@ function OwnerHome() {
 
   async function approve(p: (typeof aiPosts)[number]) {
     if (!wsId) return;
+    if (p.id.startsWith("s")) {
+      const at = new Date(Date.now() + 864e5);
+      at.setHours(18, 0, 0, 0);
+      const { error } = await supabase.from("posts").insert({ workspace_id: wsId, content: p.caption, platforms: [p.platform], scheduled_at: at.toISOString() });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Scheduled for tomorrow, 6 PM");
+      setSkipped((s) => [...s, p.id]);
+      qc.invalidateQueries({ queryKey: ["overview"] });
+      return;
+    }
     const at = new Date(Date.now() + 864e5);
     at.setHours(18, 0, 0, 0);
     const { error } = await supabase.from("posts").update({ status: "scheduled", scheduled_at: at.toISOString() }).eq("id", p.id);
@@ -174,7 +193,7 @@ function OwnerHome() {
     qc.invalidateQueries({ queryKey: ["posts"] });
   }
 
-  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id)).slice(0, isFree ? 1 : 3);
+  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id)).slice(0, 3);
   const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--foreground)" };
 
   return (
@@ -347,7 +366,7 @@ function OwnerHome() {
           {visibleAi.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">No drafts waiting. Write one in Composer and it shows up here for approval.</p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
               {visibleAi.map((p) => {
                 const P = iconFor(p.platform);
                 return (
