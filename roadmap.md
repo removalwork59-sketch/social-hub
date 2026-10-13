@@ -9,3 +9,4 @@
 - [ ] Super Admin area: Overview, Partners, Clients, Revenue, AI Usage, System Health, Support, Settings
 - [ ] Partner area: Overview, My Clients, Branding, Plans, Billing, Support, Settings
 - [ ] Client Owner pages: Composer, Calendar views, Inbox tabs/AI reply/bulk, Monitoring, Analytics, Community, Team, Billing, Settings
+- [ ] Team Member view: Home, Composer (submit for approval), Calendar view-only, assigned Inbox, Tasks

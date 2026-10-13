@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/admin/revenue")({
 });
 
 function Revenue() {
-  const last = mrrSeries.at(-1)!;
+  const last = mrrSeries[mrrSeries.length - 1]!;
   const top = [...sampleClients].sort((a, b) => b.mrr - a.mrr).slice(0, 5);
   return (
     <>
@@ -20,7 +20,7 @@ function Revenue() {
         <Stat label="MRR" value={inr(last.mrr)} icon={IndianRupee} trend={9} />
         <Stat label="ARR" value={inr(last.mrr * 12)} icon={IndianRupee} i={1} />
         <Stat label="Churn rate" value={`${last.churn}%`} icon={TrendingDown} trend={-8} i={2} />
-        <Stat label="Paying clients" value={planBreakdown[1].value + planBreakdown[2].value} icon={Users} i={3} />
+        <Stat label="Paying clients" value={planBreakdown[1]!.value + planBreakdown[2]!.value} icon={Users} i={3} />
       </section>
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
         <Panel title="MRR by month">

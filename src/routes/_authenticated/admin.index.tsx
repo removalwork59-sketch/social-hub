@@ -25,7 +25,7 @@ function Overview() {
   const stats = [
     { label: "Total partners", value: partners.length, icon: Building2, trend: 8 },
     { label: "Total clients", value: data?.clients ?? "–", icon: Users },
-    { label: "MRR", value: inr(mrrSeries.at(-1)!.mrr), icon: IndianRupee, trend: 9 },
+    { label: "MRR", value: inr(mrrSeries[mrrSeries.length - 1]!.mrr), icon: IndianRupee, trend: 9 },
     { label: "Posts published", value: data?.published ?? "–", icon: Send },
     { label: "Server uptime", value: "99.97%", icon: Activity },
     { label: "Registered users", value: data?.users ?? "–", icon: UserCheck },

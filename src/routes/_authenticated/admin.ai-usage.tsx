@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/admin/ai-usage")({
 });
 
 function AiUsage() {
-  const today = aiDaily.at(-1)!;
+  const today = aiDaily[aiDaily.length - 1]!;
   return (
     <>
       <PageHeader subtitle="AI engine" title="AI Usage" />
