@@ -74,7 +74,7 @@ const postFormat: JsonFormat = {
 type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>; userId: string };
 
 const DAILY_LIMIT: Record<string, number> = { free: 50, pro: 500, business: 5000 };
-type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags" | "best_time";
+type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags" | "best_time" | "trends";
 
 /**
  * Enforces plan limits and records usage.
@@ -260,4 +260,50 @@ export const recommendTimes = createServerFn({ method: "POST" })
     );
     const r = parse<{ slots: { day: string; time: string; why: string }[]; explanation: string }>(out);
     return { ...r, slots: r.slots.slice(0, 3), byDay };
+  });
+
+type Range = { from: string; to: string };
+const dateOk = (v: unknown) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+
+/** Summarizes trend changes between two date ranges from stored analytics + mentions, and recommends concrete actions. */
+export const summarizeTrends = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { workspaceId: string; a: Range; b: Range }) => {
+    if (![d.a?.from, d.a?.to, d.b?.from, d.b?.to].every(dateOk)) throw new Error("Pick valid date ranges");
+    return { workspaceId: String(d.workspaceId), a: d.a, b: d.b };
+  })
+  .handler(async ({ data, context }) => {
+    await meter(context, data.workspaceId, "trends");
+    const from = data.a.from < data.b.from ? data.a.from : data.b.from;
+    const to = data.a.to > data.b.to ? data.a.to : data.b.to;
+    const [{ data: days }, { data: ments }] = await Promise.all([
+      context.supabase.from("analytics_daily").select("day, platform, followers, engagement, reach").eq("workspace_id", data.workspaceId).gte("day", from).lte("day", to),
+      context.supabase.from("mentions").select("created_at, sentiment, source, content, reach").eq("workspace_id", data.workspaceId).gte("created_at", from).lte("created_at", to + "T23:59:59Z").limit(3000),
+    ]);
+    if (!days?.length && !ments?.length) throw new Error("No history in these date ranges");
+    const sum = (r: Range) => {
+      const d = (days ?? []).filter((x) => x.day >= r.from && x.day <= r.to);
+      const m = (ments ?? []).filter((x) => x.created_at.slice(0, 10) >= r.from && x.created_at.slice(0, 10) <= r.to);
+      const platforms: Record<string, { engagement: number; reach: number; followersEnd: number }> = {};
+      d.forEach((x) => {
+        const p = (platforms[x.platform] ??= { engagement: 0, reach: 0, followersEnd: 0 });
+        p.engagement += x.engagement; p.reach += x.reach; p.followersEnd = Math.max(p.followersEnd, x.followers);
+      });
+      const sentiment = { positive: 0, neutral: 0, negative: 0 } as Record<string, number>;
+      const sources: Record<string, number> = {};
+      m.forEach((x) => { sentiment[x.sentiment] = (sentiment[x.sentiment] ?? 0) + 1; sources[x.source] = (sources[x.source] ?? 0) + 1; });
+      const negSamples = m.filter((x) => x.sentiment === "negative").slice(0, 8).map((x) => x.content);
+      return { range: r, platforms, mentions: m.length, sentiment, sources, negativeExamples: negSamples };
+    };
+    const { data: ws } = await context.supabase.from("workspaces").select("name, brand_description").eq("id", data.workspaceId).maybeSingle();
+    const out = await chat(
+      "You are a senior social media analyst. Compare Period A (current) to Period B (previous) for this brand. Summarize the most important trend changes with numbers, then recommend 3-5 concrete, specific actions the team can take this week. Base everything only on the data; do not invent metrics.",
+      `Brand: ${ws?.name ?? "Client"}${ws?.brand_description ? ` — ${ws.brand_description}` : ""}\nPeriod A: ${JSON.stringify(sum(data.a))}\nPeriod B: ${JSON.stringify(sum(data.b))}`,
+      schema("trend_report", {
+        headline: { type: "string" },
+        changes: { type: "array", items: { type: "object", additionalProperties: false, required: ["title", "detail", "direction"], properties: { title: { type: "string" }, detail: { type: "string" }, direction: { type: "string", enum: ["up", "down", "flat"] } } } },
+        actions: { type: "array", items: { type: "object", additionalProperties: false, required: ["action", "why"], properties: { action: { type: "string" }, why: { type: "string" } } } },
+      }),
+    );
+    return parse<{ headline: string; changes: { title: string; detail: string; direction: "up" | "down" | "flat" }[]; actions: { action: string; why: string }[] }>(out);
   });

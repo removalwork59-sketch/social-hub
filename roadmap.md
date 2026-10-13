@@ -32,3 +32,5 @@
 - [x] Persistent mention + analytics history, date-range compare, CSV export (Reports page)
 - [x] AI best posting times with explanation (from account analytics)
 - [x] Activity logs for workspace/account changes, searchable for admins
+- [ ] AI trend summary + recommended actions for a date range (Reports)
+- [ ] Real social connections feeding Reports (LinkedIn + X first) — needs user to complete connection setup card
