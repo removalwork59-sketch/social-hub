@@ -66,7 +66,7 @@ function Partners() {
       toast.error("Enter a name and valid email");
       return;
     }
-    const { error } = await supabase.from("partners").insert({ name: form.name.trim(), email: form.email.trim().toLowerCase(), commission_pct: form.share, status: "pending", color: COLORS[rows.length % COLORS.length] });
+    const { error } = await supabase.from("partners").insert({ name: form.name.trim(), email: form.email.trim().toLowerCase(), commission_pct: form.share, status: "pending", color: COLORS[rows.length % COLORS.length] ?? "var(--chart-1)" });
     if (error) { toast.error(error.message); return; }
     setAdding(false);
     setForm({ name: "", email: "", share: 20 });
