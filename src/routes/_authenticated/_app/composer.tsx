@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,6 +23,7 @@ const toLocalInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-$
 function Composer() {
   const { current, role } = useWorkspace();
   const isMember = role === "member";
+  const isFree = current?.plan === "free";
   const qc = useQueryClient();
   const navigate = useNavigate();
   const ai = useServerFn(generatePost);
@@ -43,6 +44,20 @@ function Composer() {
     enabled: !!current,
     queryFn: async () => (await supabase.from("social_accounts").select("*").eq("workspace_id", current!.id)).data ?? [],
   });
+  const { data: usage } = useQuery({
+    queryKey: ["usage", current?.id],
+    enabled: !!current && isFree,
+    queryFn: async () => {
+      const start = new Date();
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      const [a, p] = await Promise.all([
+        supabase.from("ai_usage").select("id", { count: "exact", head: true }).eq("workspace_id", current!.id).eq("kind", "post").gte("created_at", start.toISOString()),
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("workspace_id", current!.id).gte("created_at", start.toISOString()),
+      ]);
+      return { ai: a.count ?? 0, posts: p.count ?? 0 };
+    },
+  });
   const connected = new Set(accounts.map((a) => a.platform));
   const available = isMember ? PLATFORMS.filter((p) => connected.has(p.id)) : PLATFORMS;
   const active = preview ?? platforms[0] ?? null;
@@ -55,10 +70,11 @@ function Composer() {
     }
     setBusy("ai");
     try {
-      const r = await ai({ data: { idea, tone, platforms: platforms.map(platformLabel) } });
+      const r = await ai({ data: { workspaceId: current!.id, idea, tone, platforms: platforms.map(platformLabel) } });
       setText(r.post);
       setTags(r.hashtags);
       setImageIdea(r.image);
+      qc.invalidateQueries({ queryKey: ["usage"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "AI failed");
     }
@@ -107,6 +123,14 @@ function Composer() {
   return (
     <>
       <PageHeader subtitle={current?.name} title="Composer" />
+      {isFree && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-primary/30 bg-accent/40 px-4 py-3 text-sm">
+          <span>Free plan: <b>1 platform</b> per post</span>
+          <span>AI posts <b>{usage?.ai ?? 0}/5</b> this month</span>
+          <span>Posts <b>{usage?.posts ?? 0}/5</b> this month</span>
+          <Link to="/upgrade" className="ml-auto font-semibold text-accent-foreground hover:underline">Upgrade for unlimited →</Link>
+        </div>
+      )}
       <div className="grid gap-4 xl:grid-cols-2">
         <div className={`${cardCls} space-y-5`}>
           <div>
@@ -117,7 +141,7 @@ function Composer() {
                 const on = platforms.includes(p.id);
                 return (
                   <label key={p.id} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors ${on ? "border-primary bg-accent text-accent-foreground" : "border-input text-muted-foreground hover:text-foreground"}`}>
-                    <input type="checkbox" className="accent-[var(--primary)]" checked={on} onChange={() => setPlatforms(on ? platforms.filter((x) => x !== p.id) : [...platforms, p.id])} />
+                    <input type="checkbox" className="accent-[var(--primary)]" checked={on} onChange={() => setPlatforms(on ? platforms.filter((x) => x !== p.id) : isFree ? [p.id] : [...platforms, p.id])} />
                     {p.label}
                   </label>
                 );
