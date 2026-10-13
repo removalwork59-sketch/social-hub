@@ -57,6 +57,20 @@
       "when": 1791914831377,
       "tag": "0007_inbox_admin_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791916345344,
+      "tag": "0008_partners_and_payouts",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791916502735,
+      "tag": "0009_partner_portal_access",
+      "breakpoints": true
     }
   ]
 }

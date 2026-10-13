@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /** Super Admin only: create a client owner account with its own workspace. */
 export const createClientAccount = createServerFn({ method: "POST" })
-  .inputValidator((d: { name: string; email: string; password: string; workspace: string; plan: "free" | "pro" | "business" }) => d)
+  .inputValidator((d: { name: string; email: string; password: string; workspace: string; plan: "free" | "pro" | "business"; partnerId?: string }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
@@ -33,7 +33,7 @@ export const createClientAccount = createServerFn({ method: "POST" })
 
     const { data: ws, error: wErr } = await supabaseAdmin
       .from("workspaces")
-      .insert({ name: workspace, owner_id: userId, plan: data.plan ?? "free", onboarded: true })
+      .insert({ name: workspace, owner_id: userId, plan: data.plan ?? "free", onboarded: true, partner_id: data.partnerId || null })
       .select("id")
       .single();
     if (wErr) throw new Error(wErr.message);

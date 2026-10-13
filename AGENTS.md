@@ -17,3 +17,4 @@
 - AI calls go through server functions in `src/lib/ai.functions.ts` using the Lovable AI Gateway Responses API — keeps the key server-side.
 - Portal pages without live data use `src/lib/sample-data.ts` / `src/lib/client-sample.ts` and must show `SampleNote` so sample figures are never mistaken for real ones.
 - Workspace/account/team changes are recorded by DB triggers (`log_activity`) into `activity_logs`, readable only by workspace admins and super admins — the audit trail can't be skipped by app code.
+- Partners live in `partners` (linked to a login via `user_id`, clients via `workspaces.partner_id`); partner-side reads go through `my_partner_id()`/`partner_my_clients()` so a partner only ever sees their own clients and payouts.

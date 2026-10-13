@@ -21,8 +21,8 @@ export const Route = createFileRoute("/_authenticated/partner")({
         { to: "/partner", label: "Overview", icon: LayoutDashboard, exact: true },
         { to: "/partner/clients", label: "My Clients", icon: Users },
         { to: "/partner/branding", label: "Branding", icon: Palette },
-        { to: "/partner/plans", label: "Plans", icon: Layers },
-        { to: "/partner/billing", label: "Billing", icon: CreditCard },
+        { to: "/partner/plans", label: "Plans & Pricing", icon: Layers },
+        { to: "/partner/billing", label: "Billing & Payouts", icon: CreditCard },
         { to: "/partner/support", label: "Support", icon: LifeBuoy },
         { to: "/partner/settings", label: "Settings", icon: Settings },
       ]}
