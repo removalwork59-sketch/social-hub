@@ -22,6 +22,7 @@ import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/_app/analytics'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/_app/billing'
 import { Route as AuthenticatedAppCommunityRouteImport } from './routes/_authenticated/_app/community'
+import { Route as AuthenticatedAppComponentsRouteImport } from './routes/_authenticated/_app/components'
 import { Route as AuthenticatedAppComposerRouteImport } from './routes/_authenticated/_app/composer'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
@@ -111,6 +112,12 @@ const AuthenticatedAppCommunityRoute =
   AuthenticatedAppCommunityRouteImport.update({
     id: '/community',
     path: '/community',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppComponentsRoute =
+  AuthenticatedAppComponentsRouteImport.update({
+    id: '/components',
+    path: '/components',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppComposerRoute =
@@ -265,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/billing': typeof AuthenticatedAppBillingRoute
   '/community': typeof AuthenticatedAppCommunityRoute
+  '/components': typeof AuthenticatedAppComponentsRoute
   '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
@@ -300,6 +308,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/billing': typeof AuthenticatedAppBillingRoute
   '/community': typeof AuthenticatedAppCommunityRoute
+  '/components': typeof AuthenticatedAppComponentsRoute
   '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
@@ -340,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/analytics': typeof AuthenticatedAppAnalyticsRoute
   '/_authenticated/_app/billing': typeof AuthenticatedAppBillingRoute
   '/_authenticated/_app/community': typeof AuthenticatedAppCommunityRoute
+  '/_authenticated/_app/components': typeof AuthenticatedAppComponentsRoute
   '/_authenticated/_app/composer': typeof AuthenticatedAppComposerRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/billing'
     | '/community'
+    | '/components'
     | '/composer'
     | '/dashboard'
     | '/inbox'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/billing'
     | '/community'
+    | '/components'
     | '/composer'
     | '/dashboard'
     | '/inbox'
@@ -453,6 +465,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/analytics'
     | '/_authenticated/_app/billing'
     | '/_authenticated/_app/community'
+    | '/_authenticated/_app/components'
     | '/_authenticated/_app/composer'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/inbox'
@@ -578,6 +591,13 @@ declare module '@tanstack/react-router' {
       path: '/community'
       fullPath: '/community'
       preLoaderRoute: typeof AuthenticatedAppCommunityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/components': {
+      id: '/_authenticated/_app/components'
+      path: '/components'
+      fullPath: '/components'
+      preLoaderRoute: typeof AuthenticatedAppComponentsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/composer': {
@@ -756,6 +776,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAnalyticsRoute: typeof AuthenticatedAppAnalyticsRoute
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
   AuthenticatedAppCommunityRoute: typeof AuthenticatedAppCommunityRoute
+  AuthenticatedAppComponentsRoute: typeof AuthenticatedAppComponentsRoute
   AuthenticatedAppComposerRoute: typeof AuthenticatedAppComposerRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
@@ -772,6 +793,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAnalyticsRoute: AuthenticatedAppAnalyticsRoute,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
   AuthenticatedAppCommunityRoute: AuthenticatedAppCommunityRoute,
+  AuthenticatedAppComponentsRoute: AuthenticatedAppComponentsRoute,
   AuthenticatedAppComposerRoute: AuthenticatedAppComposerRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,

@@ -8,13 +8,13 @@
 - [ ] Later: AI post generator, n8n auto-publish, monitoring, moderation, white-label, billing
 - [x] Super Admin area: Overview, Partners, Clients, Revenue, AI Usage, System Health, Support, Settings
 - [x] Partner area: Overview, My Clients, Branding, Plans, Billing, Support, Settings
-- [ ] Client Owner pages: Composer, Calendar views, Inbox tabs/AI reply/bulk, Monitoring, Analytics, Community, Team, Billing, Settings
-- [ ] Team Member view: Home, Composer (submit for approval), Calendar view-only, assigned Inbox, Tasks
-- [ ] Free plan (end user) view: limits 5 posts/5 AI per month, 1 platform, AI reply locked, Upgrade page
-- [ ] Inbox search (text, sender, workspace)
-- [ ] Onboarding flow (signup with workspace name, connect, plan, AI training, done)
+- [x] Client Owner pages: Composer, Calendar views, Inbox tabs/AI reply/bulk, Monitoring, Analytics, Community, Team, Billing, Settings
+- [x] Team Member view: Home, Composer (submit for approval), Calendar view-only, assigned Inbox, Tasks
+- [x] Free plan (end user) view: limits 5 posts/5 AI per month, 1 platform, AI reply locked, Upgrade page
+- [x] Inbox search (text, sender, workspace)
+- [x] Onboarding flow (signup with workspace name, connect, plan, AI training, done)
 - [x] AI reply drafts in inbox (built)
-- [ ] Inbox assignment to teammates + responsible shown
-- [ ] Auth pages: confirm password on reset, 6-digit code (2FA) page
-- [ ] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
+- [x] Inbox assignment to teammates + responsible shown
+- [x] Auth pages: confirm password on reset, 6-digit code (2FA) page
+- [x] Shared components: button variants, sortable/paginated tables, form controls, breadcrumbs, tabs, empty state; gallery page
 - [ ] Mobile: bottom nav Home/Composer/Calendar/Inbox/Profile, swipe-to-archive inbox, week view default on phone, profile with billing/logout, home-screen install
