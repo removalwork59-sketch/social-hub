@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BarChart3, Check, PenSquare, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Check, Minus, PenSquare, Users } from "lucide-react";
 import { btnPrimary, cardCls } from "@/components/AppShell";
 
 const COLORS = ["var(--primary)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 
-export function DoneStep({ name, summary }: { name: string; summary: string[] }) {
+export type SummaryItem = { text: string; done: boolean };
+
+export function DoneStep({ name, summary }: { name: string; summary: SummaryItem[] }) {
   return (
     <div className="relative py-6 text-center">
       <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -24,7 +26,14 @@ export function DoneStep({ name, summary }: { name: string; summary: string[] })
 
       <div className={`${cardCls} mx-auto mt-8 max-w-[600px] p-6 text-left`}>
         <p className="mb-3 font-medium">Here's what we set up for you:</p>
-        <ul className="space-y-2 text-sm">{summary.map((s) => <li key={s} className="flex items-center gap-2"><Check className="h-4 w-4 text-success" />{s}</li>)}</ul>
+        <ul className="space-y-2 text-sm">
+          {summary.map((s) => (
+            <li key={s.text} className={`flex items-center gap-2 ${s.done ? "" : "text-muted-foreground"}`}>
+              {s.done ? <Check className="h-4 w-4 shrink-0 text-success" /> : <Minus className="h-4 w-4 shrink-0 text-muted-foreground" />}
+              {s.text}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
