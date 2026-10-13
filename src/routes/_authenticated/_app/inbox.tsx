@@ -202,10 +202,24 @@ function InboxPage() {
         {checked.length > 0 && (
           <div className="ml-auto flex animate-rise items-center gap-1 rounded-xl border border-primary/40 bg-accent/60 px-2 py-1 text-sm">
             <span className="px-1">{checked.length} selected</span>
+            <button onClick={() => setChecked(checked.length === list.length ? [] : list.map((m) => m.id))} className="rounded-lg px-2 py-1 text-xs hover:bg-secondary">{checked.length === list.length ? "Clear" : "Select all"}</button>
             <button onClick={() => patch(checked, { is_read: true }, "Marked as read")} className="rounded-lg p-1.5 hover:bg-secondary" title="Mark read" aria-label="Mark read"><MailOpen className="h-4 w-4" /></button>
             {!isMember && <button onClick={() => patch(checked, { assigned_to: userId }, "Assigned to you")} className="rounded-lg p-1.5 hover:bg-secondary" title="Assign to me" aria-label="Assign to me"><UserPlus className="h-4 w-4" /></button>}
             <button onClick={() => patch(checked, { status: "resolved", resolved_at: new Date().toISOString() }, "Resolved")} className="rounded-lg p-1.5 hover:bg-secondary" title="Resolve" aria-label="Resolve"><CheckCircle2 className="h-4 w-4" /></button>
             <button onClick={() => patch(checked, { archived: true }, "Archived")} className="rounded-lg p-1.5 hover:bg-secondary" title="Archive" aria-label="Archive"><Archive className="h-4 w-4" /></button>
+            {!isMember && (
+              <button
+                onClick={async () => {
+                  if (!confirm(`Delete ${checked.length} message(s)? This can't be undone.`)) return;
+                  const { error } = await supabase.from("inbox_messages").delete().in("id", checked);
+                  if (error) return toast.error(error.message);
+                  toast.success("Deleted");
+                  setChecked([]);
+                  refresh();
+                }}
+                className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10" title="Delete" aria-label="Delete"
+              ><Trash2 className="h-4 w-4" /></button>
+            )}
           </div>
         )}
       </div>
