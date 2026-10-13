@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { generatePost, suggestHashtags } from "@/lib/ai.functions";
 import { PLATFORMS, type Platform, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
+import { PostPreview } from "@/components/PostPreview";
 
 export const Route = createFileRoute("/_authenticated/_app/composer")({
   head: () => ({ meta: [{ title: "Composer — SocialOS" }, { name: "description", content: "Create posts with AI." }] }),
