@@ -234,18 +234,12 @@ function Composer() {
               <button key={p} onClick={() => setPreview(p)} className={`rounded-lg px-3 py-1.5 text-sm ${active === p ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"}`}>{platformLabel(p)}</button>
             ))}
           </div>
-          <div className="mx-auto max-w-md rounded-xl border border-border bg-background p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-primary text-sm font-semibold text-primary-foreground">{(current?.name ?? "S")[0]}</div>
-              <div>
-                <p className="text-sm font-semibold">{current?.name}</p>
-                <p className="text-xs text-muted-foreground">{active ? platformLabel(active) : "Preview"} · Just now</p>
-              </div>
-            </div>
-            {media && <img src={media} alt="" className="mb-3 w-full rounded-lg object-cover" />}
-            <p className="whitespace-pre-wrap text-sm">{full || <span className="text-muted-foreground">Your post preview appears here…</span>}</p>
-            {active === "twitter" && full.length > 280 && <p className="mt-2 text-xs text-destructive">Will be cut off on X.</p>}
-          </div>
+          <PostPreview platform={active ?? "instagram"} name={current?.name ?? "Your brand"} text={full} media={media} />
+          {active && (
+            <p className={`mt-3 text-center text-xs ${full.length > LIMITS[active] ? "text-destructive" : "text-muted-foreground"}`}>
+              {full.length} / {LIMITS[active].toLocaleString()} characters{full.length > LIMITS[active] ? ` — too long for ${platformLabel(active)}` : ""}
+            </p>
+          )}
         </div>
       </div>
     </>

@@ -51,3 +51,5 @@
 - [x] Inbox brief: assign-to dropdown, export, sentiment chips, view profile/spam, use AI reply, attachments/internal note, pill tags, short times
 - [x] Super Admin overview: demo stats, MRR 6/12m chart, service status dots, activity, quick actions; check missing admin pages (feature flags, audit, security, payouts)
 - [x] Super Admin Partners: stats, search/filter, table with avatars/badges, detail drawer tabs, empty state, styled scrollbar
+
+- [ ] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
