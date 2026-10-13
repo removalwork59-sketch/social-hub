@@ -144,6 +144,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
         )}
+        {current?.plan === "free" && (
+          <Link to="/upgrade" title="Upgrade" onClick={() => setOpen(false)} className={`${item} text-accent-foreground hover:bg-secondary`}>
+            <Zap className="h-4 w-4 shrink-0" />
+            {!collapsed && <>Upgrade <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Pro</span></>}
+          </Link>
+        )}
         <button onClick={signOut} title="Sign out" className={`${item} text-muted-foreground hover:bg-secondary hover:text-foreground`}>
           <LogOut className="h-4 w-4 shrink-0" /> {!collapsed && "Sign out"}
         </button>
@@ -200,9 +206,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <p className="truncate text-sm font-semibold">{userName ?? "Account"}</p>
                       <p className="truncate text-xs text-muted-foreground">{current?.name}</p>
                     </div>
-                    <Link to="/settings" onClick={() => setProfileOpen(false)} className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
-                      <Settings className="h-4 w-4" /> Settings
-                    </Link>
+                    {([
+                      { to: "/profile", label: "Profile", icon: UserCircle },
+                      { to: "/settings", label: "Settings", icon: Settings },
+                      { to: "/billing", label: "Billing", icon: CreditCard },
+                      { to: "/upgrade", label: "Upgrade", icon: Zap },
+                    ] as const).map((m) => (
+                      <Link key={m.to} to={m.to} onClick={() => setProfileOpen(false)} className="mt-0.5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
+                        <m.icon className="h-4 w-4" /> {m.label}
+                      </Link>
+                    ))}
                     <button onClick={signOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
                       <LogOut className="h-4 w-4" /> Log out
                     </button>

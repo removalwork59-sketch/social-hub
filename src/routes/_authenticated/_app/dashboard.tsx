@@ -101,6 +101,14 @@ function OwnerHome() {
   const [skipped, setSkipped] = useState<number[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
 
+  const { data: myName } = useQuery({
+    queryKey: ["my-name"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const { data } = await supabase.from("profiles").select("full_name").eq("id", u.user!.id).single();
+      return data?.full_name ?? null;
+    },
+  });
   const { data, isLoading } = useQuery({
     queryKey: ["overview", wsId],
     enabled: !!wsId,
@@ -145,7 +153,10 @@ function OwnerHome() {
 
   return (
     <>
-      <PageHeader subtitle="Welcome back" title={current?.name ?? "…"} />
+      <PageHeader
+        subtitle={`${current?.name ?? ""} · ${now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`}
+        title={`Welcome back${myName ? `, ${(myName.split("@")[0] ?? "").split(" ")[0]}` : ""}`}
+      />
       {isFree && (
         <div className="mb-4 flex flex-col gap-3 overflow-hidden rounded-xl bg-gradient-primary p-5 text-primary-foreground shadow-glow sm:flex-row sm:items-center">
           <div className="flex-1">
