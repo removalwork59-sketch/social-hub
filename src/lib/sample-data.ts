@@ -1,11 +1,11 @@
 // Sample data for Super Admin / Partner portals until billing, AI metering and ticketing are wired up.
 
 export const partners = [
-  { id: "p1", name: "GrowthLab Agency", clients: 42, share: 20, revenue: 62958, status: "active" },
-  { id: "p2", name: "PixelPush Media", clients: 27, share: 20, revenue: 40473, status: "active" },
-  { id: "p3", name: "Bharat Digital", clients: 18, share: 25, revenue: 26982, status: "active" },
-  { id: "p4", name: "SocialNest", clients: 9, share: 20, revenue: 13491, status: "pending" },
-  { id: "p5", name: "Kite Creatives", clients: 4, share: 15, revenue: 1996, status: "suspended" },
+  { id: "p1", name: "GrowthLab Agency", email: "hello@growthlab.com", clients: 12, share: 20, revenue: 120000, status: "active", color: "var(--primary)" },
+  { id: "p2", name: "PixelPush Media", email: "contact@pixelpush.com", clients: 8, share: 20, revenue: 85000, status: "active", color: "var(--chart-4)" },
+  { id: "p3", name: "Bharat Digital", email: "info@bharatdigital.in", clients: 15, share: 25, revenue: 150000, status: "active", color: "var(--chart-3)" },
+  { id: "p4", name: "SocialNet", email: "team@socialnet.co", clients: 6, share: 20, revenue: 45000, status: "pending", color: "var(--chart-2)" },
+  { id: "p5", name: "Kite Creatives", email: "hello@kitecreatives.com", clients: 7, share: 20, revenue: 25000, status: "inactive", color: "var(--success)" },
 ];
 
 export const sampleClients = [
@@ -19,10 +19,10 @@ export const sampleClients = [
   { name: "Spice Route", partner: "Direct", plan: "Business", status: "active", mrr: 1499 },
 ];
 
-export const mrrSeries = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"].map((m, i) => ({
+export const mrrSeries = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"].map((m, i) => ({
   month: m,
-  mrr: [82000, 95500, 108200, 121900, 133400, 145900][i]!,
-  churn: [3.8, 3.4, 3.1, 2.9, 2.6, 2.4][i]!,
+  mrr: [18000, 22000, 26000, 31000, 37000, 43000, 50000, 75000, 90000, 110000, 130000, 145000][i]!,
+  churn: [5.1, 4.9, 4.6, 4.4, 4.1, 3.9, 3.8, 3.4, 3.1, 2.9, 2.6, 2.4][i]!,
 }));
 
 export const planBreakdown = [
