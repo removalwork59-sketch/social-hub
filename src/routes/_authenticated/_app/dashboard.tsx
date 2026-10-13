@@ -33,7 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { type Platform, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls } from "@/components/AppShell";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/_authenticated/_app/dashboard")({
   head: () => ({ meta: [{ title: "Home — SocialOS" }, { name: "description", content: "Workspace overview." }] }),
   component: Dashboard,
 });

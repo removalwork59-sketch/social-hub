@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PLATFORMS, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, cardCls } from "@/components/AppShell";
 
-export const Route = createFileRoute("/_authenticated/inbox")({
+export const Route = createFileRoute("/_authenticated/_app/inbox")({
   head: () => ({ meta: [{ title: "Inbox — SocialOS" }, { name: "description", content: "Comments and messages across clients." }] }),
   component: InboxPage,
 });

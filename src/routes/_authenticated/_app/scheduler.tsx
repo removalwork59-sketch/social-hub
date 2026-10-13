@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PLATFORMS, type Platform, platformLabel, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls, inputCls } from "@/components/AppShell";
 
-export const Route = createFileRoute("/_authenticated/scheduler")({
+export const Route = createFileRoute("/_authenticated/_app/scheduler")({
   head: () => ({ meta: [{ title: "Scheduler — SocialOS" }, { name: "description", content: "Plan and schedule posts." }] }),
   component: Scheduler,
 });
