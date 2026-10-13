@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3, Bell, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
-  PenSquare, Plus, Radar, Search, Settings, Sparkles, X,
+  PenSquare, Plus, Radar, Search, Settings, Sparkles, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,14 +12,15 @@ import { useWorkspace } from "@/lib/workspace";
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
   { to: "/scheduler", label: "Calendar", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/accounts", label: "Social accounts", icon: Link2 },
 ] as const;
 
 const soon = [
   { label: "Composer", icon: PenSquare },
-  { label: "Inbox", icon: Inbox },
   { label: "Monitoring", icon: Radar },
   { label: "Analytics", icon: BarChart3 },
+  { label: "Clients", icon: Users },
   { label: "Billing", icon: CreditCard },
   { label: "Settings", icon: Settings },
 ];
