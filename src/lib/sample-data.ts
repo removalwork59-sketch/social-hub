@@ -21,8 +21,8 @@ export const sampleClients = [
 
 export const mrrSeries = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"].map((m, i) => ({
   month: m,
-  mrr: [82000, 95500, 108200, 121900, 133400, 145900][i],
-  churn: [3.8, 3.4, 3.1, 2.9, 2.6, 2.4][i],
+  mrr: [82000, 95500, 108200, 121900, 133400, 145900][i]!,
+  churn: [3.8, 3.4, 3.1, 2.9, 2.6, 2.4][i]!,
 }));
 
 export const planBreakdown = [
@@ -103,6 +103,6 @@ export const payouts = [
 
 export const partnerEarnings = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"].map((m, i) => ({
   month: m,
-  revenue: [38000, 41500, 47800, 52300, 56200, 62958][i],
-  commission: [7600, 8300, 9560, 10460, 11240, 12592][i],
+  revenue: [38000, 41500, 47800, 52300, 56200, 62958][i]!,
+  commission: [7600, 8300, 9560, 10460, 11240, 12592][i]!,
 }));
