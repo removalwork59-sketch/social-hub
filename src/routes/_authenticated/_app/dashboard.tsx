@@ -155,7 +155,7 @@ function OwnerHome() {
     <>
       <PageHeader
         subtitle={`${current?.name ?? ""} · ${now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`}
-        title={`Welcome back${myName ? `, ${myName.split("@")[0].split(" ")[0]}` : ""}`}
+        title={`Welcome back${myName ? `, ${(myName.split("@")[0] ?? "").split(" ")[0]}` : ""}`}
       />
       {isFree && (
         <div className="mb-4 flex flex-col gap-3 overflow-hidden rounded-xl bg-gradient-primary p-5 text-primary-foreground shadow-glow sm:flex-row sm:items-center">
