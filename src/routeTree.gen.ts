@@ -16,6 +16,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_a
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPartnerRouteImport } from './routes/_authenticated/partner'
 import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/_app/accounts'
+import { Route as AuthenticatedAppComposerRouteImport } from './routes/_authenticated/_app/composer'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
 import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/_app/scheduler'
@@ -67,6 +68,12 @@ const AuthenticatedAppAccountsRoute =
   AuthenticatedAppAccountsRouteImport.update({
     id: '/accounts',
     path: '/accounts',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppComposerRoute =
+  AuthenticatedAppComposerRouteImport.update({
+    id: '/composer',
+    path: '/composer',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppDashboardRoute =
@@ -182,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
@@ -233,6 +242,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/_authenticated/_app/accounts': typeof AuthenticatedAppAccountsRoute
+  '/_authenticated/_app/composer': typeof AuthenticatedAppComposerRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
   '/_authenticated/_app/scheduler': typeof AuthenticatedAppSchedulerRoute
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/partner'
     | '/accounts'
+    | '/composer'
     | '/dashboard'
     | '/inbox'
     | '/scheduler'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/accounts'
+    | '/composer'
     | '/dashboard'
     | '/inbox'
     | '/scheduler'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/partner'
     | '/_authenticated/_app/accounts'
+    | '/_authenticated/_app/composer'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/inbox'
     | '/_authenticated/_app/scheduler'
@@ -385,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/accounts'
       fullPath: '/accounts'
       preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/composer': {
+      id: '/_authenticated/_app/composer'
+      path: '/composer'
+      fullPath: '/composer'
+      preLoaderRoute: typeof AuthenticatedAppComposerRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/dashboard': {
@@ -518,6 +538,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
+  AuthenticatedAppComposerRoute: typeof AuthenticatedAppComposerRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
   AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
@@ -525,6 +546,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
+  AuthenticatedAppComposerRoute: AuthenticatedAppComposerRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
   AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
