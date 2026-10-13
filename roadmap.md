@@ -53,3 +53,4 @@
 - [x] Super Admin Partners: stats, search/filter, table with avatars/badges, detail drawer tabs, empty state, styled scrollbar
 
 - [ ] Partner portal: dashboard, account settings, payment tracking, portal-only pages (compare with brief)
+- [ ] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
