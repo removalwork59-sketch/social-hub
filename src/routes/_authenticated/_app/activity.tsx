@@ -15,7 +15,8 @@ export const Route = createFileRoute("/_authenticated/_app/activity")({
 
 const ENTITY: Record<string, string> = { workspaces: "Workspace", social_accounts: "Social account", workspace_members: "Team member" };
 
-function describe(entity: string, action: string, d: Record<string, unknown>) {
+type D = { platform?: string; handle?: string; role?: string; previous_role?: string; name?: string; plan?: string; previous_plan?: string; previous_name?: string };
+function describe(entity: string, action: string, d: D) {
   if (entity === "social_accounts") return `${action === "insert" ? "Connected" : action === "delete" ? "Disconnected" : "Updated"} ${d.platform} account @${d.handle}`;
   if (entity === "workspace_members") return `${action === "insert" ? "Added member" : action === "delete" ? "Removed member" : "Changed member role"} (${d.previous_role ? `${d.previous_role} → ` : ""}${d.role})`;
   if (action === "insert") return `Created workspace “${d.name}”`;
@@ -44,7 +45,7 @@ function Activity() {
         when: l.created_at,
         who: l.actor_id ? names.get(l.actor_id) ?? "Teammate" : "System",
         type: ENTITY[l.entity] ?? l.entity,
-        what: describe(l.entity, l.action, (l.details ?? {}) as Record<string, unknown>),
+        what: describe(l.entity, l.action, (l.details ?? {}) as D),
       }));
       const t = q.trim().toLowerCase();
       return t ? rows.filter((r) => `${r.who} ${r.type} ${r.what}`.toLowerCase().includes(t)) : rows;
