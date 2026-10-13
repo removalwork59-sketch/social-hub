@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          user_id?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_messages: {
         Row: {
           archived: boolean
@@ -255,31 +287,40 @@ export type Database = {
       workspaces: {
         Row: {
           brand_color: string | null
+          brand_description: string | null
+          brand_tone: string | null
           created_at: string
           custom_domain: string | null
           id: string
           logo_url: string | null
           name: string
+          onboarded: boolean
           owner_id: string
           plan: string
         }
         Insert: {
           brand_color?: string | null
+          brand_description?: string | null
+          brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          onboarded?: boolean
           owner_id: string
           plan?: string
         }
         Update: {
           brand_color?: string | null
+          brand_description?: string | null
+          brand_tone?: string | null
           created_at?: string
           custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          onboarded?: boolean
           owner_id?: string
           plan?: string
         }

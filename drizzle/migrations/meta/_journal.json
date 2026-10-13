@@ -29,6 +29,13 @@
       "when": 1791909238424,
       "tag": "0003_team_tasks_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791909584003,
+      "tag": "0004_onboarding_limits_ai_usage",
+      "breakpoints": true
     }
   ]
 }
