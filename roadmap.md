@@ -40,3 +40,7 @@
 - [x] Test Inbox AI sentiment/urgency/priority signed in as user
 - [x] Dashboard: sidebar items (Monitoring/Analytics/Community/Team/Billing/Settings), top bar bell+avatar, activity feed, AI suggestions card, sentiment legend, CSV export
 - [x] Super Admin: create client account for manager (inbox + reports demo)
+- [ ] Home: replace example stats/charts/activity/AI suggestions with saved workspace data
+- [ ] Composer: align with brief (per-platform previews, schedule/draft/post-now controls)
+- [ ] Calendar: drag-and-drop rescheduling
+- [ ] Inbox: bulk select + actions (mark read, archive, assign, delete)
