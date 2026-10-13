@@ -16,10 +16,17 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_a
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPartnerRouteImport } from './routes/_authenticated/partner'
 import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/_app/accounts'
+import { Route as AuthenticatedAppAnalyticsRouteImport } from './routes/_authenticated/_app/analytics'
+import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/_app/billing'
+import { Route as AuthenticatedAppCommunityRouteImport } from './routes/_authenticated/_app/community'
 import { Route as AuthenticatedAppComposerRouteImport } from './routes/_authenticated/_app/composer'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppInboxRouteImport } from './routes/_authenticated/_app/inbox'
+import { Route as AuthenticatedAppMonitoringRouteImport } from './routes/_authenticated/_app/monitoring'
 import { Route as AuthenticatedAppSchedulerRouteImport } from './routes/_authenticated/_app/scheduler'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
+import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/_app/team'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAiUsageRouteImport } from './routes/_authenticated/admin.ai-usage'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
@@ -70,6 +77,23 @@ const AuthenticatedAppAccountsRoute =
     path: '/accounts',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAnalyticsRoute =
+  AuthenticatedAppAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCommunityRoute =
+  AuthenticatedAppCommunityRouteImport.update({
+    id: '/community',
+    path: '/community',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppComposerRoute =
   AuthenticatedAppComposerRouteImport.update({
     id: '/composer',
@@ -87,12 +111,34 @@ const AuthenticatedAppInboxRoute = AuthenticatedAppInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppMonitoringRoute =
+  AuthenticatedAppMonitoringRouteImport.update({
+    id: '/monitoring',
+    path: '/monitoring',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppSchedulerRoute =
   AuthenticatedAppSchedulerRouteImport.update({
     id: '/scheduler',
     path: '/scheduler',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -189,10 +235,17 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/billing': typeof AuthenticatedAppBillingRoute
+  '/community': typeof AuthenticatedAppCommunityRoute
   '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
+  '/monitoring': typeof AuthenticatedAppMonitoringRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
   '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -213,10 +266,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAppAccountsRoute
+  '/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/billing': typeof AuthenticatedAppBillingRoute
+  '/community': typeof AuthenticatedAppCommunityRoute
   '/composer': typeof AuthenticatedAppComposerRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/inbox': typeof AuthenticatedAppInboxRoute
+  '/monitoring': typeof AuthenticatedAppMonitoringRoute
   '/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
   '/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -242,10 +302,17 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/partner': typeof AuthenticatedPartnerRouteWithChildren
   '/_authenticated/_app/accounts': typeof AuthenticatedAppAccountsRoute
+  '/_authenticated/_app/analytics': typeof AuthenticatedAppAnalyticsRoute
+  '/_authenticated/_app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/_app/community': typeof AuthenticatedAppCommunityRoute
   '/_authenticated/_app/composer': typeof AuthenticatedAppComposerRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/inbox': typeof AuthenticatedAppInboxRoute
+  '/_authenticated/_app/monitoring': typeof AuthenticatedAppMonitoringRoute
   '/_authenticated/_app/scheduler': typeof AuthenticatedAppSchedulerRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
+  '/_authenticated/_app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/admin/ai-usage': typeof AuthenticatedAdminAiUsageRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
@@ -270,10 +337,17 @@ export interface FileRouteTypes {
     | '/admin'
     | '/partner'
     | '/accounts'
+    | '/analytics'
+    | '/billing'
+    | '/community'
     | '/composer'
     | '/dashboard'
     | '/inbox'
+    | '/monitoring'
     | '/scheduler'
+    | '/settings'
+    | '/tasks'
+    | '/team'
     | '/admin/ai-usage'
     | '/admin/clients'
     | '/admin/health'
@@ -294,10 +368,17 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/accounts'
+    | '/analytics'
+    | '/billing'
+    | '/community'
     | '/composer'
     | '/dashboard'
     | '/inbox'
+    | '/monitoring'
     | '/scheduler'
+    | '/settings'
+    | '/tasks'
+    | '/team'
     | '/admin/ai-usage'
     | '/admin/clients'
     | '/admin/health'
@@ -322,10 +403,17 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/partner'
     | '/_authenticated/_app/accounts'
+    | '/_authenticated/_app/analytics'
+    | '/_authenticated/_app/billing'
+    | '/_authenticated/_app/community'
     | '/_authenticated/_app/composer'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/inbox'
+    | '/_authenticated/_app/monitoring'
     | '/_authenticated/_app/scheduler'
+    | '/_authenticated/_app/settings'
+    | '/_authenticated/_app/tasks'
+    | '/_authenticated/_app/team'
     | '/_authenticated/admin/ai-usage'
     | '/_authenticated/admin/clients'
     | '/_authenticated/admin/health'
@@ -400,6 +488,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/analytics': {
+      id: '/_authenticated/_app/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAppAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/billing': {
+      id: '/_authenticated/_app/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/community': {
+      id: '/_authenticated/_app/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof AuthenticatedAppCommunityRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/composer': {
       id: '/_authenticated/_app/composer'
       path: '/composer'
@@ -421,11 +530,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppInboxRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/monitoring': {
+      id: '/_authenticated/_app/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof AuthenticatedAppMonitoringRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/scheduler': {
       id: '/_authenticated/_app/scheduler'
       path: '/scheduler'
       fullPath: '/scheduler'
       preLoaderRoute: typeof AuthenticatedAppSchedulerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/tasks': {
+      id: '/_authenticated/_app/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof AuthenticatedAppTasksRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/team': {
+      id: '/_authenticated/_app/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/admin/': {
@@ -538,18 +675,32 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
+  AuthenticatedAppAnalyticsRoute: typeof AuthenticatedAppAnalyticsRoute
+  AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppCommunityRoute: typeof AuthenticatedAppCommunityRoute
   AuthenticatedAppComposerRoute: typeof AuthenticatedAppComposerRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppInboxRoute: typeof AuthenticatedAppInboxRoute
+  AuthenticatedAppMonitoringRoute: typeof AuthenticatedAppMonitoringRoute
   AuthenticatedAppSchedulerRoute: typeof AuthenticatedAppSchedulerRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
+  AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
+  AuthenticatedAppAnalyticsRoute: AuthenticatedAppAnalyticsRoute,
+  AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppCommunityRoute: AuthenticatedAppCommunityRoute,
   AuthenticatedAppComposerRoute: AuthenticatedAppComposerRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppInboxRoute: AuthenticatedAppInboxRoute,
+  AuthenticatedAppMonitoringRoute: AuthenticatedAppMonitoringRoute,
   AuthenticatedAppSchedulerRoute: AuthenticatedAppSchedulerRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
+  AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =

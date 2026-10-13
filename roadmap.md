@@ -10,3 +10,8 @@
 - [x] Partner area: Overview, My Clients, Branding, Plans, Billing, Support, Settings
 - [ ] Client Owner pages: Composer, Calendar views, Inbox tabs/AI reply/bulk, Monitoring, Analytics, Community, Team, Billing, Settings
 - [ ] Team Member view: Home, Composer (submit for approval), Calendar view-only, assigned Inbox, Tasks
+- [ ] Free plan (end user) view: limits 5 posts/5 AI per month, 1 platform, AI reply locked, Upgrade page
+- [ ] Inbox search (text, sender, workspace)
+- [ ] Onboarding flow (signup with workspace name, connect, plan, AI training, done)
+- [x] AI reply drafts in inbox (built)
+- [ ] Inbox assignment to teammates + responsible shown
