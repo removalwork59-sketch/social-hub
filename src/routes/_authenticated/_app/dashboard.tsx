@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CartesianGrid,
@@ -17,6 +17,9 @@ import {
   AtSign,
   Briefcase,
   CalendarClock,
+  CheckCircle2,
+  ClipboardList,
+  Lock,
   Camera,
   Heart,
   MessageCircle,
@@ -79,7 +82,18 @@ const aiPosts: { id: number; platform: Platform; caption: string; hue: string }[
 ];
 
 function Dashboard() {
+  const { current, role } = useWorkspace();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (current && role === "owner" && !current.onboarded) navigate({ to: "/onboarding" });
+  }, [current, role, navigate]);
+  if (role === "member") return <MemberHome />;
+  return <OwnerHome />;
+}
+
+function OwnerHome() {
   const { current } = useWorkspace();
+  const isFree = current?.plan === "free";
   const qc = useQueryClient();
   const wsId = current?.id;
   const [shown, setShown] = useState<Record<string, boolean>>({ facebook: true, instagram: true, linkedin: true, twitter: true });
@@ -125,12 +139,21 @@ function Dashboard() {
     qc.invalidateQueries({ queryKey: ["posts"] });
   }
 
-  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id));
+  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id)).slice(0, isFree ? 1 : 3);
   const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--foreground)" };
 
   return (
     <>
       <PageHeader subtitle="Welcome back" title={current?.name ?? "…"} />
+      {isFree && (
+        <div className="mb-4 flex flex-col gap-3 overflow-hidden rounded-xl bg-gradient-primary p-5 text-primary-foreground shadow-glow sm:flex-row sm:items-center">
+          <div className="flex-1">
+            <p className="font-semibold">You're on the Free plan</p>
+            <p className="text-sm opacity-90">Unlock unlimited posts, 5 platforms and AI replies with Pro — ₹499/month.</p>
+          </div>
+          <Link to="/upgrade" className="rounded-xl bg-background px-4 py-2 text-center text-sm font-semibold text-foreground transition-transform hover:-translate-y-0.5">Upgrade now</Link>
+        </div>
+      )}
 
       <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {stats.map((s, i) =>
@@ -298,9 +321,13 @@ function Dashboard() {
               })}
             </ul>
           )}
-          <button onClick={() => setSkipped([])} className={`${btnPrimary} mt-4 w-full`}>
-            <Sparkles className="h-4 w-4" /> Generate more
-          </button>
+          {isFree ? (
+            <Link to="/upgrade" className={`${btnPrimary} mt-4 w-full`}><Lock className="h-4 w-4" /> More AI ideas with Pro</Link>
+          ) : (
+            <button onClick={() => setSkipped([])} className={`${btnPrimary} mt-4 w-full`}>
+              <Sparkles className="h-4 w-4" /> Generate more
+            </button>
+          )}
         </div>
       </section>
 
@@ -337,6 +364,64 @@ function Dashboard() {
           <input placeholder="Ask anything… (AI coming soon)" disabled className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm" />
         </div>
       </aside>
+    </>
+  );
+}
+
+function MemberHome() {
+  const { current, userId } = useWorkspace();
+  const { data, isLoading } = useQuery({
+    queryKey: ["member-home", current?.id, userId],
+    enabled: !!current && !!userId,
+    queryFn: async () => {
+      const [posts, tasks, inbox] = await Promise.all([
+        supabase.from("posts").select("*").eq("workspace_id", current!.id).eq("created_by", userId!).order("scheduled_at"),
+        supabase.from("tasks").select("*").eq("workspace_id", current!.id).eq("assigned_to", userId!).eq("status", "todo"),
+        supabase.from("inbox_messages").select("*").eq("workspace_id", current!.id).eq("assigned_to", userId!).eq("status", "open"),
+      ]);
+      return { posts: posts.data ?? [], tasks: tasks.data ?? [], inbox: inbox.data ?? [] };
+    },
+  });
+  const today = new Date().toDateString();
+  const pending = (data?.posts ?? []).filter((p) => p.status === "pending_approval");
+  const todays = (data?.posts ?? []).filter((p) => p.scheduled_at && new Date(p.scheduled_at).toDateString() === today);
+  const stats = [
+    { label: "My posts", value: data?.posts.length ?? 0, icon: PenSquare },
+    { label: "Pending approval", value: pending.length, icon: CalendarClock },
+    { label: "Open tasks", value: data?.tasks.length ?? 0, icon: ClipboardList },
+    { label: "Assigned messages", value: data?.inbox.length ?? 0, icon: MessageCircle },
+  ];
+  return (
+    <>
+      <PageHeader subtitle="Team member" title={current?.name ?? "…"} action={<Link to="/composer" className={btnPrimary}><PenSquare className="h-4 w-4" /> New post</Link>} />
+      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {stats.map((s, i) => isLoading ? <div key={s.label} className="skeleton h-24" /> : (
+          <div key={s.label} style={{ animationDelay: `${i * 60}ms` }} className={`${cardCls} animate-rise`}>
+            <div className="flex items-center justify-between"><p className="text-sm text-muted-foreground">{s.label}</p><s.icon className="h-4 w-4 text-primary" /></div>
+            <p className="mt-2 text-2xl font-semibold">{s.value}</p>
+          </div>
+        ))}
+      </section>
+      <section className="mt-4 grid gap-4 lg:grid-cols-2">
+        <div className={cardCls}>
+          <h2 className="mb-3 font-semibold">Today's schedule</h2>
+          {todays.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">Nothing scheduled today.</p> : (
+            <ul className="space-y-2">{todays.map((p) => <li key={p.id} className="flex gap-3 text-sm"><span className="w-14 shrink-0 font-semibold">{new Date(p.scheduled_at!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span><span className="truncate">{p.content}</span></li>)}</ul>
+          )}
+        </div>
+        <div className={cardCls}>
+          <h2 className="mb-3 font-semibold">Waiting for approval</h2>
+          {pending.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">No posts waiting.</p> : (
+            <ul className="space-y-2">{pending.map((p) => <li key={p.id} className="flex items-center gap-2 text-sm"><span className="h-2 w-2 shrink-0 rounded-full bg-warning" /><span className="truncate">{p.content}</span></li>)}</ul>
+          )}
+        </div>
+        <div className={`${cardCls} lg:col-span-2`}>
+          <div className="mb-3 flex items-center justify-between"><h2 className="font-semibold">My tasks</h2><Link to="/tasks" className="text-sm font-semibold text-accent-foreground">View all →</Link></div>
+          {(data?.tasks.length ?? 0) === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">All done 🎉</p> : (
+            <ul className="space-y-2">{data!.tasks.slice(0, 5).map((t) => <li key={t.id} className="flex items-center gap-2 text-sm"><CheckCircle2 className="h-4 w-4 text-muted-foreground" />{t.title}{t.due_date && <span className="ml-auto text-xs text-muted-foreground">Due {t.due_date}</span>}</li>)}</ul>
+          )}
+        </div>
+      </section>
     </>
   );
 }

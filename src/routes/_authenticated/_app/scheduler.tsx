@@ -184,6 +184,16 @@ function Calendar() {
         action={!readOnly && <Link to="/composer" className={btnPrimary}><Plus className="h-4 w-4" /> New post</Link>}
       />
 
+      {current?.plan === "free" && (() => {
+        const n = posts.filter((p) => new Date(p.created_at).getMonth() === new Date().getMonth() && new Date(p.created_at).getFullYear() === new Date().getFullYear()).length;
+        return (
+          <div className="mb-4 flex items-center gap-4 rounded-xl border border-primary/30 bg-accent/40 px-4 py-3 text-sm">
+            <span>Free plan: <b>{n}/5</b> posts scheduled this month</span>
+            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted"><div className="h-full bg-gradient-primary" style={{ width: `${Math.min(100, n * 20)}%` }} /></div>
+            <Link to="/upgrade" className="ml-auto font-semibold text-accent-foreground hover:underline">Go unlimited →</Link>
+          </div>
+        );
+      })()}
       <div className={cardCls}>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {view !== "list" && (
