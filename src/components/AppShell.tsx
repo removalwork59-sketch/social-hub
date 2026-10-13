@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3, Bell, UserCircle, FileBarChart, History, Building2, ClipboardList, ShieldCheck, UsersRound, Zap, CalendarDays, CreditCard, Home, Inbox, Link2, LogOut, Menu, PanelLeftClose, PanelLeftOpen,
-  PenSquare, Plus, Radar, Search, Settings, Sparkles, Users, X,
+  PenSquare, Plus, UserPlus, Radar, Search, Settings, Sparkles, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +25,7 @@ const ownerNav = [
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/reports", label: "Reports", icon: FileBarChart },
   { to: "/community", label: "Community", icon: UsersRound },
-  { to: "/team", label: "Team", icon: Users },
+  { to: "/team", label: "Team", icon: UserPlus },
   { to: "/accounts", label: "Accounts", icon: Link2 },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/activity", label: "Activity log", icon: History },
@@ -52,6 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [allRead, setAllRead] = useState(false);
   const { workspaces, current, setCurrentId, refresh, role } = useWorkspace();
   const { data: userName } = useQuery({
     queryKey: ["my-name"],
@@ -69,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       return count ?? 0;
     },
   });
-  const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;
+  const nav = role === "member" ? memberNav : ownerNav;
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -112,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-30 bg-background/70 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-sidebar-border bg-sidebar p-3 transition-all lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} ${collapsed ? "lg:w-[72px]" : "lg:w-64"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-sidebar-border bg-sidebar p-3 transition-all lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} ${collapsed ? "lg:w-[72px]" : "lg:w-[260px]"}`}
       >
         <div className="mb-6 flex items-center justify-between px-2 pt-1">
           <div className="flex items-center gap-2 overflow-hidden">
@@ -134,7 +136,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               title={n.label}
               onClick={() => setOpen(false)}
               className={`${item} text-muted-foreground hover:bg-secondary hover:text-foreground`}
-              activeProps={{ className: "!bg-sidebar-accent !text-sidebar-accent-foreground" }}
+              activeProps={{ className: "!bg-sidebar-accent !text-sidebar-accent-foreground border-l-4 border-primary" }}
             >
               <n.icon className="h-4 w-4 shrink-0" />
               {!collapsed && n.label}
@@ -197,10 +199,36 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button onClick={newWorkspace} aria-label="New workspace" className="rounded-xl border border-input p-2 text-muted-foreground transition-colors hover:border-primary hover:text-foreground">
               <Plus className="h-4 w-4" />
             </button>
-            <button className="relative rounded-xl p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground" aria-label="Notifications">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse rounded-full bg-destructive" />
-            </button>
+            <div className="relative">
+              <button onClick={() => setBellOpen((v) => !v)} className="relative rounded-xl p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground" aria-label="Notifications">
+                <Bell className="h-5 w-5" />
+                {!allRead && <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-pulse rounded-full bg-destructive" />}
+              </button>
+              {bellOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setBellOpen(false)} />
+                  <div className="absolute right-0 z-40 mt-2 w-72 rounded-xl border border-border bg-card p-1.5 shadow-soft">
+                    <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                      <p className="text-sm font-semibold">Notifications</p>
+                      <button onClick={() => setAllRead(true)} className="text-xs font-medium text-accent-foreground hover:underline">Mark all as read</button>
+                    </div>
+                    {[
+                      ["New comment from @john_doe", "2m"],
+                      ["Payment received ₹499", "1h"],
+                      ["Post published successfully", "3h"],
+                      ["New follower on Instagram", "5h"],
+                      ["AI generated 3 new post ideas", "1d"],
+                    ].map(([t, a]) => (
+                      <div key={t} className="flex items-start gap-2 rounded-lg px-3 py-2 text-sm hover:bg-secondary">
+                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${allRead ? "bg-transparent" : "bg-primary"}`} />
+                        <span className={`flex-1 ${allRead ? "text-muted-foreground" : ""}`}>{t}</span>
+                        <span className="text-xs text-muted-foreground">{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="relative">
               <button
                 onClick={() => setProfileOpen((v) => !v)}

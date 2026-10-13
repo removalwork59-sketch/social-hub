@@ -186,3 +186,7 @@
     color: var(--color-foreground);
   }
 }
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }

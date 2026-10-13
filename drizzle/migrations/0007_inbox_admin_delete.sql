@@ -1,0 +1,2 @@
+GRANT DELETE ON public.inbox_messages TO authenticated;
+CREATE POLICY "admins delete inbox" ON public.inbox_messages FOR DELETE TO authenticated USING (public.is_workspace_admin(workspace_id, auth.uid()));

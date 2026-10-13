@@ -1,47 +1,164 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Ban, CheckCircle2, Plus } from "lucide-react";
-import { PageHeader, btnPrimary } from "@/components/AppShell";
-import { Panel, Pill, SampleNote, Table, inr } from "@/components/portal-ui";
-import { partners as seed } from "@/lib/sample-data";
+import { Building2, CheckCircle2, IndianRupee, Plus, Search, Users, X } from "lucide-react";
+import { PageHeader, btnPrimary, inputCls } from "@/components/AppShell";
+import { Panel, Pill, SampleNote, Stat, inr } from "@/components/portal-ui";
+import { partners as seed, sampleClients } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/_authenticated/admin/partners")({
+  head: () => ({ meta: [{ title: "Partners — SocialOS Admin" }, { name: "description", content: "Manage white-label partners." }] }),
   component: Partners,
 });
 
+type P = (typeof seed)[number];
+const tabs = ["Overview", "Clients", "Revenue", "Branding", "Permissions", "Settings"] as const;
+const initials = (n: string) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
+function Avatar({ p, size = "h-9 w-9" }: { p: P; size?: string }) {
+  return <div className={`grid ${size} shrink-0 place-items-center rounded-full text-xs font-semibold text-primary-foreground`} style={{ background: p.color }}>{initials(p.name)}</div>;
+}
+
 function Partners() {
-  const [rows, setRows] = useState(seed);
-  const toggle = (id: string) =>
-    setRows((r) => r.map((p) => (p.id === id ? { ...p, status: p.status === "suspended" ? "active" : "suspended" } : p)));
+  const [rows, setRows] = useState<P[]>(seed);
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  const [open, setOpen] = useState<P | null>(null);
+  const [tab, setTab] = useState<(typeof tabs)[number]>("Overview");
+  const [adding, setAdding] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", share: 20 });
+
+  const list = rows.filter((p) => (status === "all" || p.status === status) && (!q || `${p.name} ${p.email}`.toLowerCase().includes(q.toLowerCase())));
+  const stats = [
+    { label: "Total partners", value: rows.length, icon: Building2, trend: 8 },
+    { label: "Active partners", value: rows.filter((p) => p.status === "active").length, icon: CheckCircle2, trend: 5 },
+    { label: "Total clients", value: rows.reduce((a, p) => a + p.clients, 0), icon: Users, trend: 12 },
+    { label: "Total revenue", value: inr(rows.reduce((a, p) => a + p.revenue, 0)), icon: IndianRupee, trend: 9 },
+  ];
+
+  function add() {
+    if (!form.name.trim() || !form.email.includes("@")) {
+      toast.error("Enter a name and valid email");
+      return;
+    }
+    setRows([...rows, { id: crypto.randomUUID(), name: form.name, email: form.email, clients: 0, share: form.share, revenue: 0, status: "pending", color: "var(--chart-5)" }]);
+    setAdding(false);
+    setForm({ name: "", email: "", share: 20 });
+    toast.success("Partner added (demo)");
+  }
+
   return (
     <>
-      <PageHeader
-        subtitle="White-label resellers"
-        title="Partners"
-        action={
-          <button className={btnPrimary} onClick={() => toast.info("Partner invites arrive with the partner sign-up flow")}>
-            <Plus className="h-4 w-4" /> Invite partner
-          </button>
-        }
-      />
+      <PageHeader subtitle="White-label resellers" title="Partners" action={<button className={btnPrimary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add Partner</button>} />
       <SampleNote>Sample partners — real partner accounts appear here once partner sign-up is enabled.</SampleNote>
-      <Panel title={`${rows.length} partners`}>
-        <Table
-          head={["Partner", "Clients", "Revenue share", "Monthly revenue", "Status", ""]}
-          rows={rows.map((p) => [
-            <span key="n" className="font-medium">{p.name}</span>,
-            p.clients,
-            `${p.share}%`,
-            inr(p.revenue),
-            <Pill key="s" value={p.status} />,
-            <button key="a" onClick={() => toggle(p.id)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              {p.status === "suspended" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Ban className="h-3.5 w-3.5" />}
-              {p.status === "suspended" ? "Reactivate" : "Suspend"}
-            </button>,
-          ])}
-        />
+      <section className="mt-4 grid grid-cols-2 gap-4 xl:grid-cols-4">{stats.map((s, i) => <Stat key={s.label} {...s} i={i} />)}</section>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <div className="flex min-w-56 flex-1 items-center gap-2 rounded-xl border border-input bg-card px-3 sm:max-w-xs">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input placeholder="Search partners..." className="w-full bg-transparent py-2 text-sm outline-none" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <select aria-label="Status" className="rounded-xl border border-input bg-card px-3 py-1.5 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="pending">Pending</option>
+        </select>
+      </div>
+
+      <Panel title={`${list.length} partners`} className="mt-4">
+        {list.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-sm text-muted-foreground">No partners yet. Add your first partner.</p>
+            <button className={`${btnPrimary} mt-3`} onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add Partner</button>
+          </div>
+        ) : (
+          <div className="scroll-thin overflow-x-auto">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead><tr className="border-b border-border text-left text-xs text-muted-foreground">{["Partner", "Email", "Clients", "Revenue", "Commission", "Status", "Actions"].map((h) => <th key={h} className="px-2 py-2 font-medium">{h}</th>)}</tr></thead>
+              <tbody>
+                {list.map((p) => (
+                  <tr key={p.id} onClick={() => { setOpen(p); setTab("Overview"); }} className="cursor-pointer border-b border-border/60 hover:bg-secondary/40">
+                    <td className="px-2 py-3"><div className="flex items-center gap-2.5"><Avatar p={p} /><span className="font-medium">{p.name}</span></div></td>
+                    <td className="px-2 text-muted-foreground">{p.email}</td>
+                    <td className="px-2">{p.clients}</td>
+                    <td className="px-2">{inr(p.revenue)}</td>
+                    <td className="px-2">{p.share}%</td>
+                    <td className="px-2"><Pill value={p.status} /></td>
+                    <td className="px-2">
+                      <div className="flex gap-1.5">
+                        <button onClick={(e) => { e.stopPropagation(); setOpen(p); setTab("Overview"); }} className="rounded-lg border border-input px-2.5 py-1 text-xs hover:bg-secondary">View</button>
+                        <button onClick={(e) => { e.stopPropagation(); setOpen(p); setTab("Settings"); }} className="rounded-lg border border-input px-2.5 py-1 text-xs hover:bg-secondary">Edit</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Panel>
+
+      {open && <div className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm" onClick={() => setOpen(null)} />}
+      <aside className={`scroll-thin fixed inset-y-0 right-0 z-50 w-full max-w-lg overflow-y-auto border-l border-border bg-card p-5 shadow-soft transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}>
+        {open && (
+          <>
+            <div className="flex items-center gap-3">
+              <Avatar p={open} size="h-12 w-12" />
+              <div className="flex-1"><h2 className="font-semibold">{open.name}</h2><p className="text-xs text-muted-foreground">{open.email}</p></div>
+              <button onClick={() => setOpen(null)} aria-label="Close"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="scroll-thin mt-4 flex gap-1 overflow-x-auto border-b border-border">
+              {tabs.map((t) => <button key={t} onClick={() => setTab(t)} className={`shrink-0 border-b-2 px-3 py-2 text-sm ${tab === t ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`}>{t}</button>)}
+            </div>
+            <div className="mt-4 space-y-3 text-sm">
+              {tab === "Overview" && (
+                <div className="grid grid-cols-2 gap-3">
+                  {[["Clients", open.clients], ["Monthly revenue", inr(open.revenue)], ["Commission", `${open.share}%`], ["Status", open.status]].map(([l, v]) => (
+                    <div key={l} className="rounded-xl bg-secondary/60 p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="mt-1 font-semibold capitalize">{v}</p></div>
+                  ))}
+                </div>
+              )}
+              {tab === "Clients" && (
+                <ul className="divide-y divide-border">
+                  {sampleClients.filter((c) => c.partner === open.name).map((c) => <li key={c.name} className="flex justify-between py-2"><span>{c.name}</span><span className="text-muted-foreground">{c.plan}</span></li>)}
+                  {sampleClients.every((c) => c.partner !== open.name) && <li className="py-4 text-muted-foreground">No clients listed yet.</li>}
+                </ul>
+              )}
+              {tab === "Revenue" && (
+                <div className="space-y-2">
+                  <p>Earnings this month: <b>{inr(open.revenue)}</b></p>
+                  <p>Commission payout: <b>{inr(Math.round((open.revenue * open.share) / 100))}</b></p>
+                  <p className="text-muted-foreground">Next payout: 1st of next month</p>
+                </div>
+              )}
+              {tab === "Branding" && <p className="text-muted-foreground">Logo, brand colour and custom domain are managed by the partner in their portal.</p>}
+              {tab === "Permissions" && ["Create clients", "Set custom pricing", "White-label domain", "Impersonate clients"].map((x) => (
+                <label key={x} className="flex items-center justify-between rounded-xl border border-border px-3 py-2"><span>{x}</span><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /></label>
+              ))}
+              {tab === "Settings" && (
+                <div className="space-y-3">
+                  <label className="block">Commission %<input type="number" className={`${inputCls} mt-1`} defaultValue={open.share} onBlur={(e) => setRows(rows.map((r) => (r.id === open.id ? { ...r, share: Number(e.target.value) } : r)))} /></label>
+                  <div className="flex gap-2">
+                    {(["active", "pending", "inactive"] as const).map((s) => (
+                      <button key={s} onClick={() => { setRows(rows.map((r) => (r.id === open.id ? { ...r, status: s } : r))); setOpen({ ...open, status: s }); }} className={`rounded-lg border px-3 py-1.5 text-xs capitalize ${open.status === s ? "border-primary bg-accent" : "border-input"}`}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </aside>
+
+      {adding && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/60 p-4 backdrop-blur-sm" onClick={() => setAdding(false)}>
+          <div className="w-full max-w-md space-y-3 rounded-xl border border-border bg-card p-5 shadow-soft" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold">Add partner</h2>
+            <input className={inputCls} placeholder="Agency name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <input className={inputCls} placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <label className="block text-sm text-muted-foreground">Commission %<input type="number" className={`${inputCls} mt-1`} value={form.share} onChange={(e) => setForm({ ...form, share: Number(e.target.value) })} /></label>
+            <div className="flex justify-end gap-2"><button onClick={() => setAdding(false)} className="rounded-xl px-4 py-2 text-sm">Cancel</button><button onClick={add} className={btnPrimary}>Add partner</button></div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

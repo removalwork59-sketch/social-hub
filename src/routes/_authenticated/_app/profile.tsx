@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/lib/workspace";
-import { cardCls, freeNav, memberNav, ownerNav } from "@/components/AppShell";
+import { cardCls, memberNav, ownerNav } from "@/components/AppShell";
 
 export const Route = createFileRoute("/_authenticated/_app/profile")({
   head: () => ({ meta: [{ title: "Profile — SocialOS" }, { name: "description", content: "Your profile and menu." }] }),
@@ -38,7 +38,7 @@ function Profile() {
     });
   }, []);
 
-  const nav = role === "member" ? memberNav : current?.plan === "free" ? freeNav : ownerNav;
+  const nav = role === "member" ? memberNav : ownerNav;
   const main = ["/dashboard", "/composer", "/scheduler", "/inbox"];
   const more = nav.filter((n) => !main.includes(n.to));
 

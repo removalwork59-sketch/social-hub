@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Download, Image as ImageIcon, Smile, Archive, ArrowUpRight, CheckCircle2, Inbox as InboxIcon, MailOpen, RefreshCw, Lock, RotateCcw, Search, Send, Sparkles, UserPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeMessage, draftReply, triageMessage } from "@/lib/ai.functions";
@@ -82,6 +83,7 @@ function InboxPage() {
     } catch (e) { toast.error((e as Error).message); }
     setTriaging(false);
   }
+  const navigate = useNavigate();
   const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("all");
   const [ws, setWs] = useState("all");
   const [platform, setPlatform] = useState("all");
@@ -89,6 +91,10 @@ function InboxPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [checked, setChecked] = useState<string[]>([]);
   const [reply, setReply] = useState("");
+  const [mood, setMood] = useState<"all" | "positive" | "negative" | "neutral">("all");
+  const [note, setNote] = useState(false);
+  const [attach, setAttach] = useState<string | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const [drafting, setDrafting] = useState(false);
 
   const { data = [], isLoading } = useQuery({
@@ -125,10 +131,11 @@ function InboxPage() {
           (tab === "all" || m.kind === tab) &&
           (ws === "all" || m.workspace_id === ws) &&
           (platform === "all" || m.platform === platform) &&
-          (status === "all" || m.status === status),
+          (status === "all" || m.status === status) &&
+          (mood === "all" || m.sentiment === mood),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, tab, ws, platform, status, isMember, userId, isFree, freePlatform, q, workspaces],
+    [data, tab, ws, platform, status, mood, isMember, userId, isFree, freePlatform, q, workspaces],
   );
   const active = list.find((m) => m.id === selected) ?? list[0];
   const refresh = () => qc.invalidateQueries({ queryKey: ["inbox"] });
@@ -202,14 +209,54 @@ function InboxPage() {
         {checked.length > 0 && (
           <div className="ml-auto flex animate-rise items-center gap-1 rounded-xl border border-primary/40 bg-accent/60 px-2 py-1 text-sm">
             <span className="px-1">{checked.length} selected</span>
+            <button onClick={() => setChecked(checked.length === list.length ? [] : list.map((m) => m.id))} className="rounded-lg px-2 py-1 text-xs hover:bg-secondary">{checked.length === list.length ? "Clear" : "Select all"}</button>
             <button onClick={() => patch(checked, { is_read: true }, "Marked as read")} className="rounded-lg p-1.5 hover:bg-secondary" title="Mark read" aria-label="Mark read"><MailOpen className="h-4 w-4" /></button>
-            {!isMember && <button onClick={() => patch(checked, { assigned_to: userId }, "Assigned to you")} className="rounded-lg p-1.5 hover:bg-secondary" title="Assign to me" aria-label="Assign to me"><UserPlus className="h-4 w-4" /></button>}
+            {!isMember && (
+              <select aria-label="Assign selected to" value="" onChange={(e) => {
+                const v = e.target.value;
+                if (v === "__add") { navigate({ to: "/team" }); return; }
+                if (v) patch(checked, { assigned_to: v === "__none" ? null : v }, v === "__none" ? "Unassigned" : `Assigned to ${personName(v)}`);
+              }} className="rounded-lg border border-input bg-card px-2 py-1 text-xs">
+                <option value="">Assign to…</option>
+                <option value={userId ?? ""}>Me</option>
+                {[...new Map(people.filter((p) => p.user_id !== userId).map((p) => [p.user_id, p])).values()].map((p) => <option key={p.user_id} value={p.user_id}>{p.name}</option>)}
+                <option value="__none">Unassigned</option>
+                <option value="__add">+ Add new member</option>
+              </select>
+            )}
+            <button onClick={() => {
+              const rows = [["author", "platform", "kind", "sentiment", "status", "received_at", "content"], ...list.filter((m) => checked.includes(m.id)).map((m) => [m.author, m.platform, m.kind, m.sentiment, m.status, m.received_at, m.content])];
+              const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+              const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+              const a = document.createElement("a"); a.href = url; a.download = "inbox-export.csv"; a.click(); URL.revokeObjectURL(url);
+              toast.success("Exported");
+            }} className="rounded-lg p-1.5 hover:bg-secondary" title="Export" aria-label="Export"><Download className="h-4 w-4" /></button>
             <button onClick={() => patch(checked, { status: "resolved", resolved_at: new Date().toISOString() }, "Resolved")} className="rounded-lg p-1.5 hover:bg-secondary" title="Resolve" aria-label="Resolve"><CheckCircle2 className="h-4 w-4" /></button>
             <button onClick={() => patch(checked, { archived: true }, "Archived")} className="rounded-lg p-1.5 hover:bg-secondary" title="Archive" aria-label="Archive"><Archive className="h-4 w-4" /></button>
+            {!isMember && (
+              <button
+                onClick={async () => {
+                  if (!confirm(`Delete ${checked.length} message(s)? This cannot be undone.`)) { return; }
+                  const { error } = await supabase.from("inbox_messages").delete().in("id", checked);
+                  if (error) { toast.error(error.message); return; }
+                  toast.success("Deleted");
+                  setChecked([]);
+                  refresh();
+                }}
+                className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10" title="Delete" aria-label="Delete"
+              ><Trash2 className="h-4 w-4" /></button>
+            )}
           </div>
         )}
       </div>
 
+      <div className="mb-3 flex flex-wrap gap-2">
+        {(["all", "positive", "negative", "neutral"] as const).map((x) => (
+          <button key={x} onClick={() => setMood(x)} className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors ${mood === x ? "border-primary bg-accent text-accent-foreground" : "border-input text-muted-foreground hover:text-foreground"}`}>
+            {x !== "all" && <span className={`h-2 w-2 rounded-full ${dot[x]}`} />}{x === "all" ? "All sentiment" : x}
+          </button>
+        ))}
+      </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div className={`${cardCls} p-2`}>
           {isLoading ? (
@@ -230,7 +277,7 @@ function InboxPage() {
                       <div className="flex items-center gap-2 text-sm">
                         <span className={`h-2 w-2 shrink-0 rounded-full ${dot[m.sentiment] ?? "bg-muted"}`} />
                         <span className={`truncate ${m.is_read ? "" : "font-semibold"}`}>{m.author}</span>
-                        <span className="ml-auto shrink-0 text-xs text-muted-foreground">{ago(m.received_at)}</span>
+                        <span title={new Date(m.received_at).toLocaleString()} className="ml-auto shrink-0 text-xs text-muted-foreground">{ago(m.received_at)}</span>
                       </div>
                       <p className={`truncate text-sm text-muted-foreground ${m.status === "resolved" ? "line-through" : ""}`}>{m.content}</p>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">{platformLabel(m.platform)} · {kinds[m.kind]} · {wsName(m.workspace_id)}{personName(m.assigned_to) && <span className="text-accent-foreground"> · {personName(m.assigned_to)}</span>}</p>
@@ -248,9 +295,16 @@ function InboxPage() {
           ) : (
             <div className="animate-rise" key={active.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold">{active.author}</h2>
+                <div className="flex items-center gap-3">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-primary text-sm font-semibold uppercase text-primary-foreground">{active.author.replace(/^@/, "").slice(0, 2)}</div>
+                  <div>
+                  <h2 className="font-semibold">@{active.author.replace(/^@/, "").replace(/\s+/g, "_").toLowerCase()}</h2>
                   <p className="text-xs text-muted-foreground">{kinds[active.kind]} on {platformLabel(active.platform)} · {wsName(active.workspace_id)} · {new Date(active.received_at).toLocaleString()}</p>
+                  <div className="mt-1.5 flex gap-1.5">
+                    <button onClick={() => toast.info("Profiles open once this account is properly connected")} className="rounded-lg border border-input px-2 py-0.5 text-xs hover:bg-secondary">View profile</button>
+                    <button onClick={() => patch([active.id], { archived: true, status: "resolved", resolved_at: new Date().toISOString() }, "Marked as spam and archived")} className="rounded-lg border border-destructive/40 px-2 py-0.5 text-xs text-destructive hover:bg-destructive/10">Mark as spam</button>
+                  </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                 {!isMember ? (
@@ -270,7 +324,7 @@ function InboxPage() {
               <p className="mt-2 text-xs text-muted-foreground">Responsible: <span className="font-medium text-foreground">{personName(active.assigned_to) ?? "Nobody yet"}</span></p>
               <div className="mt-5 max-w-[85%] rounded-xl rounded-tl-sm bg-secondary p-4 text-sm">{active.content}</div>
               <p className="mt-2 flex items-center gap-1.5 text-xs capitalize text-muted-foreground">
-                <span className={`h-2 w-2 rounded-full ${dot[active.sentiment] ?? "bg-muted"}`} /> {active.sentiment}
+                <span className={`rounded-full px-2.5 py-0.5 font-medium text-primary-foreground ${active.sentiment === "positive" ? "bg-success" : active.sentiment === "negative" ? "bg-destructive" : "bg-muted-foreground"}`}>{active.sentiment}</span>
                 {active.is_sample && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 normal-case">Sample message</span>}
               </p>
 
@@ -317,8 +371,18 @@ function InboxPage() {
                   </button>
                 </div>
                 {drafting && !reply ? <div className="skeleton h-20" /> : (
-                  <textarea className={`${inputCls} min-h-20`} placeholder="Write a reply or let AI draft one…" value={reply} onChange={(e) => setReply(e.target.value)} />
+                  <textarea className={`${inputCls} min-h-20 ${note ? "border-warning/60 bg-warning/5" : ""}`} placeholder={note ? "Internal note — only your team sees this…" : "Write a reply or let AI draft one…"} value={reply} onChange={(e) => setReply(e.target.value)} />
                 )}
+                <div className="relative mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <button onClick={() => setEmojiOpen(!emojiOpen)} aria-label="Emoji" className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Smile className="h-4 w-4" /></button>
+                  {emojiOpen && <div className="absolute bottom-9 left-0 z-10 flex gap-1 rounded-xl border border-border bg-popover p-2 shadow-soft">{["😊", "🙏", "👍", "🎉", "❤️", "🔥", "😅", "✨"].map((e) => <button key={e} className="rounded p-1 text-lg hover:bg-secondary" onClick={() => { setReply(reply + e); setEmojiOpen(false); }}>{e}</button>)}</div>}
+                  <label className="cursor-pointer rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Attach image">
+                    <ImageIcon className="h-4 w-4" />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setAttach(e.target.files?.[0]?.name ?? null)} />
+                  </label>
+                  {attach && <span className="rounded-full bg-secondary px-2 py-0.5">{attach} <button onClick={() => setAttach(null)} aria-label="Remove">×</button></span>}
+                  {!isFree && <label className="ml-auto flex items-center gap-1.5 text-muted-foreground"><input type="checkbox" className="accent-[var(--primary)]" checked={note} onChange={(e) => setNote(e.target.checked)} /> Internal note</label>}
+                </div>
               </div>
               )}
 

@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { type Platform, useWorkspace } from "@/lib/workspace";
 import { PageHeader, btnPrimary, cardCls } from "@/components/AppShell";
+import { SampleNote } from "@/components/portal-ui";
 
 export const Route = createFileRoute("/_authenticated/_app/dashboard")({
   head: () => ({ meta: [{ title: "Home — SocialOS" }, { name: "description", content: "Workspace overview." }] }),
@@ -50,37 +51,6 @@ const lines = [
 ] as const;
 const iconFor = (p: string) => lines.find((l) => l.key === p)?.icon ?? AtSign;
 
-const series = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date(Date.now() - (29 - i) * 864e5);
-  return {
-    day: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }),
-    facebook: Math.round(420 + i * 9 + Math.sin(i / 2) * 80),
-    instagram: Math.round(680 + i * 14 + Math.cos(i / 3) * 120),
-    linkedin: Math.round(210 + i * 5 + Math.sin(i / 4) * 40),
-    twitter: Math.round(300 + i * 6 + Math.cos(i / 2) * 70),
-  };
-});
-
-const sentiment = [
-  { name: "Positive", value: 812, color: "var(--success)" },
-  { name: "Neutral", value: 341, color: "var(--muted-foreground)" },
-  { name: "Negative", value: 97, color: "var(--destructive)" },
-];
-const totalMentions = sentiment.reduce((a, b) => a + b.value, 0);
-
-const activity = [
-  { p: "instagram", user: "john_doe", text: "commented on your post", ago: "2m", icon: MessageCircle },
-  { p: "facebook", user: "priya.s", text: "liked your Diwali offer", ago: "14m", icon: Heart },
-  { p: "linkedin", user: "arjun_m", text: "shared your hiring post", ago: "1h", icon: Send },
-  { p: "twitter", user: "techdaily", text: "mentioned your brand", ago: "3h", icon: AtSign },
-  { p: "instagram", user: "neha.k", text: "sent you a message", ago: "5h", icon: MessageCircle },
-];
-
-const aiPosts: { id: number; platform: Platform; caption: string; hue: string }[] = [
-  { id: 1, platform: "instagram", caption: "Festive season is here ✨ Grab 30% off everything this week only. #FestiveDeals", hue: "var(--chart-4)" },
-  { id: 2, platform: "linkedin", caption: "We grew 3× this year. Here are 5 lessons from building a remote-first team.", hue: "var(--chart-3)" },
-  { id: 3, platform: "facebook", caption: "Behind the scenes: how our team packs 500 orders a day 📦", hue: "var(--chart-2)" },
-];
 
 function Dashboard() {
   const { current, role } = useWorkspace();
@@ -98,7 +68,7 @@ function OwnerHome() {
   const qc = useQueryClient();
   const wsId = current?.id;
   const [shown, setShown] = useState<Record<string, boolean>>({ facebook: true, instagram: true, linkedin: true, twitter: true });
-  const [skipped, setSkipped] = useState<number[]>([]);
+  const [skipped, setSkipped] = useState<string[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
 
   const { data: myName } = useQuery({
@@ -124,31 +94,106 @@ function OwnerHome() {
   }).length;
   const scheduled = (data ?? []).filter((p) => p.scheduled_at && new Date(p.scheduled_at) > now).length;
 
+  const { data: live, isLoading: liveLoading } = useQuery({
+    queryKey: ["home-live", wsId],
+    enabled: !!wsId,
+    queryFn: async () => {
+      const since = new Date(Date.now() - 59 * 864e5).toISOString().slice(0, 10);
+      const since30 = new Date(Date.now() - 30 * 864e5).toISOString();
+      const [a, m, inbox, drafts] = await Promise.all([
+        supabase.from("analytics_daily").select("day, platform, followers, engagement, reach, is_sample").eq("workspace_id", wsId!).gte("day", since).order("day"),
+        supabase.from("mentions").select("sentiment, is_sample").eq("workspace_id", wsId!).gte("created_at", since30),
+        supabase.from("inbox_messages").select("id, platform, author, kind, received_at, is_sample").eq("workspace_id", wsId!).eq("archived", false).order("received_at", { ascending: false }).limit(5),
+        supabase.from("posts").select("id, content, platforms, status").eq("workspace_id", wsId!).in("status", ["draft", "pending_approval"]).order("created_at", { ascending: false }).limit(3),
+      ]);
+      return { analytics: a.data ?? [], mentions: m.data ?? [], inbox: inbox.data ?? [], drafts: drafts.data ?? [] };
+    },
+  });
+  const cutoff = new Date(Date.now() - 29 * 864e5).toISOString().slice(0, 10);
+  const prevCut = new Date(Date.now() - 59 * 864e5).toISOString().slice(0, 10);
+  const recent = (live?.analytics ?? []).filter((r) => r.day >= cutoff);
+  const prior = (live?.analytics ?? []).filter((r) => r.day < cutoff && r.day >= prevCut);
+  type DayRow = { day: string; facebook: number; instagram: number; linkedin: number; twitter: number; google_business?: number };
+  const byDay = new Map<string, DayRow>();
+  for (const r of recent) {
+    const row = byDay.get(r.day) ?? { day: new Date(r.day).toLocaleDateString(undefined, { day: "numeric", month: "short" }), facebook: 0, instagram: 0, linkedin: 0, twitter: 0 };
+    row[r.platform] = (row[r.platform] ?? 0) + r.engagement;
+    byDay.set(r.day, row);
+  }
+  const series = [...byDay.values()];
+  const latestFollowers = (rows: typeof recent) => {
+    const last = new Map<string, number>();
+    for (const r of rows) last.set(r.platform, r.followers);
+    return [...last.values()].reduce((x, y) => x + y, 0);
+  };
+  const sum = (rows: typeof recent, k: "engagement" | "reach") => rows.reduce((x, r) => x + r[k], 0);
+  const followers = latestFollowers(recent);
+  const prevFollowers = latestFollowers(prior);
+  const rate = sum(recent, "reach") ? (sum(recent, "engagement") / sum(recent, "reach")) * 100 : 0;
+  const prevRate = sum(prior, "reach") ? (sum(prior, "engagement") / sum(prior, "reach")) * 100 : 0;
+  const pct = (a: number, b: number) => (b ? `${a >= b ? "+" : ""}${Math.round(((a - b) / b) * 100)}%` : undefined);
+  const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n));
+  const count = (s: string) => (live?.mentions ?? []).filter((m) => m.sentiment === s).length;
+  const sentiment = [
+    { name: "Positive", value: count("positive"), color: "var(--success)" },
+    { name: "Neutral", value: count("neutral"), color: "var(--muted-foreground)" },
+    { name: "Negative", value: count("negative"), color: "var(--destructive)" },
+  ];
+  const totalMentions = sentiment.reduce((a, b) => a + b.value, 0) || 0;
+  const ago = (iso: string) => {
+    const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    return m < 60 ? `${m}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d`;
+  };
+  const verb = { comment: "commented on your post", dm: "sent you a message", mention: "mentioned your brand", review: "left a review" } as const;
+  const activity = (live?.inbox ?? []).map((i) => ({ p: i.platform as string, user: i.author.replace(/^@/, ""), text: verb[i.kind], ago: ago(i.received_at) }));
+  const fallbackAi: { id: string; platform: Platform; caption: string; hue: string }[] = [
+    { id: "s1", platform: "instagram", caption: "Festive season is here 🎉 Grab 30% off everything this week only. #FestiveDeals", hue: "var(--chart-4)" },
+    { id: "s2", platform: "linkedin", caption: "5 tips to boost your engagement in 2026 — save this for your next content plan.", hue: "var(--chart-3)" },
+    { id: "s3", platform: "facebook", caption: "Behind the scenes: our team at work 📸", hue: "var(--chart-2)" },
+  ];
+  const draftAi = (live?.drafts ?? []).map((d) => {
+    const platform = (d.platforms[0] ?? "instagram") as Platform;
+    return { id: d.id, platform, caption: d.content, hue: lines.find((l) => l.key === platform)?.color ?? "var(--chart-1)" };
+  });
+  const aiPosts = draftAi.length ? draftAi : fallbackAi;
+  const hasSample = [...(live?.analytics ?? []), ...(live?.mentions ?? []), ...(live?.inbox ?? [])].some((r) => r.is_sample);
+
   const stats = [
-    { label: "Total followers", value: "48.2K", trend: "+12%", icon: Users },
-    { label: "Engagement rate", value: "5.8%", trend: "+5%", icon: TrendingUp },
+    { label: "Total followers", value: fmt(followers), trend: pct(followers, prevFollowers), icon: Users },
+    { label: "Engagement rate", value: `${rate.toFixed(1)}%`, trend: pct(rate, prevRate), icon: TrendingUp },
     { label: "Posts this month", value: thisMonth, icon: PenSquare },
     { label: "Scheduled posts", value: scheduled, icon: CalendarClock },
   ];
 
   async function approve(p: (typeof aiPosts)[number]) {
     if (!wsId) return;
+    if (p.id.startsWith("s")) {
+      const at = new Date(Date.now() + 864e5);
+      at.setHours(18, 0, 0, 0);
+      const { error } = await supabase.from("posts").insert({ workspace_id: wsId, content: p.caption, platforms: [p.platform], scheduled_at: at.toISOString() });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Scheduled for tomorrow, 6 PM");
+      setSkipped((s) => [...s, p.id]);
+      qc.invalidateQueries({ queryKey: ["overview"] });
+      return;
+    }
     const at = new Date(Date.now() + 864e5);
     at.setHours(18, 0, 0, 0);
-    const { error } = await supabase
-      .from("posts")
-      .insert({ workspace_id: wsId, content: p.caption, platforms: [p.platform], scheduled_at: at.toISOString() });
+    const { error } = await supabase.from("posts").update({ status: "scheduled", scheduled_at: at.toISOString() }).eq("id", p.id);
     if (error) {
       toast.error(error.message);
       return;
     }
     toast.success("Scheduled for tomorrow, 6 PM");
-    setSkipped((s) => [...s, p.id]);
+    qc.invalidateQueries({ queryKey: ["home-live"] });
     qc.invalidateQueries({ queryKey: ["overview"] });
     qc.invalidateQueries({ queryKey: ["posts"] });
   }
 
-  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id)).slice(0, isFree ? 1 : 3);
+  const visibleAi = aiPosts.filter((p) => !skipped.includes(p.id)).slice(0, 3);
   const tooltipStyle = { background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--foreground)" };
 
   return (
@@ -166,10 +211,11 @@ function OwnerHome() {
           <Link to="/upgrade" className="rounded-xl bg-background px-4 py-2 text-center text-sm font-semibold text-foreground transition-transform hover:-translate-y-0.5">Upgrade now</Link>
         </div>
       )}
+      {hasSample && <div className="mb-4"><SampleNote>Some figures are sample history. They switch to live numbers as your connected accounts sync.</SampleNote></div>}
 
       <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {stats.map((s, i) =>
-          isLoading || !wsId ? (
+          isLoading || liveLoading || !wsId ? (
             <div key={s.label} className="skeleton h-28" />
           ) : (
             <div
@@ -185,7 +231,7 @@ function OwnerHome() {
               </div>
               <p className="mt-2 text-2xl font-semibold tracking-tight">{s.value}</p>
               {s.trend && (
-                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-success">
+                <p className={`mt-1 flex items-center gap-1 text-xs font-medium ${s.trend.startsWith("-") ? "text-destructive" : "text-success"}`}>
                   <TrendingUp className="h-3 w-3" /> {s.trend} this month
                 </p>
               )}
@@ -287,6 +333,7 @@ function OwnerHome() {
       <section className="mt-4 grid gap-4 lg:grid-cols-5">
         <div className={`${cardCls} lg:col-span-3`}>
           <h2 className="mb-3 font-semibold">Recent activity</h2>
+          {activity.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No comments or messages yet.</p>}
           <ul className="divide-y divide-border">
             {activity.map((a, i) => {
               const P = iconFor(a.p);
@@ -317,9 +364,9 @@ function OwnerHome() {
             <h2 className="font-semibold">AI ready to publish</h2>
           </div>
           {visibleAi.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">All caught up. Generate more ideas below.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">No drafts waiting. Write one in Composer and it shows up here for approval.</p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
               {visibleAi.map((p) => {
                 const P = iconFor(p.platform);
                 return (
@@ -352,9 +399,9 @@ function OwnerHome() {
           {isFree ? (
             <Link to="/upgrade" className={`${btnPrimary} mt-4 w-full`}><Lock className="h-4 w-4" /> More AI ideas with Pro</Link>
           ) : (
-            <button onClick={() => setSkipped([])} className={`${btnPrimary} mt-4 w-full`}>
+            <Link to="/composer" className={`${btnPrimary} mt-4 w-full`}>
               <Sparkles className="h-4 w-4" /> Generate more
-            </button>
+            </Link>
           )}
         </div>
       </section>
