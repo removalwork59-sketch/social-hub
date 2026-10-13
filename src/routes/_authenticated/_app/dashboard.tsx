@@ -113,10 +113,11 @@ function OwnerHome() {
   const prevCut = new Date(Date.now() - 59 * 864e5).toISOString().slice(0, 10);
   const recent = (live?.analytics ?? []).filter((r) => r.day >= cutoff);
   const prior = (live?.analytics ?? []).filter((r) => r.day < cutoff && r.day >= prevCut);
-  const byDay = new Map<string, Record<string, number | string>>();
+  type DayRow = { day: string; facebook: number; instagram: number; linkedin: number; twitter: number; google_business?: number };
+  const byDay = new Map<string, DayRow>();
   for (const r of recent) {
     const row = byDay.get(r.day) ?? { day: new Date(r.day).toLocaleDateString(undefined, { day: "numeric", month: "short" }), facebook: 0, instagram: 0, linkedin: 0, twitter: 0 };
-    row[r.platform] = ((row[r.platform] as number) ?? 0) + r.engagement;
+    row[r.platform] = (row[r.platform] ?? 0) + r.engagement;
     byDay.set(r.day, row);
   }
   const series = [...byDay.values()];
@@ -163,7 +164,10 @@ function OwnerHome() {
     const at = new Date(Date.now() + 864e5);
     at.setHours(18, 0, 0, 0);
     const { error } = await supabase.from("posts").update({ status: "scheduled", scheduled_at: at.toISOString() }).eq("id", p.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Scheduled for tomorrow, 6 PM");
     qc.invalidateQueries({ queryKey: ["home-live"] });
     qc.invalidateQueries({ queryKey: ["overview"] });

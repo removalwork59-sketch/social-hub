@@ -212,7 +212,7 @@ function InboxPage() {
                 onClick={async () => {
                   if (!confirm(`Delete ${checked.length} message(s)? This can't be undone.`)) return;
                   const { error } = await supabase.from("inbox_messages").delete().in("id", checked);
-                  if (error) return toast.error(error.message);
+                  if (error) { toast.error(error.message); return; }
                   toast.success("Deleted");
                   setChecked([]);
                   refresh();
