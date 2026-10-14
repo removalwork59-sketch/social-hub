@@ -74,7 +74,7 @@ const postFormat: JsonFormat = {
 type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>; userId: string };
 
 const DAILY_LIMIT: Record<string, number> = { free: 50, pro: 500, business: 5000 };
-type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags" | "best_time" | "trends";
+type Kind = "post" | "reply" | "sentiment" | "moderate" | "hashtags" | "best_time" | "trends" | "preview";
 
 /**
  * Enforces plan limits and records usage.
@@ -107,6 +107,36 @@ function schema(name: string, properties: Record<string, unknown>): JsonFormat {
 }
 const parse = <T,>(s: string): T => JSON.parse(s.replace(/^```(json)?/i, "").replace(/```$/, "").trim()) as T;
 
+type BrandInput = { name?: string; description?: string; tones?: string[]; audiences?: string[]; pillars?: string[]; platforms?: string[]; hashtags?: string[] };
+const strList = (v: unknown, n = 10) => (Array.isArray(v) ? v.slice(0, n).map((x) => String(x).slice(0, 60)) : []);
+function cleanBrand(b: unknown): BrandInput {
+  const o = (b && typeof b === "object" ? b : {}) as Record<string, unknown>;
+  return {
+    name: typeof o["name"] === "string" ? o["name"].slice(0, 80) : "",
+    description: typeof o["description"] === "string" ? o["description"].slice(0, 500) : "",
+    tones: strList(o["tones"], 3), audiences: strList(o["audiences"]), pillars: strList(o["pillars"]), platforms: strList(o["platforms"]), hashtags: strList(o["hashtags"]),
+  };
+}
+function brandBrief(b: BrandInput) {
+  return [
+    b.name && `Brand: ${b.name}`,
+    b.description && `About the brand: ${b.description}`,
+    b.tones?.length && `Brand voice: ${b.tones.join(", ")}`,
+    b.audiences?.length && `Target audience: ${b.audiences.join(", ")}`,
+    b.pillars?.length && `Content pillars: ${b.pillars.join(", ")}`,
+    b.hashtags?.length && `Preferred hashtags (include these): ${b.hashtags.join(" ")}`,
+  ].filter(Boolean).join("\n");
+}
+function parsePost(out: string) {
+  const cleaned = out.replace(/^```(json)?/i, "").replace(/```$/, "").trim();
+  try {
+    const j = JSON.parse(cleaned) as { post?: string; hashtags?: string[]; image?: string };
+    return { post: j.post ?? "", hashtags: (j.hashtags ?? []).slice(0, 10), image: j.image ?? "" };
+  } catch {
+    return { post: cleaned, hashtags: [] as string[], image: "" };
+  }
+}
+
 export const generatePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { workspaceId: string; idea: string; tone: string; platforms: string[] }) => {
@@ -115,19 +145,31 @@ export const generatePost = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     await meter(context, data.workspaceId, "post");
-    const { data: ws } = await context.supabase.from("workspaces").select("brand_description, brand_tone").eq("id", data.workspaceId).maybeSingle();
+    const { data: ws } = await context.supabase.from("workspaces").select("name, brand_description, brand_tone, brand_profile").eq("id", data.workspaceId).maybeSingle();
+    const bp = cleanBrand(ws?.brand_profile);
+    const brief = brandBrief({ ...bp, name: bp.name || ws?.name, description: bp.description || ws?.brand_description || "", tones: bp.tones?.length ? bp.tones : ws?.brand_tone ? ws.brand_tone.split(", ") : [] });
     const out = await chat(
-      "You write social media posts. Return the post body, 8-10 hashtags each starting with #, and a one-sentence image idea.",
-      `${ws?.brand_description ? `About the brand: ${ws.brand_description}\n` : ""}Idea: ${data.idea}\nTone: ${data.tone}\nPlatforms: ${data.platforms.join(", ") || "any"}\nWrite one post with a clear call to action, under 600 characters, without hashtags in the body.`,
+      "You write social media posts in the brand's own voice. Return the post body, 8-10 hashtags each starting with # (use the brand's preferred hashtags first), and a one-sentence image idea.",
+      `${brief ? brief + "\n" : ""}Idea: ${data.idea}\nTone for this post: ${data.tone}\nPlatforms: ${data.platforms.join(", ") || "any"}\nWrite one post with a clear call to action, under 600 characters, without hashtags in the body.`,
       postFormat,
     );
-    const cleaned = out.replace(/^```(json)?/i, "").replace(/```$/, "").trim();
-    try {
-      const j = JSON.parse(cleaned) as { post?: string; hashtags?: string[]; image?: string };
-      return { post: j.post ?? "", hashtags: (j.hashtags ?? []).slice(0, 10), image: j.image ?? "" };
-    } catch {
-      return { post: cleaned, hashtags: [] as string[], image: "" };
-    }
+    return parsePost(out);
+  });
+
+/** Onboarding Step 4 preview: a real AI post from the (unsaved) brand setup. Counts toward the daily cap, not the free monthly posts. */
+export const previewBrandPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { workspaceId: string; brand: unknown; variant: number }) => ({ workspaceId: String(d.workspaceId), brand: cleanBrand(d.brand), variant: Number(d.variant) || 0 }))
+  .handler(async ({ data, context }) => {
+    await meter(context, data.workspaceId, "preview");
+    const b = data.brand;
+    const pillar = b.pillars?.length ? b.pillars[data.variant % b.pillars.length] : "a helpful tip";
+    const out = await chat(
+      "You write social media posts in the brand's own voice. Return the post body, 3-6 hashtags each starting with # (use the brand's preferred hashtags first), and a one-sentence image idea.",
+      `${brandBrief(b)}\nPlatform: ${b.platforms?.[0] ?? "Instagram"}\nTopic: ${pillar}\nWrite one fresh, specific post (variation #${data.variant + 1}) with a clear call to action, under 400 characters, without hashtags in the body.`,
+      postFormat,
+    );
+    return parsePost(out);
   });
 
 export const draftReply = createServerFn({ method: "POST" })
