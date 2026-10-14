@@ -58,3 +58,4 @@
 - [x] Onboarding Step 5: review on screen, wire quick-action cards to real pages, summary shows actual connected accounts + setup status
 - [ ] Real AI post in onboarding Step 4 preview + Composer uses full brand setup
 - [ ] Unified Inbox: messages from connected accounts, replies, scheduled replies (real sync blocked: needs a real connected social account)
+- [x] Composer: write, schedule, post now (already built; 'Create Your First Post' opens it). Reply-to-messages lives in Inbox
