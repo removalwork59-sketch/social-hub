@@ -147,7 +147,7 @@ export const generatePost = createServerFn({ method: "POST" })
     await meter(context, data.workspaceId, "post");
     const { data: ws } = await context.supabase.from("workspaces").select("name, brand_description, brand_tone, brand_profile").eq("id", data.workspaceId).maybeSingle();
     const bp = cleanBrand(ws?.brand_profile);
-    const brief = brandBrief({ ...bp, name: bp.name || ws?.name, description: bp.description || ws?.brand_description || "", tones: bp.tones?.length ? bp.tones : ws?.brand_tone ? ws.brand_tone.split(", ") : [] });
+    const brief = brandBrief({ ...bp, name: bp.name || ws?.name || "", description: bp.description || ws?.brand_description || "", tones: bp.tones?.length ? bp.tones : ws?.brand_tone ? ws.brand_tone.split(", ") : [] });
     const out = await chat(
       "You write social media posts in the brand's own voice. Return the post body, 8-10 hashtags each starting with # (use the brand's preferred hashtags first), and a one-sentence image idea.",
       `${brief ? brief + "\n" : ""}Idea: ${data.idea}\nTone for this post: ${data.tone}\nPlatforms: ${data.platforms.join(", ") || "any"}\nWrite one post with a clear call to action, under 600 characters, without hashtags in the body.`,
