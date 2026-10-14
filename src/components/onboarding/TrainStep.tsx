@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { RefreshCw, Sparkles, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { btnPrimary, cardCls, inputCls } from "@/components/AppShell";
+import { previewBrandPost } from "@/lib/ai.functions";
 
 export type BrandProfile = {
   name: string;
@@ -47,11 +50,27 @@ const BODIES: Record<string, string> = {
   "Fun content": "we asked our team their favourite emoji. The results were chaotic",
 };
 
-export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandProfile; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
+export function TrainStep({ initial, workspaceId, onBack, onSkip, onSave }: { initial: BrandProfile; workspaceId?: string; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
   const [p, setP] = useState(initial);
   const [tag, setTag] = useState("");
   const [seed, setSeed] = useState(0);
+  const [ai, setAi] = useState<{ post: string; hashtags: string[]; image: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const gen = useServerFn(previewBrandPost);
   const set = <K extends keyof BrandProfile>(k: K, v: BrandProfile[K]) => setP({ ...p, [k]: v });
+  const canAi = !!workspaceId && !!p.name.trim() && !!p.description.trim();
+
+  async function writeWithAi() {
+    if (!workspaceId) return;
+    setBusy(true);
+    try {
+      setAi(await gen({ data: { workspaceId, brand: p, variant: seed } }));
+      setSeed((s) => s + 1);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI failed");
+    }
+    setBusy(false);
+  }
 
   const preview = useMemo(() => {
     const tone = p.tones[seed % Math.max(p.tones.length, 1)] ?? "Casual";
@@ -63,6 +82,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
     const tags = (p.hashtags.length ? p.hashtags : ["#" + (p.name || "YourBrand").replace(/\s+/g, "")]).slice(0, 4).join(" ");
     return `${opener} ${p.name ? `At ${p.name}, ` : ""}${body}${who}.\n\n${p.description ? p.description.split(/[.!?]/)[0] + "." : ""}\n\n👉 Tell us what you think below!\n\n${tags}`;
   }, [p, seed]);
+  const shown = ai ? `${ai.post}\n\n${ai.hashtags.join(" ")}` : preview;
 
   function addTag() {
     const t = tag.trim().replace(/^#?/, "#").replace(/\s+/g, "");
