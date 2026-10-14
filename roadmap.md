@@ -59,3 +59,4 @@
 - [ ] Real AI post in onboarding Step 4 preview + Composer uses full brand setup
 - [ ] Unified Inbox: messages from connected accounts, replies, scheduled replies (real sync blocked: needs a real connected social account)
 - [x] Composer: write, schedule, post now (already built; 'Create Your First Post' opens it). Reply-to-messages lives in Inbox
+- [ ] GitHub: push project to public repo (blocked: git push is done by Lovable's GitHub sync, not by the agent)

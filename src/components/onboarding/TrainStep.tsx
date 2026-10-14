@@ -50,7 +50,7 @@ const BODIES: Record<string, string> = {
   "Fun content": "we asked our team their favourite emoji. The results were chaotic",
 };
 
-export function TrainStep({ initial, workspaceId, onBack, onSkip, onSave }: { initial: BrandProfile; workspaceId?: string; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
+export function TrainStep({ initial, workspaceId, onBack, onSkip, onSave }: { initial: BrandProfile; workspaceId?: string | undefined; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
   const [p, setP] = useState(initial);
   const [tag, setTag] = useState("");
   const [seed, setSeed] = useState(0);
