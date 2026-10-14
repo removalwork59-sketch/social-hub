@@ -256,6 +256,7 @@ function Onboarding() {
           {step === 4 && (
             <TrainStep
               initial={{ name: current?.name ?? "", description: current?.brand_description ?? "", tones: current?.brand_tone ? current.brand_tone.split(", ") : [], audiences: [], pillars: [], frequency: "3 posts/week", platforms: ONB_PLATFORMS.filter((p) => (p.db ? accounts.some((a) => a.platform === p.db) : localDone.includes(p.id))).map((p) => (p.id === "twitter" ? "X" : p.label)), hashtags: [] }}
+              workspaceId={current?.id}
               onBack={() => setStep(3)}
               onSkip={() => finish(null)}
               onSave={(bp) => finish(bp)}

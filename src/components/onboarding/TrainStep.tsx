@@ -153,17 +153,17 @@ export function TrainStep({ initial, workspaceId, onBack, onSkip, onSave }: { in
         <aside className={`${cardCls} h-fit lg:sticky lg:top-6`}>
           <div className="mb-3 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI Preview</span>
-            <button onClick={() => setSeed((s) => s + 1)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"><RefreshCw className="h-3.5 w-3.5" /> Regenerate</button>
+            <button disabled={!canAi || busy} onClick={writeWithAi} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40"><RefreshCw className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} /> {ai ? "Regenerate" : "Write with AI"}</button>
           </div>
           <div className="rounded-xl border border-border bg-background p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-primary text-xs font-semibold text-primary-foreground">{(p.name || "Y")[0]}</div>
               <span className="text-sm font-semibold">@{(p.name || "yourbrand").toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
             </div>
-            <p key={preview} className="animate-rise whitespace-pre-wrap text-sm">{preview}</p>
-            <div className="mt-3 grid aspect-video place-items-center rounded-lg bg-muted text-xs text-muted-foreground">Image preview</div>
+            {busy ? <div className="space-y-2"><div className="skeleton h-4" /><div className="skeleton h-4" /><div className="skeleton h-4 w-2/3" /></div> : <p key={shown} className="animate-rise whitespace-pre-wrap text-sm">{shown}</p>}
+            <div className="mt-3 grid aspect-video place-items-center rounded-lg bg-muted p-3 text-center text-xs text-muted-foreground">{ai?.image ? `Image idea: ${ai.image}` : "Image preview"}</div>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Fill in brand name, description, a tone and a platform to continue. A sample built from your choices. Real AI posts in the Composer use these settings too.</p>
+          <p className="mt-2 text-xs text-muted-foreground">{ai ? "Written by AI from your brand setup." : canAi ? "Sample layout — press Write with AI for a real post in your voice." : "Add a brand name and description to let AI write a real post."} The Composer uses these same settings.</p>
         </aside>
       </div>
 
