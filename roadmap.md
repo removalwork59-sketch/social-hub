@@ -56,3 +56,7 @@
 - [x] Super Admin: Add Partner, Add Client, Billing & Payouts save real data
 - [ ] Inbox replies to real platform messages + Home activity (blocked: needs a real connected social account)
 - [x] Onboarding Step 5: review on screen, wire quick-action cards to real pages, summary shows actual connected accounts + setup status
+- [x] Real AI post in onboarding Step 4 preview + Composer uses full brand setup (live test blocked: AI credits used up)
+- [ ] Unified Inbox: messages from connected accounts, replies, scheduled replies (real sync blocked: needs a real connected social account)
+- [x] Composer: write, schedule, post now (already built; 'Create Your First Post' opens it). Reply-to-messages lives in Inbox
+- [ ] GitHub: push project to public repo (blocked: git push is done by Lovable's GitHub sync, not by the agent)

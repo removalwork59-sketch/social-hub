@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { RefreshCw, Sparkles, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { btnPrimary, cardCls, inputCls } from "@/components/AppShell";
+import { previewBrandPost } from "@/lib/ai.functions";
 
 export type BrandProfile = {
   name: string;
@@ -47,11 +50,27 @@ const BODIES: Record<string, string> = {
   "Fun content": "we asked our team their favourite emoji. The results were chaotic",
 };
 
-export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandProfile; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
+export function TrainStep({ initial, workspaceId, onBack, onSkip, onSave }: { initial: BrandProfile; workspaceId?: string | undefined; onBack: () => void; onSkip: () => void; onSave: (p: BrandProfile) => void }) {
   const [p, setP] = useState(initial);
   const [tag, setTag] = useState("");
   const [seed, setSeed] = useState(0);
+  const [ai, setAi] = useState<{ post: string; hashtags: string[]; image: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const gen = useServerFn(previewBrandPost);
   const set = <K extends keyof BrandProfile>(k: K, v: BrandProfile[K]) => setP({ ...p, [k]: v });
+  const canAi = !!workspaceId && !!p.name.trim() && !!p.description.trim();
+
+  async function writeWithAi() {
+    if (!workspaceId) return;
+    setBusy(true);
+    try {
+      setAi(await gen({ data: { workspaceId, brand: p, variant: seed } }));
+      setSeed((s) => s + 1);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI failed");
+    }
+    setBusy(false);
+  }
 
   const preview = useMemo(() => {
     const tone = p.tones[seed % Math.max(p.tones.length, 1)] ?? "Casual";
@@ -63,6 +82,7 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
     const tags = (p.hashtags.length ? p.hashtags : ["#" + (p.name || "YourBrand").replace(/\s+/g, "")]).slice(0, 4).join(" ");
     return `${opener} ${p.name ? `At ${p.name}, ` : ""}${body}${who}.\n\n${p.description ? p.description.split(/[.!?]/)[0] + "." : ""}\n\n👉 Tell us what you think below!\n\n${tags}`;
   }, [p, seed]);
+  const shown = ai ? `${ai.post}\n\n${ai.hashtags.join(" ")}` : preview;
 
   function addTag() {
     const t = tag.trim().replace(/^#?/, "#").replace(/\s+/g, "");
@@ -133,17 +153,17 @@ export function TrainStep({ initial, onBack, onSkip, onSave }: { initial: BrandP
         <aside className={`${cardCls} h-fit lg:sticky lg:top-6`}>
           <div className="mb-3 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" /> AI Preview</span>
-            <button onClick={() => setSeed((s) => s + 1)} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"><RefreshCw className="h-3.5 w-3.5" /> Regenerate</button>
+            <button disabled={!canAi || busy} onClick={writeWithAi} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40"><RefreshCw className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} /> {ai ? "Regenerate" : "Write with AI"}</button>
           </div>
           <div className="rounded-xl border border-border bg-background p-4">
             <div className="mb-2 flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-primary text-xs font-semibold text-primary-foreground">{(p.name || "Y")[0]}</div>
               <span className="text-sm font-semibold">@{(p.name || "yourbrand").toLowerCase().replace(/[^a-z0-9]/g, "")}</span>
             </div>
-            <p key={preview} className="animate-rise whitespace-pre-wrap text-sm">{preview}</p>
-            <div className="mt-3 grid aspect-video place-items-center rounded-lg bg-muted text-xs text-muted-foreground">Image preview</div>
+            {busy ? <div className="space-y-2"><div className="skeleton h-4" /><div className="skeleton h-4" /><div className="skeleton h-4 w-2/3" /></div> : <p key={shown} className="animate-rise whitespace-pre-wrap text-sm">{shown}</p>}
+            <div className="mt-3 grid aspect-video place-items-center rounded-lg bg-muted p-3 text-center text-xs text-muted-foreground">{ai?.image ? `Image idea: ${ai.image}` : "Image preview"}</div>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Fill in brand name, description, a tone and a platform to continue. A sample built from your choices. Real AI posts in the Composer use these settings too.</p>
+          <p className="mt-2 text-xs text-muted-foreground">{ai ? "Written by AI from your brand setup." : canAi ? "Sample layout — press Write with AI for a real post in your voice." : "Add a brand name and description to let AI write a real post."} The Composer uses these same settings.</p>
         </aside>
       </div>
 
