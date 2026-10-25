@@ -60,3 +60,8 @@
 - [ ] Unified Inbox: messages from connected accounts, replies, scheduled replies (real sync blocked: needs a real connected social account)
 - [x] Composer: write, schedule, post now (already built; 'Create Your First Post' opens it). Reply-to-messages lives in Inbox
 - [x] GitHub: pushed project to public repo github.com/removalwork59-sketch/socialos (main @ 5b4e3b3) via GitHub API connector
+- [x] Export users (profiles) to CSV — passwords can't be exported; users reset password in hosted app
+- [ ] Import users into hosted app (blocked: hosted app's own backend not set up yet)
+- [ ] Wire Inbox replies + scheduled posts to real social accounts (blocked: no real social account connected)
+- [ ] Run hosted copy locally and check every page incl. AI preview (AI preview blocked: AI credits used up)
+- [ ] Plan moving database + AI out of Lovable
