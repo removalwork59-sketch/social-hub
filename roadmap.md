@@ -65,3 +65,4 @@
 - [ ] Wire Inbox replies + scheduled posts to real social accounts (blocked: no real social account connected)
 - [ ] Run hosted copy locally and check every page incl. AI preview (AI preview blocked: AI credits used up)
 - [ ] Plan moving database + AI out of Lovable
+- [ ] Build real social account connections for Inbox replies and scheduled publishing
