@@ -66,3 +66,5 @@
 - [ ] Run hosted copy locally and check every page incl. AI preview (blocked: localhost auth CORS redirects signed-in pages to sign-in; AI preview also needs credits)
 - [ ] Plan moving database + AI out of Lovable
 - [ ] Build real social account connections for Inbox replies and scheduled publishing (blocked: LinkedIn connector setup was declined; no LinkedIn/X OAuth clients configured)
+
+- [ ] Move workspaces, posts, partners and user login data to an independently hosted database/auth service (blocked: destination provider/credentials and profile-data requirements not confirmed)
