@@ -63,6 +63,8 @@
 - [x] Export users (profiles) to CSV — passwords can't be exported; users reset password in hosted app
 - [ ] Import users into hosted app (blocked: hosted app's own backend not set up yet)
 - [ ] Wire Inbox replies + scheduled posts to real social accounts (blocked: no real social account connected)
-- [ ] Run hosted copy locally and check every page incl. AI preview (AI preview blocked: AI credits used up)
+- [ ] Run hosted copy locally and check every page incl. AI preview (blocked: localhost auth CORS redirects signed-in pages to sign-in; AI preview also needs credits)
 - [ ] Plan moving database + AI out of Lovable
-- [ ] Build real social account connections for Inbox replies and scheduled publishing
+- [ ] Build real social account connections for Inbox replies and scheduled publishing (blocked: LinkedIn connector setup was declined; no LinkedIn/X OAuth clients configured)
+
+- [ ] Move workspaces, posts, partners and user login data to an independently hosted database/auth service (blocked: destination provider/credentials and profile-data requirements not confirmed)
